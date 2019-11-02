@@ -1,0 +1,1047 @@
+{
+	"auto_complete":
+	{
+		"selected_items":
+		[
+			[
+				"feca",
+				"fechacambio"
+			],
+			[
+				"or",
+				"order"
+			],
+			[
+				"la",
+				"lagentecambio"
+			],
+			[
+				"tipo",
+				"tipocambio"
+			],
+			[
+				"text",
+				"text-align"
+			],
+			[
+				"back",
+				"background-color"
+			],
+			[
+				"fon",
+				"font-size"
+			],
+			[
+				"wi",
+				"width"
+			],
+			[
+				"font",
+				"font-family"
+			],
+			[
+				"bac",
+				"background-color"
+			],
+			[
+				"old",
+				"oldvuelo"
+			],
+			[
+				"id",
+				"idvuelo"
+			],
+			[
+				"agen",
+				"agente1"
+			],
+			[
+				"age",
+				"agente1"
+			],
+			[
+				"fli",
+				"flight"
+			],
+			[
+				"assignment",
+				"assignments"
+			],
+			[
+				"inputAg",
+				"inputAgent1"
+			],
+			[
+				"resul",
+				"result_array"
+			],
+			[
+				"inputA",
+				"inputAgenteIdPos"
+			],
+			[
+				"inpu",
+				"inputAgenteIdPos"
+			],
+			[
+				"frm",
+				"frmAgentPositionData"
+			],
+			[
+				"input",
+				"inputPositionAgent"
+			],
+			[
+				"type",
+				"typeahead"
+			],
+			[
+				"posi",
+				"Positions"
+			],
+			[
+				"inputPo",
+				"inputPositionAgent"
+			],
+			[
+				"agente",
+				"agenteid"
+			],
+			[
+				"lid",
+				"lidempresa"
+			],
+			[
+				"btn",
+				"btnGetPDF"
+			],
+			[
+				"pos",
+				"posday"
+			],
+			[
+				"wee",
+				"weekdayisok"
+			],
+			[
+				"week",
+				"weekday"
+			],
+			[
+				"weekday",
+				"weekdayisok"
+			],
+			[
+				"sh",
+				"show"
+			],
+			[
+				"lposi",
+				"lposicion2"
+			],
+			[
+				"lag",
+				"lagente2"
+			],
+			[
+				"lage",
+				"lagente1"
+			],
+			[
+				"inp",
+				"inputIdOficina"
+			],
+			[
+				"Load",
+				"Loadimpresionmensual_view"
+			],
+			[
+				"Webcun",
+				"Webcunop_model"
+			],
+			[
+				"num",
+				"num_rows"
+			],
+			[
+				"Fill",
+				"Fillcunopdate_model"
+			],
+			[
+				"ofici",
+				"oficina"
+			],
+			[
+				"aria",
+				"aria-valuenow"
+			],
+			[
+				"fecha",
+				"fechaini"
+			],
+			[
+				"strto",
+				"strtotime"
+			],
+			[
+				"for",
+				"foreach\tforeach …"
+			],
+			[
+				"fun",
+				"function"
+			],
+			[
+				"F",
+				"Fillcunopdate_model"
+			],
+			[
+				"in",
+				"inputAgentId"
+			],
+			[
+				"pu",
+				"push"
+			],
+			[
+				"posici",
+				"posicionesvuelos"
+			],
+			[
+				"butt",
+				"btnSubmitDataNew"
+			],
+			[
+				"but",
+				"btnSubmitDataEdit"
+			],
+			[
+				"Pos",
+				"Posicionesvuelos_model"
+			],
+			[
+				"sinasig",
+				"sinasignar"
+			],
+			[
+				"asig",
+				"asignados"
+			],
+			[
+				"asi",
+				"asignadosvsvuelos"
+			],
+			[
+				"Vuelo",
+				"Vuelosposiciones_model"
+			],
+			[
+				"li",
+				"lidoficina"
+			],
+			[
+				"hora",
+				"horafin"
+			],
+			[
+				"time",
+				"timezone"
+			],
+			[
+				"po",
+				"posicion"
+			],
+			[
+				"idvu",
+				"idvuelo"
+			],
+			[
+				"LoadVuelo",
+				"LoadVueloCode"
+			],
+			[
+				"i",
+				"idoficina"
+			],
+			[
+				"d",
+				"departure"
+			],
+			[
+				"idv",
+				"idvuelocode"
+			],
+			[
+				"Lo",
+				"LoadVueloCode"
+			],
+			[
+				"login",
+				"login_model"
+			],
+			[
+				"visit",
+				"visitortimezone"
+			],
+			[
+				"visi",
+				"visitortimezone"
+			],
+			[
+				"print",
+				"print_r"
+			],
+			[
+				"ida",
+				"idagente"
+			],
+			[
+				"Loadim",
+				"Loadimpresionmensual_model"
+			],
+			[
+				"token",
+				"tokencount"
+			],
+			[
+				"line",
+				"linecount"
+			],
+			[
+				"IDAGENT",
+				"idagente"
+			],
+			[
+				"print_",
+				"print_r"
+			],
+			[
+				"push",
+				"array_push"
+			],
+			[
+				"q",
+				"qdate"
+			],
+			[
+				"inputId",
+				"inputIdOficina"
+			]
+		]
+	},
+	"buffers":
+	[
+		{
+			"file": "application/controllers/Timeswitch.php",
+			"settings":
+			{
+				"buffer_size": 47432,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/controllers/Fillcunopdate.php",
+			"settings":
+			{
+				"buffer_size": 11711,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/controllers/Login.php",
+			"settings":
+			{
+				"buffer_size": 5695,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/models/Perfectattendance_model.php",
+			"settings":
+			{
+				"buffer_size": 2551,
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/controllers/Naranjas.php",
+			"settings":
+			{
+				"buffer_size": 3270,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/config/autoload.php",
+			"settings":
+			{
+				"buffer_size": 3789,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/models/Login_model.php",
+			"settings":
+			{
+				"buffer_size": 1770,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/views/Login_view.php",
+			"settings":
+			{
+				"buffer_size": 3955,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/models/Webcunop_model.php",
+			"settings":
+			{
+				"buffer_size": 31787,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		},
+		{
+			"file": "application/views/TimeswitchAuthorize_view.php",
+			"settings":
+			{
+				"buffer_size": 16845,
+				"encoding": "UTF-8",
+				"line_ending": "Unix"
+			}
+		}
+	],
+	"build_system": "",
+	"build_system_choices":
+	[
+	],
+	"build_varint": "",
+	"command_palette":
+	{
+		"height": 267.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"Package Control: Install Package"
+			]
+		],
+		"width": 575.0
+	},
+	"console":
+	{
+		"height": 125.0,
+		"history":
+		[
+		]
+	},
+	"distraction_free":
+	{
+		"menu_visible": true,
+		"show_minimap": false,
+		"show_open_files": false,
+		"show_tabs": false,
+		"side_bar_visible": false,
+		"status_bar_visible": false
+	},
+	"expanded_folders":
+	[
+		"/Users/xavieralfeiran/Documents/Mindware/apps",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/images",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/webapp"
+	],
+	"file_history":
+	[
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/config/database.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/config/config.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/config/autoload.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Login_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/.htaccess",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/sftp-config.json",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Fillcunopdate_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Fillcunopdate.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Webcunop_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Timeswitch.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Timeswitch_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Admin_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Timeswitch_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/PendingTimeswitch_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Fillcunopdate_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/TimeswitchAuthorize_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Vuelos.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Login.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Webcunop_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Webcunop.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Polls_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Polls.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Polls_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/PerfectAttendance_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Loadimpresionmensual_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/TimeswitchAccept_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Admin.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Agentes_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Loadleadsmensual.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Monitorop.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Monitorop_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/gu/sftp-config.json",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Posiciones_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Posicionesvuelos_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/PosicionesVuelos.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/paginas/header.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/js/bootstrap.min.js",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/images/favicon.png",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/PosicionesVuelos_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Agentes_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Cando.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Vuelos_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Cando_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/js/typeahead.min.js",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/js/typeahead.js",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Cando_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Agentes.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Login_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/PosicionesVuelos_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/pdfcunop_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/1pdf.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/phpToPDF.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Vuelosposiciones_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Posicionesvuelos.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Posicionesvuelos_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Vuelos_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Descansos_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Config_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Jornadas.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/css/sticky-footer-navbar.css",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/css/navbar-fixed-top.css",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Jornadas_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Puestos_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Posiciones_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/js/bootstrap-waitingfor.js",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/paginas/footer.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/js/bootstrap-waitingfor.min.js",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/images/loading.gif",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Posiciones.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Puestos.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Puestos_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/Loadimpresionmensual_view.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Loadimpresionmensual.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/paginas/upload_success.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/views/paginas/header1.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/images/aa-logo.png",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/js/moment.js",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/assets/js/jquery.hotkey.js",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/js/jquery.hotkey.js",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Storms_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Storms.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Descansos_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Config_model.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/VuelosPosiciones.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/config/foreign_chars.php",
+		"/Users/xavieralfeiran/Downloads/HORARIO ABRIL 2016 INICIAL.csv",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/controllers/Descansos.php",
+		"/Users/xavieralfeiran/Documents/Mindware/apps/application/models/Admin_model.php"
+	],
+	"find":
+	{
+		"height": 39.0
+	},
+	"find_in_files":
+	{
+		"height": 0.0,
+		"where_history":
+		[
+		]
+	},
+	"find_state":
+	{
+		"case_sensitive": false,
+		"find_history":
+		[
+			"monitorop",
+			"session",
+			"coordinador",
+			"Processdates",
+			"process",
+			"getAgentsCo",
+			"goRemove",
+			"modal",
+			"goRemove",
+			"clic",
+			"kind",
+			"clic",
+			"getAgentDaysOffDate",
+			"get",
+			"cunop_distribucionvuelos",
+			"estimatedDep",
+			"FLIFO",
+			"$timezone",
+			"timezone",
+			"chill",
+			"m/d/Y",
+			"loadRowAgentPosition",
+			"test",
+			"coord",
+			"calendar",
+			"inputFechalimite",
+			"test",
+			"calendar",
+			"birthday",
+			"timezo",
+			"warning",
+			"btnCancel",
+			"btnCancelPosition",
+			"request",
+			"btnSubmit",
+			"idagent3",
+			"inputUsuario",
+			"inputFlightDate",
+			"inputPosicion1",
+			"divloading",
+			"impression"
+		],
+		"highlight": true,
+		"in_selection": false,
+		"preserve_case": false,
+		"regex": false,
+		"replace_history":
+		[
+		],
+		"reverse": false,
+		"show_context": true,
+		"use_buffer2": true,
+		"whole_word": false,
+		"wrap": true
+	},
+	"groups":
+	[
+		{
+			"selected": 4,
+			"sheets":
+			[
+				{
+					"buffer": 0,
+					"file": "application/controllers/Timeswitch.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 47432,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								41575,
+								41575
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 16888.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 7,
+					"type": "text"
+				},
+				{
+					"buffer": 1,
+					"file": "application/controllers/Fillcunopdate.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 11711,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 766.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 6,
+					"type": "text"
+				},
+				{
+					"buffer": 2,
+					"file": "application/controllers/Login.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 5695,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1257,
+								1257
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 521.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 2,
+					"type": "text"
+				},
+				{
+					"buffer": 3,
+					"file": "application/models/Perfectattendance_model.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 2551,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 731.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 1,
+					"type": "text"
+				},
+				{
+					"buffer": 4,
+					"file": "application/controllers/Naranjas.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3270,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								720,
+								720
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 650.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 0,
+					"type": "text"
+				},
+				{
+					"buffer": 5,
+					"file": "application/config/autoload.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3789,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								1834,
+								1834
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 393.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 3,
+					"type": "text"
+				},
+				{
+					"buffer": 6,
+					"file": "application/models/Login_model.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 1770,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								566,
+								566
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 4,
+					"type": "text"
+				},
+				{
+					"buffer": 7,
+					"file": "application/views/Login_view.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 3955,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"tab_size": 2,
+							"translate_tabs_to_spaces": true
+						},
+						"translation.x": 0.0,
+						"translation.y": 734.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 5,
+					"type": "text"
+				},
+				{
+					"buffer": 8,
+					"file": "application/models/Webcunop_model.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 31787,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								31787,
+								31787
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax",
+							"translate_tabs_to_spaces": false
+						},
+						"translation.x": 0.0,
+						"translation.y": 11702.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 8,
+					"type": "text"
+				},
+				{
+					"buffer": 9,
+					"file": "application/views/TimeswitchAuthorize_view.php",
+					"semi_transient": false,
+					"settings":
+					{
+						"buffer_size": 16845,
+						"regions":
+						{
+						},
+						"selection":
+						[
+							[
+								0,
+								0
+							]
+						],
+						"settings":
+						{
+							"incomplete_sync": null,
+							"remote_loading": false,
+							"synced": false,
+							"syntax": "Packages/PHP/PHP.sublime-syntax"
+						},
+						"translation.x": 0.0,
+						"translation.y": 0.0,
+						"zoom_level": 1.0
+					},
+					"stack_index": 9,
+					"type": "text"
+				}
+			]
+		}
+	],
+	"incremental_find":
+	{
+		"height": 24.0
+	},
+	"input":
+	{
+		"height": 31.0
+	},
+	"layout":
+	{
+		"cells":
+		[
+			[
+				0,
+				0,
+				1,
+				1
+			]
+		],
+		"cols":
+		[
+			0.0,
+			1.0
+		],
+		"rows":
+		[
+			0.0,
+			1.0
+		]
+	},
+	"menu_visible": true,
+	"output.find_results":
+	{
+		"height": 0.0
+	},
+	"output.sftp":
+	{
+		"height": 124.0
+	},
+	"pinned_build_system": "",
+	"project": "aa.sublime-project",
+	"replace":
+	{
+		"height": 44.0
+	},
+	"save_all_on_build": true,
+	"select_file":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"select_project":
+	{
+		"height": 500.0,
+		"last_filter": "",
+		"selected_items":
+		[
+			[
+				"",
+				"/Users/xavieralfeiran/Documents/Mindware/gu/gu.sublime-project"
+			]
+		],
+		"width": 380.0
+	},
+	"select_symbol":
+	{
+		"height": 0.0,
+		"last_filter": "",
+		"selected_items":
+		[
+		],
+		"width": 0.0
+	},
+	"selected_group": 0,
+	"settings":
+	{
+	},
+	"show_minimap": true,
+	"show_open_files": false,
+	"show_tabs": true,
+	"side_bar_visible": true,
+	"side_bar_width": 242.0,
+	"status_bar_visible": true,
+	"template_settings":
+	{
+	}
+}
