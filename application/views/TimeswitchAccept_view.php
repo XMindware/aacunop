@@ -64,7 +64,7 @@
             <div id="divFinalStep">
             	 <fieldset required="required" style="text-align: center">
                     <legend>Shift Request Received. Please Review and Choose Action.</legend>
-               
+               		
                     <div class='col-sm-3 col-xs-6'>
 	                    <div class='form-group'>
 	                       <label for="inputFechaIni">Date Selected</label>
@@ -96,6 +96,18 @@
 		                       <input class="form-control" id="inputlIdSolicitant" name="inputlIdSolicitant" value="<? echo $request->idagente; ?>" size="30" type="hidden" />
 		                </div>
 		            </div> 
+		            <div class='col-sm-3 col-xs-6'>
+		                <div class='form-group'>
+		                    <label for="inputSolicitant">In case the trade is going to be declined, please provide a reason</label>
+		                       <input class="form-control" id="inputDeclineReason" name="inputDeclineReason" size="30" type="text" />
+		                       
+		                </div>
+		            </div> 
+		            <div class='col-sm-12'>
+		            	<div class='form-group'>
+		            		<label id="lblInfo" style="color:red;"></label>
+		            	</div>
+		            </div>
                     <div class='col-sm-12'>
                         <div class='form-group'>
                             <button type="button" id="btnAcceptRequest" class="btn btn-success">Accept Request</button>
@@ -169,6 +181,21 @@
             display : 'name',
             val : 'id'
         });
+
+		var umbral = moment.utc('<? echo $limite; ?>');
+        console.log(umbral);
+        console.log(moment().format('DD/MM/YYYY HH:mm'));
+		console.log(moment().isSameOrBefore(umbral));
+		if(moment().isBefore(umbral)){
+			$("#lblInfo").text('You have until ' + moment.utc('<? echo $limite; ?>').local().format('DD/MM/YYYY HH:mm') + ' to accept the current request.');
+		}
+		else
+		{
+			$("#lblInfo").text('This request is has expired');
+			$("#btnAcceptRequest").prop('disabled',true);
+		}
+        
+		
 		// inicializar el calendario
 
 		var date = new Date();
@@ -330,6 +357,18 @@
 	     });
 		
 		$("#btnAcceptRequest").click(function(){
+
+			
+			var umbral = moment.utc('<? echo $limite; ?>');
+	        console.log(umbral);
+	        console.log(moment().format('DD/MM/YYYY HH:mm'));
+			console.log(moment().isSameOrBefore(umbral));
+
+	  		if(!moment().isBefore(umbral))
+	  		{
+	  			$("#lblInfo").text('This Request has expired');
+	  			return;
+	  		}
 			
 			var lrequestid = $("#inputRequestId").val();
 			
@@ -340,6 +379,54 @@
 			
 			var request = $.ajax({
 				url: '<? echo base_url();?>timeswitch/acceptrequestagent',
+				type: 'POST',
+				data: agent,
+				beforeSend:function(){
+					console.log('sending...');
+					$('#myPleaseWait').modal('show');
+				},
+				success:function(result){
+					
+					console.log('sent!');
+					$('#myPleaseWait').modal('hide');
+					document.location = '<? echo base_url();?>admin';
+				}, 
+				error:function(exception){console.log(exception);}
+				
+			});
+			
+			request.fail(function( jqXHR, textStatus ) {
+  			console.log( "Request failed: " + textStatus );
+			});
+			
+		});
+
+
+		$("#btnDeclineRequest").click(function(){
+
+			
+			var umbral = moment.utc('<? echo $limite; ?>');
+	        console.log(umbral);
+	        console.log(moment().format('DD/MM/YYYY HH:mm'));
+			console.log(moment().isSameOrBefore(umbral));
+
+	  		if(!moment().isBefore(umbral))
+	  		{
+	  			$("#lblInfo").text('This Request has expired');
+	  			return;
+	  		}
+			
+			var lrequestid = $("#inputRequestId").val();
+			var lreason = $("#inputDeclineReason").val();
+			
+			var agent = {
+				 requestid : lrequestid,
+				 reason : lreason
+				 };
+	
+			
+			var request = $.ajax({
+				url: '<? echo base_url();?>timeswitch/declineRequest',
 				type: 'POST',
 				data: agent,
 				beforeSend:function(){

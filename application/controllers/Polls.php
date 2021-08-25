@@ -78,7 +78,7 @@ class Polls extends CI_Controller {
 		$idoficina = $this->input->post('idoficina');
 		$idempresa = $this->input->post('idempresa');
 		
-		$this->Castigados_model->DeleteRow($idempresa,$idoficina,$uniqueid);
+		$this->Polls_model->DeleteRow($idempresa,$idoficina,$uniqueid);
 
 		$data = array( 'status' => 'OK' );
 		header('Content-type: application/json; charset=utf-8');
@@ -104,8 +104,10 @@ class Polls extends CI_Controller {
 		$idagente = $this->session->userdata('idagente');
 		$opcion = $this->input->post("opcion");
 		$texto = $this->input->post("texto");
+		$idempresa = $this->session->userdata('idempresa');
+		$idoficina = $this->session->userdata('idoficina');
 
-		$insert = $this->Polls_model->PostPollRecord($pollid, $idagente, $opcion, $texto);
+		$insert = $this->Polls_model->PostPollRecord($idempresa,$idoficina,$pollid, $idagente, $opcion, $texto);
 		
 		$data = isset($insert->status)?'OK':'ERROR';
 
@@ -128,9 +130,23 @@ class Polls extends CI_Controller {
 		$opcion4 = $this->input->post("opcion4");
 		$opcion5 = $this->input->post("opcion5");
 		$opcion6 = $this->input->post("opcion6");
+		$opcion7 = $this->input->post("opcion7");
+		$opcion8 = $this->input->post("opcion8");
+		$opcion9 = $this->input->post("opcion9");
+		$opcion10 = $this->input->post("opcion10");
+		$opcion11 = $this->input->post("opcion11");
+		$opcion12 = $this->input->post("opcion12");
+		$opcion13 = $this->input->post("opcion13");
+		$opcion14 = $this->input->post("opcion14");
+		$opcion15 = $this->input->post("opcion15");
+		$opcion16 = $this->input->post("opcion16");
+		$opcion17 = $this->input->post("opcion17");
+		$opcion18 = $this->input->post("opcion18");
+		$opcion19 = $this->input->post("opcion19");
+		$opcion20 = $this->input->post("opcion20");
 		$usuario = $this->session->userdata("shortname");
 
-		$insert = $this->Polls_model->PostRow($idempresa, $idoficina, $uniqueid, $nombre, $descripcion, $fechainicio, $fechalimite, $opcion1, $opcion2, $opcion3, $opcion4, $opcion5, $opcion6, $usuario);
+		$insert = $this->Polls_model->PostRow($idempresa, $idoficina, $uniqueid, $nombre, $descripcion, $fechainicio, $fechalimite, $opcion1, $opcion2, $opcion3, $opcion4, $opcion5, $opcion6, $opcion7, $opcion8, $opcion9, $opcion10, $opcion11, $opcion12, $opcion13, $opcion14, $opcion15, $opcion16, $opcion17, $opcion18, $opcion19, $opcion20,  $usuario);
 		
 		$data = isset($insert->status)?'OK':'ERROR';
 

@@ -106,12 +106,30 @@
 			                </div>
 			            </div>
 			        </div>
-                    <div class='col-sm-12'>
-                        <div class='form-group'>
-                        	
+			        <div class="row">
+			        	<div class='col-sm-4'>
+			        		<label for="inputFechaRequested">Date Requested</label>
+			                       <input class="form-control" id="inputFechaRequested" name="inputFechaRequested" size="20" value="<? echo $request->fechasolicitud; ?>" type="text" readonly />
+			        	</div>
+			        	<div class='col-sm-4'>
+			        		<label for="inputFechaAccept">Date Accepted</label>
+			                       <input class="form-control" id="inputFechaAccept" name="inputFechaAccept" size="20" value="<?
+			                       	$IST = new DateTime($request->fechaacepta, new DateTimeZone('UTC'));
+
+								    // change the timezone of the object without changing it's time
+								    $IST->setTimezone(new DateTimeZone('America/Cancun'));
+
+								    // format the datetime
+								   	echo $IST->format('Y-m-d H:i:s T');
+			                        ?>" type="text" readonly />
+			        	</div>
+			        </div>
+			        <div class="row" style="margin-top: 20px;">
+	                    <div class='col-sm-8'>
                             <button type="button" id="btnAuthorizeRequest" class="btn btn-success">Authorize Request</button>
                             <button type="button" id="btnDeclineRequest" class="btn btn-default">Decline</button>
-                        </div>
+                        
+	                    </div>
                     </div>        
                 </fieldset>
             </div>
@@ -363,11 +381,10 @@
 	     });
 		
 		$("#btnAuthorizeRequest").click(function(){
-
 			if(<?
         		if($request->tipocambio == 'Cover' )
-        			if($solicitante['puesto'] == 'LEAD')
-        				if(!$coordinador)
+        			if($solicitante[0]['puesto'] == 'LEAD')
+        				if($coordinador == 'NO')
         					echo 1;
         				else
         					echo 0;

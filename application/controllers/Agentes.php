@@ -1,5 +1,10 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
+
+require('assets/aws/aws-autoloader.php');
+use Aws\Ses\SesClient;
+use Aws\Exception\AwsException;
+
 error_reporting(E_ERROR | E_PARSE);
 /**
  *	Controller de Agentes
@@ -154,6 +159,27 @@ class Agentes extends CI_Controller {
 			$this->response($this->json($error), 400);
 		}
 	}
+
+	public function UpdateAgentAssignments(){
+		$uniqueid = $this->input->post('uniqueid');
+		$idempresa = $this->input->post('idempresa');
+		$idoficina = $this->input->post('idoficina');
+		$agenteid = $this->input->post("agenteid");
+
+		$result = $this->Agentes_model->UpdateAgentAssignments($idempresa, $idoficina, $uniqueid, $agenteid);
+
+		header('Access-Control-Allow-Origin: *');
+		if($result)
+		{
+			$result = array('status' => "OK", "msg" => "Workdays updated");
+			$this->response($this->json($result), 200);
+		}
+		else
+		{
+			$error = array('status' => "Failed", "msg" => "Error al actualizar el agente");
+			$this->response($this->json($error), 400);
+		}
+	}
 	
 	public function ReleaseAgent()
 	{
@@ -207,20 +233,69 @@ class Agentes extends CI_Controller {
 		$agent = $agents[0];
 		//print_r($agent);
 
-        $subject="Web CUNOP Access";
+		// Create an SesClient. Change the value of the region parameter if you're 
+		// using an AWS Region other than EE.UU. Oeste (Oregón). Change the value of the
+		// profile parameter if you want to use a profile in your credentials file
+		// other than the default.
 
-//        mail($to,$subject,$body,$headers);
+		$SesClient = new SesClient([
+		    'credentials' => array(
+		    	'key' => 'AKIAQLB77NPZBNP5OGMR',
+				'secret' => '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'
+			),
+		    'version' => '2010-12-01',
+		    'region'  => 'us-east-1',
+		]);
 
-        //echo 'pre phpmailer<br/>' . __DIR__;
-       	require('PHPMailer-master/PHPMailerAutoload.php');
         
         //$uniqueid = $agents['uniqueid'];
         $encrypt = $encrypt = md5($agent['shortname']);
 
-        $message = 'Hello, ' . $agent['shortname'] . '<br/> <br/>This mail is to inform that you can have access to the WebCUNOP Web software, for checking your CUNOP and daily positions.<br/><br/>Please click the following link to set your access token for Web App<br><br>https://apps.mindware.com.mx/cun/agentes/getaccess?e=' . $encrypt .'&u=' . $uniqueid . 
-        		   '<br/><br/><br/>There you will be able to setup a password for your account and then a you will be redirected to the login page.<br/><br/>This mail was sent automatically by mindWARE.com.mx.</body></html>';
-        //$message = 'Hi, ' . $agent['nombre'] . '<br/> <br/>Your please click the following link to set tus access token for Web CUNOP<br><br><br/><br/>.';
+        $sender_email = 'webroster@mindware.com.mx';
+        $subject="Web Roster Access";
 
+        $recipient_emails = [$agent['email']];
+        //$configuration_set = 'ConfigSet';
+
+        $html_body = 'Hello, ' . $agent['shortname'] . '<br/> <br/>This mail is to inform that you can have access to the WebCUNOP Web software, for checking your CUNOP and daily positions.<br/><br/>Please click the following link to set your access token for Web App<br><br>https://apps.mindware.com.mx/cun/agentes/getaccess?e=' . $encrypt .'&u=' . $uniqueid . 
+        		   '<br/><br/><br/>There you will be able to setup a password for your account and then a you will be redirected to the login page.<br/><br/>This mail was sent automatically by mindWARE.com.mx.</body></html>';
+       	//$subject = 'Amazon SES test (AWS SDK para PHP)';
+       	$char_set = 'UTF-8';
+
+       	try {
+		    $result = $SesClient->sendEmail([
+		        'Destination' => [
+		            'ToAddresses' => $recipient_emails,
+		            'BccAddresses' => ['x@mindware.com.mx']
+		        ],
+		        'ReplyToAddresses' => [$sender_email],
+		        'Source' => $sender_email,
+		        'Message' => [
+		          'Body' => [
+		              'Html' => [
+		                  'Charset' => $char_set,
+		                  'Data' => $html_body,
+		              ],
+		          ],
+		          'Subject' => [
+		              'Charset' => $char_set,
+		              'Data' => $subject,
+		          ],
+		        ],
+		        // If you aren't using a configuration set, comment or delete the
+		        // following line
+		        //'ConfigurationSetName' => $configuration_set,
+		    ]);
+		    $messageId = $result['MessageId'];
+		    echo("Email sent! Message ID: $messageId"."\n");
+		} catch (AwsException $e) {
+		    // output error message if fails
+		    echo $e->getMessage();
+		    echo("The email was not sent. Error message: ".$e->getAwsErrorMessage()."\n");
+		    echo "\n";
+		}
+
+		/*
 		//Create a new PHPMailer instance
 		$mail = new PHPMailer;
 		//Tell PHPMailer to use SMTP
@@ -237,15 +312,15 @@ class Agentes extends CI_Controller {
  			$myfile = file_put_contents('uploads/log_notify.txt', $txt.PHP_EOL , FILE_APPEND | LOCK_EX);
 		};
 		//Set the hostname of the mail server
-		$mail->Host = "email-smtp.us-east-1.amazonaws.com";
+		$mail->Host = "apps.mindware.com.mx";
 		//Set the SMTP port number - likely to be 25, 465 or 587
 		$mail->Port = 587;
 		//Whether to use SMTP authentication
 		$mail->SMTPAuth = true;
 
-		$mail->SMTPSecure = 'tls';
+		//$mail->SMTPSecure = 'tls';
 		//Username to use for SMTP authentication
-		$mail->Username = "AKIAI6LMOHOXU7T42AHA";
+		$mail->Username = "cunop@apps.mindware.com.mx";
 		//Password to use for SMTP authentication
 		$mail->Password = "AjBE+I7MMEKX0VateR2iyibN0jBa3UqmD5sdku7tDmm7";
 
@@ -270,9 +345,9 @@ class Agentes extends CI_Controller {
 			$error = array('status' => "Failed", "msg" => "Mailer Error: " . $mail->ErrorInfo);
 			$this->response($this->json($error), 400);
 		} else {
-			$mail->copyToFolder("Sent"); // Will save into Sent folder
+			//$mail->copyToFolder("Sent"); // Will save into Sent folder
 		    $this->response('OK', 200);
-		}
+		}*/
 	}
 
 	public function EnableAccount()

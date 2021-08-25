@@ -12,6 +12,7 @@
             	<input type="hidden" id="inputIdEmpresa" name="inputIdEmpresa" value="<? echo $idempresa; ?>"/>
             	<input type="hidden" id="inputTimezone" name="inputTimezone" value="<? echo $timezone; ?>"/>
             	<input type="hidden" id="inputEstacion" name="inputEstacion" value="<? echo $estacion; ?>"/>
+            	<input type="hidden" id="inputUniqueid" name="inputUniqueid" value=""/>
             	<fieldset>
                     <legend>Flight Information</legend>
                         <div class='row'>
@@ -185,9 +186,11 @@
 			var ledate = $("#inputEndDate").val();
 			var lbegindate = $("#inputBeginDate").val();
 			var lfinaldate = $("#inputFinalDate").val();
+			var luniqueid = $("#inputUniqueid").val();
 		
 			$("#frmData").hide();	
 			var data = {
+				 uniqueid : luniqueid,
 				 code : lcode,
 				 origen : lfrom,
 				 destino : lto,
@@ -222,7 +225,23 @@
 		});
 		
 		$("#btnNewRow").click(function(){
-			$("#frmData").show();	
+			$("#inputUniqueid").val('');
+			$("#inputCode").val('');
+			$("#inputFrom").val('');
+			$("#inputTo").val('');
+			$("#inputDeparture").val('');
+			$("#inputDuracion").val('');
+			$("#inputMonday").prop('checked', false);
+			$("#inputTuesday").prop('checked', false);
+			$("#inputWednesday").prop('checked', false);
+			$("#inputThursday").prop('checked', false);
+			$("#inputFriday").prop('checked', false);
+			$("#inputSaturday").prop('checked', false);
+			$("#inputSunday").prop('checked', false);
+			$("#inputBeginDate").val('');
+			$("#inputFinalDate").val('');
+
+			$("#frmData	").show();	
 		});
 		
 		$("#btnCancel").click(function(){
@@ -235,9 +254,13 @@
 			var lcode = $("#inputCode").val();
 			var lidempresa = $("#inputIdEmpresa").val();
 			var lorigen = $("#inputFrom").val();
+			var luniqueid = $("#inputUniqueid").val();
+			if(luniqueid == '')
+				return;
 			
 			var rowData = { idempresa : lidempresa,
 							idvuelo : lcode,
+							uniqueid : luniqueid,
 							origen : lorigen };
 			$.ajax({
 				url: 'vuelos/deleterowid',
@@ -248,9 +271,10 @@
 					$(document).scrollTop();
 				},
 				success:function(data){
-					$('#myPleaseWait').modal('hide');
+					
 					console.log('row deleted');
 					RefreshList();
+					$('#myPleaseWait').modal('hide');
 				}
 			});
 			$("#frmData").hide();	
@@ -289,16 +313,19 @@
                       	'<th>Code</th>' + 
          				'<th>Flight Detail</th>' +
                         '<th>Schedule</th>' +
+                        '<th>Dates</th>' +
                       '</tr>' +
                     '</thead>' +
                     '<tbody>';
 	            $.each(result,function(thisrow,row){
 
 	                html += '<tr>' +
-                           '<td><button type="button" onclick="loadRow(\'' + row['idvuelo'] + '\');" class="btn btn-link">' + row['idvuelo'] + '</button>' +
+                           '<td><button type="button" onclick="loadRow(\'' + row['uniqueid'] + '\');" class="btn btn-link">' + row['idvuelo'] + '</button>' +
 						   row['alert'] + '</td>' + 
 							'<td>' + row['departure'] + ' ' + row['origen'] + ' - ' + row['destino'] + ' Duration ' + row['arrival'] + '</td>' + 
 							'<td>' + row['msj'] + '</td>' +
+							'<td>' + row['begindate'] + ' to ' + row['enddate'] + '</td>' +
+							
 							'</tr>' ;
 	            });
 
@@ -311,12 +338,12 @@
 	    });
     }
 
-	function loadRow(code)
+	function loadRow(uniqueid)
 	{
 		$("#frmData").show();	
 		
 		var rowData = { 
-						idvuelo : code };
+						uniqueid : uniqueid };
 		$.ajax({
 			url: 'vuelos/loadvuelocode',
 			type: 'POST',
@@ -332,6 +359,7 @@
 
 				var offset = new Date().getTimezoneOffset();
 
+				$("#inputUniqueid").val(row.uniqueid);
 				$("#inputCode").val(row.idvuelo);
 				$("#inputFrom").val(row.origen);
 				$("#inputTo").val(row.destino);

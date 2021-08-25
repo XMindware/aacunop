@@ -26,9 +26,9 @@ class Webcunop extends CI_Controller {
 			redirect(base_url().'login');
 		}
 
-		$fecha = $this->input->get("fecha");
+		$fecha = $this->input->post("inputFecha");
 		if($fecha == ''){
-			$fecha = $this->input->post("inputFecha");
+			$fecha = $this->input->get("fecha");
 			if(!isset($fecha) || $fecha=='')	
 	            $fecha = date('Y-m-d');
 	    }
@@ -339,6 +339,76 @@ class Webcunop extends CI_Controller {
 			header('Content-type: application/json; charset=utf-8');
 	    	echo json_encode($insert);
 		}
+	}
+
+	// vacia el vuelo seleccionado para que no tenga agentes
+	public function EmptyFlightAgents(){
+		$idempresa = $this->input->post('idempresa');
+		$idoficina = $this->input->post('idoficina');
+		$usuario = $this->input->post('usuario');
+		$idvuelo = $this->input->post('idvuelo');
+		$fecha = $this->input->post('fecha');
+		$departure = $this->input->post('departure');
+
+		$this->Webcunop_model->EmptyFlightAgents($idempresa,$idoficina,$idvuelo,$fecha,$departure,$usuario);
+			
+		$error = array('status' => "OK", "msg" => "Flight information updated.");
+		$this->response($this->json($error), 400);
+	
+	}
+
+
+	// XAS marzo 2020. Se borra la asignacion a un agente en un dia
+	public function DeletePosAgente()
+	{
+		$idempresa = $this->input->post('idempresa');
+		$idoficina = $this->input->post('idoficina');
+		$fecha = $this->input->post("fecha");
+		$uniqueid = $this->input->post('uniqueid');
+		$usuario = $this->input->post('usuario');
+
+		$agenteActual = $this->Webcunop_model->ConsultarAgenteActual($idempresa,$idoficina,$uniqueid);
+		if(count($agenteActual)==0)
+		{
+			$error = array('status' => "Failed", "msg" => "No agent is assigned to this position");
+			$this->response($this->json($error), 400);
+		}
+		else
+		{
+			$insert = $this->Webcunop_model->DeletePostSchedule($idempresa, $idoficina, $uniqueid, $fecha, $usuario);
+
+			$shortname_old = $agenteActual[0]['shortname'];
+			$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$fecha,'',$shortname_old,'','','',$usuario);
+			
+			$error = array('status' => "OK", "msg" => "Agent position deleted");
+			$this->response($this->json($error), 400);		}
+	}
+
+
+	// XAS marzo 2020. Se borra la asignacion a un agente en un dia
+	public function DeletePosLead()
+	{
+		$idempresa = $this->input->post('idempresa');
+		$idoficina = $this->input->post('idoficina');
+		$fecha = $this->input->post("fecha");
+		$uniqueid = $this->input->post('uniqueid');
+		$usuario = $this->input->post('usuario');
+
+		$agenteActual = $this->Webcunop_model->ConsultarLeadActual($idempresa,$idoficina,$uniqueid);
+		if(count($agenteActual)==0)
+		{
+			$error = array('status' => "Failed", "msg" => "No agent is assigned to this position");
+			$this->response($this->json($error), 400);
+		}
+		else
+		{
+			$insert = $this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa, $idoficina, $uniqueid);
+
+			$shortname_old = $agenteActual[0]['shortname'];
+			$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$fecha,'',$shortname_old,'','','',$usuario);
+			
+			$error = array('status' => "OK", "msg" => "Lead position deleted");
+			$this->response($this->json($error), 400);		}
 	}
 
 	public function DeleteExtraAgent()

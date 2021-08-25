@@ -221,7 +221,7 @@
           {
             title: '<? echo $posicion; ?>',
             start: '<? echo $pos['fecha']; ?>',
-            url : 'https://apps.mindware.com.mx/cun/webcunop/index?fecha=<? echo $pos['fecha']; ?>',
+            url : '<? echo base_url(); ?>webcunop/index?fecha=<? echo $pos['fecha']; ?>',
             className : '<? echo $color; ?>'
           },
           <?
@@ -239,6 +239,7 @@
      <input type="hidden" id="inputIdEmpresa" value="<? echo $idempresa; ?>" />
      <input type="hidden" id="inputIdOficina" value="<? echo $idoficina; ?>" />
      <input type="hidden" id="inputUsuario" value="<? echo $idusuario; ?>" />
+     <input type="hidden" id="inputIdAgente" value="<? echo $this->session->userdata('idagente'); ?>" />
     <?
     if($this->session->userdata('shortname')=="R.HUET"){
       echo "<h1 style='text-align: center; font-color:\"red\"'>YOUR MAJESTY</h1>";
@@ -247,6 +248,7 @@
         <?
     }
     ?>
+
   </div>
   <div class="panel-body">
     <div class="panel-heading">
@@ -273,11 +275,22 @@
                   if(sizeof($requesttoauthorize)> 0){
                     foreach($requesttoauthorize as $row)
                     {
-                  ?>
-                    <li><? echo $row['tipocambio']; ?> to authorize: <b><? echo $row['agentecambio'] . ' &rarr; ' . $row['shortname']; ?></b>,
-                      <? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial'] . ', ' . date('m/d/Y',strtotime($row['fechacambio'])) . '<br/> ' ?> <a href="<? echo base_url(); ?>timeswitch/reviewRequestLead?uid=<? echo $row['uniqueid']; ?>">Click here to review</a></li>
-                    
-                    <? }
+                  ?>                      
+                      <? 
+                      if($row['tipocambio'] == 'Triangle'){
+                        if($row['uniqueid'] != $row['triangulo']){
+                        echo '<li>' . $row['tipocambio']; ?> to authorize: <b><? echo $row['agentecambio'] . ' &rarr; ' . $row['shortname']; ?></b>,
+                        <? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial'] . ', ' . date('d/m/Y',strtotime($row['fechacambio'])) . '<br/> ' ?> <a href="<? echo base_url(); ?>timeswitch/reviewTriangleRequestLead?uid=<? echo $row['triangulo']; ?>">Click here to review</a></li>
+                      
+                      <? 
+                          }
+                        }else{
+                        echo '<li>' . $row['tipocambio']; ?> to authorize: <b><? echo $row['agentecambio'] . ' &rarr; ' . $row['shortname']; ?></b>,
+                        <? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial'] . ', ' . date('d/m/Y',strtotime($row['fechacambio'])) . '<br/> ' ?> <a href="<? echo base_url(); ?>timeswitch/reviewRequestLead?uid=<? echo $row['uniqueid']; ?>">Click here to review</a></li>
+                      
+                      <? 
+                        }
+                      }
                           
                     }
                     ?>
@@ -338,12 +351,13 @@
                             {
                               $horainicio = intval($eachday['starttime']) - ($timezone * 3600);
                               $hours = intval($horainicio / 3600) ;
-                              $minutes = (($horainicio / 3600) - $hours) * 60;
+                              $minutes = ceil((($horainicio / 3600) - $hours) * 60);
+
                               $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                               
                               $horafin = intval($eachday['endtime']) - ($timezone * 3600);
                               $hours = intval($horafin / 3600);
-                              $minutes = (($horafin / 3600) - $hours) * 60;
+                              $minutes = ceil((($horafin / 3600) - $hours) * 60);
                               $etime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                             ?>
                             <tr>
@@ -360,7 +374,7 @@
                             {
                               $horainicio = intval($eachday['horasalida']) - ($timezone * 3600);
                               $hours = intval($horainicio / 3600) ;
-                              $minutes = (($horainicio / 3600) - $hours) * 60;
+                              $minutes = ceil((($horainicio / 3600) - $hours) * 60);
                               $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                             
                             ?>
@@ -379,12 +393,12 @@
                             {
                               $horainicio = intval($eachday['starttime']) - ($timezone * 3600);
                               $hours = intval($horainicio / 3600) ;
-                              $minutes = (($horainicio / 3600) - $hours) * 60;
+                              $minutes = ceil((($horainicio / 3600) - $hours) * 60);
                               $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                               
                               $horafin = intval($eachday['endtime']) - ($timezone * 3600);
                               $hours = intval($horafin / 3600);
-                              $minutes = (($horafin / 3600) - $hours) * 60;
+                              $minutes = ceil((($horafin / 3600) - $hours) * 60);
                               $etime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                             ?>
                             <tr>
@@ -401,7 +415,7 @@
                             {
                               $horainicio = intval($eachday['horasalida']) - ($timezone * 3600);
                               $hours = intval($horainicio / 3600) ;
-                              $minutes = (($horainicio / 3600) - $hours) * 60;
+                              $minutes = ceil((($horainicio / 3600) - $hours) * 60);
                               $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                             
                             ?>
@@ -507,6 +521,175 @@
                                 <label>
                                     <input type="radio" value="<? echo $thispoll['opcion6']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_6"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_6"; ?>">
                                     <? echo $thispoll['opcion6']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                        if($thispoll['opcion7'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion7']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_7"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_7"; ?>">
+                                    <? echo $thispoll['opcion7']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                         if($thispoll['opcion8'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion8']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_8"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_8"; ?>">
+                                    <? echo $thispoll['opcion8']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                         if($thispoll['opcion9'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion9']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_9"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_9"; ?>">
+                                    <? echo $thispoll['opcion9']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                         if($thispoll['opcion10'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion10']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_10"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_10"; ?>">
+                                    <? echo $thispoll['opcion10']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                        if($thispoll['opcion11'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion11']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_11"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_1"; ?>">
+                                    <? echo $thispoll['opcion11']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                        
+                        if($thispoll['opcion12'])
+                        { ?>
+                        <li class="list-group-item">
+                          <div class="radio">
+                              <label>
+                                  <input type="radio" value="<? echo $thispoll['opcion12']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_12"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_12"; ?>">
+                                  <? echo $thispoll['opcion12']; ?>
+                              </label>
+                          </div>
+                        </li>
+                        <? 
+                        } 
+                        if($thispoll['opcion13'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion13']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_13"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_13"; ?>">
+                                    <? echo $thispoll['opcion13']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                        if($thispoll['opcion14'])
+                        { ?>
+                        <li class="list-group-item">
+                          <div class="radio">
+                              <label>
+                                  <input type="radio" value="<? echo $thispoll['opcion14']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_14"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_14"; ?>">
+                                  <? echo $thispoll['opcion14']; ?>
+                              </label>
+                          </div>
+                        </li>
+                        <? 
+                        } 
+                        if($thispoll['opcion15'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion15']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_5"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_15"; ?>">
+                                    <? echo $thispoll['opcion15']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                        if($thispoll['opcion16'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion16']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_16"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_16"; ?>">
+                                    <? echo $thispoll['opcion16']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                        if($thispoll['opcion17'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion17']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_17"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_17"; ?>">
+                                    <? echo $thispoll['opcion17']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                         if($thispoll['opcion18'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion18']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_18"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_18"; ?>">
+                                    <? echo $thispoll['opcion18']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                         if($thispoll['opcion19'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion19']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_19"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_19"; ?>">
+                                    <? echo $thispoll['opcion19']; ?>
+                                </label>
+                            </div>
+                        </li>
+                        <? 
+                        } 
+                         if($thispoll['opcion20'])
+                        { ?>
+                        <li class="list-group-item">
+                            <div class="radio">
+                                <label>
+                                    <input type="radio" value="<? echo $thispoll['opcion20']; ?>" name="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_20"; ?>" id="<? echo "optionsRadios_" . $thispoll['uniqueid'] . "_20"; ?>">
+                                    <? echo $thispoll['opcion20']; ?>
                                 </label>
                             </div>
                         </li>
@@ -721,7 +904,76 @@
       {
         lopcion=6; ltexto = $("#optionsRadios_" + pollid + "_6")[0].value;
       }
-    
+    if($("#optionsRadios_" + pollid + "_7").length>0)
+      if($("#optionsRadios_" + pollid + "_7")[0].checked)
+      {
+        lopcion=7; ltexto = $("#optionsRadios_" + pollid + "_7")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_8").length>0)
+      if($("#optionsRadios_" + pollid + "_8")[0].checked)
+      {
+        lopcion=8; ltexto = $("#optionsRadios_" + pollid + "_8")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_9").length>0)
+      if($("#optionsRadios_" + pollid + "_9")[0].checked)
+      {
+        lopcion=9; ltexto = $("#optionsRadios_" + pollid + "_9")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_10").length>0)
+      if($("#optionsRadios_" + pollid + "_10")[0].checked)
+      {
+        lopcion=10; ltexto = $("#optionsRadios_" + pollid + "_10")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_11").length>0)
+      if($("#optionsRadios_" + pollid + "_11")[0].checked)
+      {
+        lopcion=11; ltexto = $("#optionsRadios_" + pollid + "_11")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_12").length>0)
+      if($("#optionsRadios_" + pollid + "_12")[0].checked)
+      {
+        lopcion=12; ltexto = $("#optionsRadios_" + pollid + "_12")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_13").length>0)
+      if($("#optionsRadios_" + pollid + "_13")[0].checked)
+      {
+        lopcion=13; ltexto = $("#optionsRadios_" + pollid + "_13")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_14").length>0)
+      if($("#optionsRadios_" + pollid + "_14")[0].checked)
+      {
+        lopcion=14; ltexto = $("#optionsRadios_" + pollid + "_14")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_15").length>0)
+      if($("#optionsRadios_" + pollid + "_15")[0].checked)
+      {
+        lopcion=15; ltexto = $("#optionsRadios_" + pollid + "_15")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_16").length>0)
+      if($("#optionsRadios_" + pollid + "_16")[0].checked)
+      {
+        lopcion=16; ltexto = $("#optionsRadios_" + pollid + "_16")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_17").length>0)
+      if($("#optionsRadios_" + pollid + "_17")[0].checked)
+      {
+        lopcion=17; ltexto = $("#optionsRadios_" + pollid + "_17")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_18").length>0)
+      if($("#optionsRadios_" + pollid + "_18")[0].checked)
+      {
+        lopcion=18; ltexto = $("#optionsRadios_" + pollid + "_18")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_19").length>0)
+      if($("#optionsRadios_" + pollid + "_19")[0].checked)
+      {
+        lopcion=19; ltexto = $("#optionsRadios_" + pollid + "_19")[0].value;
+      }
+    if($("#optionsRadios_" + pollid + "_20").length>0)
+      if($("#optionsRadios_" + pollid + "_20")[0].checked)
+      {
+        lopcion=20; ltexto = $("#optionsRadios_" + pollid + "_20")[0].value;
+      }
 
     var fields = {
         idempresa : lidempresa,

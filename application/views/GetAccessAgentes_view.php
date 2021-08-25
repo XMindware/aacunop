@@ -209,7 +209,7 @@
 							 };
 				
 				var request = $.ajax({
-					url: 'https://www.mindware.com.mx/apps/agentes/enableaccount',
+					url: '<? echo base_url();?>agentes/enableaccount',
 					type: 'POST',
 					data: agent,
 					beforeSend:function(){
@@ -219,7 +219,7 @@
 					success:function(result){
 						console.log('sent!');
 						$('#myPleaseWait').modal('hide'); 
-						window.location.href="https://www.mindware.com.mx/apps/"
+						window.location.href="https://apps.mindware.com.mx/cun/"
 						
 					}, 
 					error:function(exception){

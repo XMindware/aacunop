@@ -110,6 +110,22 @@ class Cando_model extends CI_Model {
 		}	
 	}
 
+	/// como la anterior pero mejorada en el agente
+	public function GetAgentSkills($idempresa,$idoficina,$idagente){
+
+		$sql = 'SELECT p.idcando FROM cunop_relcandoagents p inner join cunop_agentes a on a.uniqueid=p.idagente 
+where a.idempresa=? and a.idoficina=? and a.idagente=? ';
+
+		$query = $this->db->query($sql,array($idempresa,$idoficina,$idagente));
+		if($query){
+			return $query->result_array();
+		}
+		else{
+			return array();
+		}
+
+	}
+
 	public function batchupdateskills()
 	{
 		$agentes = $this->db->get('cunop_agentes');

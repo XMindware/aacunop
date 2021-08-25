@@ -19,7 +19,7 @@ class Fillcunopdate extends CI_Controller {
 	
 	public function index()
 	{
-		if($this->session->userdata('perfil') == FALSE )
+		if($this->session->userdata('perfil') == FALSE || $this->session->userdata('isadmin')!='1')
 		{
 			redirect(base_url().'login');
 		}
@@ -76,155 +76,163 @@ class Fillcunopdate extends CI_Controller {
 		$linea = 0;
 
 		echo 'TimeZone ' . $timezone . PHP_EOL;
+		echo 'Vuelos cargados ' . sizeof($vueloslist) . PHP_EOL;
+		$error = array();
 
 		// creamos un pool de agentes
 		$agentpool = array();
 		$maxagentspergate = 2;
 		$extraagentspergate = 2;
 		
-		foreach ($vueloslist as $vuelo) {
-			
-			// vamos a evaluar si el vuelo existe ese dia de la semana
-			$weekday = date('w',strtotime($fecha));
-			$weekdayisok  = false;
-			$posday = '';
-			
-			switch ($weekday) {
-				case 0:
-					if($vuelo['dom'] == 1) $weekdayisok = true;
-					$posday = 'possun';
-					break;
-				case 1:
-					if($vuelo['lun'] == 1) $weekdayisok = true;
-					$posday = 'posmon';
-					break;
-				case 2:
-					if($vuelo['mar'] == 1) $weekdayisok = true;
-					$posday = 'postue';
-					break;
-				case 3:
-					if($vuelo['mie'] == 1) $weekdayisok = true;
-					$posday = 'poswed';
-					break;
-				case 4:
-					if($vuelo['jue'] == 1) $weekdayisok = true;
-					$posday = 'posthu';
-					break;
-				case 5:
-					if($vuelo['vie'] == 1) $weekdayisok = true;
-					$posday = 'posfri';
-					break;
-				case 6:
-					if($vuelo['sab'] == 1) $weekdayisok = true;
-					$posday = 'possat';
-					break;
-			}
-			
-			if($weekdayisok == true)
-			{
-				// obtenemos la posicion que le corresponde al vuelo
-				$posiciones = $this->Posicionesvuelos_model->LoadPosicionesVuelo($idempresa, $idoficina, $vuelo['idvuelo']);
-				echo '==>vuelo ' . $vuelo['idvuelo'] . ' ' . $vuelo['horasalida'] . ' =' . sizeof($posiciones) . PHP_EOL;
-
-				$cagents = 1;
+		if($vueloslist){
+			foreach ($vueloslist as $vuelo) {
 				
-				foreach($posiciones as $thispos)
+				// vamos a evaluar si el vuelo existe ese dia de la semana
+				$weekday = date('w',strtotime($fecha));
+				$weekdayisok  = false;
+				$posday = '';
+				
+				switch ($weekday) {
+					case 0:
+						if($vuelo['dom'] == 1) $weekdayisok = true;
+						$posday = 'possun';
+						break;
+					case 1:
+						if($vuelo['lun'] == 1) $weekdayisok = true;
+						$posday = 'posmon';
+						break;
+					case 2:
+						if($vuelo['mar'] == 1) $weekdayisok = true;
+						$posday = 'postue';
+						break;
+					case 3:
+						if($vuelo['mie'] == 1) $weekdayisok = true;
+						$posday = 'poswed';
+						break;
+					case 4:
+						if($vuelo['jue'] == 1) $weekdayisok = true;
+						$posday = 'posthu';
+						break;
+					case 5:
+						if($vuelo['vie'] == 1) $weekdayisok = true;
+						$posday = 'posfri';
+						break;
+					case 6:
+						if($vuelo['sab'] == 1) $weekdayisok = true;
+						$posday = 'possat';
+						break;
+				}
+				
+				if($weekdayisok == true)
 				{
-					$posicion = $thispos[$posday];
+					// obtenemos la posicion que le corresponde al vuelo
+					$posiciones = $this->Posicionesvuelos_model->LoadPosicionesVuelo($idempresa, $idoficina, $vuelo['idvuelo']);
+					echo '==>vuelo ' . $vuelo['idvuelo'] . ' ' . $vuelo['horasalida'] . ' =' . sizeof($posiciones) . PHP_EOL;
 
-					echo '-->' . $posicion . PHP_EOL;
+					$cagents = 1;
 					
-					// traemos los agentes para ese vuelo
-					$agentesdisp = $this->Fillcunopdate_model->LoadAgentesScheduleDatePosicion($idempresa, $idoficina, $fecha, $posicion);
+					foreach($posiciones as $thispos)
+					{
+						print_r($thispos);
+						$posicion = $thispos[$posday];
 
-					$lead= 'RH';
-
-					//test
-					$hora = intval($vuelo['horasalida']);
-					$horasalida = intval($hora) + (intval($timezone) * 60);
-					$hora = intval($horasalida / 3600) ;
-					$minutes = (($horasalida / 3600) - $hora) * 60;
-					// end test
-
-					$hora = intval($vuelo['horasalida']);
-					$horasalida = $hora - (intval($timezone) * 3600);
-					$hora = intval($horasalida / 3600);
-					$minutes = (($horasalida / 3600) - $hora) * 60;
-
-					//$horasalida = intval($hora) + (intval($timezone) * 60);
-					//$hora = intval($horasalida / 3600) ;
-					echo '-' . $horasalida . PHP_EOL;
-					//$minutes = (($horasalida / 3600) - $hora) * 60;
-					$stime = ($hora<=9?('0' . $hora) : $hora) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
-					echo '-- vuelo ' . $vuelo['idvuelo'] . ' fecha ' . $fecha . ' salida ' . $stime . PHP_EOL;
-					$this->Fillcunopdate_model->SetFlightHeader($idempresa,$idoficina,$vuelo['idvuelo'],$fecha,$stime,$lead,$usuario);
-
-					$asignadosvuelo = array();
-
-					foreach ($agentesdisp as $agente) {
-						echo 'vuelo ' . $vuelo['idvuelo'] . ' posicion ' . $posicion . ' agente ' . $agente['shortname'] . PHP_EOL;
-						echo 'cagents ' . $cagents . PHP_EOL;
-						echo 'agentpool ' . sizeof($agentpool) . PHP_EOL;
-					
-
-						if($cagents<=$maxagentspergate )
+						if($posicion != '')
 						{
-							// cada sala permite x agentes 
-							$this->Fillcunopdate_model->SetAgentScheduleDay($idempresa, $idoficina, $fecha, $vuelo['idvuelo'],$linea,$agente['shortname'],$posicion,$usuario);
-							// agregamos el agente al vuelo
-							array_push($asignadosvuelo,$agente['shortname']);	
-						}
-						else
-							{
-								echo '-- asignando extras --' . PHP_EOL;
-								// ya asigno los agentes principales, ahora asigna los extras
-								if($cagents <= $maxagentspergate + $extraagentspergate)
-								{
-									// si el agente actual esta en el pool, entonces es de los que sobran, y se asigna
-									$tmp = 0;
-									$found = false;
-									print_r($agentpool);
-									foreach($agentpool as $tmpagent)
-									{
-										echo '   evaluando el agente del pool ' . $tmpagent['shortname'] . ' vs ' . $agente['shortname'] . ' ' . $agente['posicion'] . PHP_EOL;
-										
-										// revisando cada agente del pool
-										if($tmpagent['shortname'] != $agente['shortname'] && $tmpagent['posicion'] == $agente['posicion'] && !in_array($tmpagent['shortname'],$asignadosvuelo))
-										{
-											echo '  <-- agente del pool ingresado ' . $tmpagent['shortname'] . PHP_EOL;
-											// es el mismo agente, entonces lo agrega
-											$this->Fillcunopdate_model->SetAgentScheduleDay($idempresa, $idoficina, $fecha, $vuelo['idvuelo'],$linea,$tmpagent['shortname'],$posicion,$usuario);
 
-											// elimina el agente del pool
-											unset($agentpool[$tmp]);
-											$found = true;
-											break 2;
-										}
-										$tmp++;
-									}	
-									if(!$found)
-									{
-										echo '  <-- agente disponible ' . $agente['shortname'] . PHP_EOL;
-										// es el mismo agente, entonces lo agrega
-										$this->Fillcunopdate_model->SetAgentScheduleDay($idempresa, $idoficina, $fecha, $vuelo['idvuelo'],$linea,$agente['shortname'],$posicion,$usuario);
-										array_push($asignadosvuelo,$agente['shortname']);
-									}
+							echo '-->' . $posicion . '<-' . PHP_EOL;
+							
+							// traemos los agentes para ese vuelo
+							$agentesdisp = $this->Fillcunopdate_model->LoadAgentesScheduleDatePosicion($idempresa, $idoficina, $fecha, $posicion);
+
+							$lead= 'RH';
+
+							/*
+							$horasalida = intval($vuelo['horasalida']) - ($timezone * 3600);
+							$hora = intval($horasalida / 3600);
+							$minutes =  ( ( $horasalida  - ( $hora * 3600 ) ) / 60);*/
+
+							$horasalida = $vuelo['horasalida'] - ($timezone * 3600);
+							$hora = intval($horasalida / 3600);
+							$minutes =  ( ( $horasalida  - ( $hora * 3600 ) ) / 60);
+							
+							echo '-' . $horasalida . PHP_EOL;
+							//$minutes = (($horasalida / 3600) - $hora) * 60;
+							$stime = ($hora<=9?('0' . $hora) : $hora) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
+							echo '-- vuelo ' . $vuelo['idvuelo'] . ' fecha ' . $fecha . ' salida ' . $stime . PHP_EOL;
+							$this->Fillcunopdate_model->SetFlightHeader($idempresa,$idoficina,$vuelo['idvuelo'],$fecha,$stime,$lead,$usuario);
+							echo '<-- se agrego el header para el vuelo ' . $vuelo['idvuelo'] . PHP_EOL;
+							$asignadosvuelo = array();
+							echo 'hay ' . sizeof($agentesdisp) . ' agentes para la posicion ' . $posicion . PHP_EOL;
+							foreach ($agentesdisp as $agente) {
+								echo 'vuelo ' . $vuelo['idvuelo'] . ' posicion ' . $posicion . ' agente ' . $agente['shortname'] . PHP_EOL;
+								echo 'cagents ' . $cagents . PHP_EOL;
+								echo 'agentpool ' . sizeof($agentpool) . PHP_EOL;
+							
+
+								if($cagents<=$maxagentspergate )
+								{
+									// cada sala permite x agentes 
+									$this->Fillcunopdate_model->SetAgentScheduleDay($idempresa, $idoficina, $fecha, $vuelo['idvuelo'],$linea,$agente['shortname'],$posicion,$usuario);
+									// agregamos el agente al vuelo
+									array_push($asignadosvuelo,$agente['shortname']);	
 								}
 								else
-								{
-									
-									// los agentes sobrantes se agregan al pool
-									array_push($agentpool,$agente);	
+									{
+										echo '-- asignando extras --' . PHP_EOL;
+										// ya asigno los agentes principales, ahora asigna los extras
+										if($cagents <= $maxagentspergate + $extraagentspergate)
+										{
+											// si el agente actual esta en el pool, entonces es de los que sobran, y se asigna
+											$tmp = 0;
+											$found = false;
+											print_r($agentpool);
+											foreach($agentpool as $tmpagent)
+											{
+												echo '   evaluando el agente del pool ' . $tmpagent['shortname'] . ' vs ' . $agente['shortname'] . ' ' . $agente['posicion'] . PHP_EOL;
+												
+												// revisando cada agente del pool
+												if($tmpagent['shortname'] != $agente['shortname'] && $tmpagent['posicion'] == $agente['posicion'] && !in_array($tmpagent['shortname'],$asignadosvuelo))
+												{
+													echo '  <-- agente del pool ingresado ' . $tmpagent['shortname'] . PHP_EOL;
+													// es el mismo agente, entonces lo agrega
+													$this->Fillcunopdate_model->SetAgentScheduleDay($idempresa, $idoficina, $fecha, $vuelo['idvuelo'],$linea,$tmpagent['shortname'],$posicion,$usuario);
 
-									echo 'add to pool ' . sizeof($agentpool) . ' ' . $agente['shortname'] . PHP_EOL;
-								}
-								
+													// elimina el agente del pool
+													unset($agentpool[$tmp]);
+													$found = true;
+													break 2;
+												}
+												$tmp++;
+											}	
+											if(!$found)
+											{
+												echo '  <-- agente disponible ' . $agente['shortname'] . PHP_EOL;
+												// es el mismo agente, entonces lo agrega
+												$this->Fillcunopdate_model->SetAgentScheduleDay($idempresa, $idoficina, $fecha, $vuelo['idvuelo'],$linea,$agente['shortname'],$posicion,$usuario);
+												array_push($asignadosvuelo,$agente['shortname']);
+											}
+										}
+										else
+										{
+											
+											// los agentes sobrantes se agregan al pool
+											array_push($agentpool,$agente);	
+
+											echo 'add to pool ' . sizeof($agentpool) . ' ' . $agente['shortname'] . PHP_EOL;
+										}
+										
+									}
+								$cagents ++;
 							}
-						$cagents ++;
+						}
 					}
+					$linea++;
 				}
-				$linea++;
 			}
+		}
+		else
+		{
+			$error['razon'] = 'No hay vuelos en la fecha';
 		}
 
 		// traemos los de bmas
@@ -248,7 +256,8 @@ class Fillcunopdate extends CI_Controller {
 		}
 		else
 		{
-			$error = array('status' => "Failed", "msg" => "Error al actualizar la fecha " . $fecha);
+			$error['status'] = 'Failed';
+			$error['msg'] =  "Error al actualizar la fecha " . $fecha;
 			$this->response($this->json($error), 400);
 		}
 		//return $res;

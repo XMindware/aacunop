@@ -63,9 +63,12 @@ public function new_user()
 				$email = $this->input->post('email');
 				$password = sha1($this->input->post('password'));
 	
+				
+	
 				//echo $email;
 				//echo $password;
 				$check_user = $this->login_model->login_user($email,$password);
+
 
 				if($check_user == TRUE)
 				{

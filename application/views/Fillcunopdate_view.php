@@ -129,12 +129,12 @@
             
           });
 
-          
+          /*
           request.fail(function( jqXHR, textStatus, errorThrown ) {
              if ( console && console.log ) {
                  console.log( "La solicitud a fallado: " +  textStatus);
              }
-          });
+          });*/
         }
         $("#divloading").hide();
 

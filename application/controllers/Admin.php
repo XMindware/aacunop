@@ -61,7 +61,10 @@ class Admin extends CI_Controller {
 		
 		$data['isadmin'] = $this->session->userdata('isadmin');
 		if($this->session->userdata('isadmin'))
-			$data['requesttoauthorize'] = $this->Timeswitch_model->ConsultarSolicitudesPorAutorizar($idempresa,$idoficina);
+			if($this->session->userdata('puesto') == 'MANAGER')
+				$data['requesttoauthorize'] = $this->Timeswitch_model->ConsultarSolicitudesLeadsPorAutorizar($idempresa,$idoficina);
+			else
+				$data['requesttoauthorize'] = $this->Timeswitch_model->ConsultarSolicitudesPorAutorizar($idempresa,$idoficina);
 
 		$data['perfil'] = $this->session->userdata('perfil');
 		if($this->session->userdata('isadmin')!='')

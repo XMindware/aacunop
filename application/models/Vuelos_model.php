@@ -25,9 +25,10 @@ class Vuelos_model extends CI_Model {
 		}	
 	}
 	
-	public function PostVuelo($code,$origen,$horasalida,$destino,$duracionvuelo,$lun,$mar,$mie,$jue,$vie,$sab,$dom,$begindate,$enddate){
+	public function PostVuelo($uniqueid,$code,$origen,$horasalida,$destino,$duracionvuelo,$lun,$mar,$mie,$jue,$vie,$sab,$dom,$begindate,$enddate){
 		
 		$data = array(
+			'uniqueid'		=> $uniqueid,
             'idvuelo' 		=> $code,
             'origen' 		=> $origen,
             'horasalida' 	=> $horasalida,
@@ -67,6 +68,17 @@ class Vuelos_model extends CI_Model {
 		}	
 	}
 
+	public function LoadVueloId($uniqueid){
+		
+		$this->db->where('uniqueid',$uniqueid);
+		
+		$query = $this->db->get('cunop_vuelos');
+		if($query->num_rows() > 0)
+		{
+			return $query->result_array();
+		}	
+	}
+
 	public function LoadVuelosFechaEstacion($origen, $qdate)
 	{
 		$sql = 'SELECT v . * FROM cunop_vuelos v INNER JOIN cunop_distribucionvuelos d ON v.idvuelo = d.idvuelo WHERE d.fecha = ? and origen = ? ORDER BY v.horasalida';
@@ -79,7 +91,8 @@ class Vuelos_model extends CI_Model {
 	}
 	
 	
-	public function DeleteRowId($idvuelo,$origen){
+	public function DeleteRowId($uniqueid,$idvuelo,$origen){
+		$this->db->where('uniqueid',$uniqueid);
 		$this->db->where('idvuelo',$idvuelo);
 		$this->db->where('origen',$origen);
 		

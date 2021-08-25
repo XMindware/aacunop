@@ -91,7 +91,7 @@ class Vuelos extends CI_Controller {
 			{
 				$horasalida = $row['horasalida'] - ($timezone * 3600);
 				$hours = intval($horasalida / 3600);
-				$minutes = (($horasalida / 3600) - $hours) * 60;
+				$minutes =  ( ( $horasalida  - ( $hours * 3600 ) ) / 60);
 				$departure = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
 				$hours = intval($row['duracionvuelo'] / 3600);
 				$minutes = (($row['duracionvuelo'] / 3600) - $hours) * 60;
@@ -139,9 +139,11 @@ class Vuelos extends CI_Controller {
 				}
 				$alert = ( strtotime($row['enddate']) < time()) ? "<i style='color:red'>OUTDATED</i>"  : '';
 					
-				$final[] = ['idvuelo' 	=> $row['idvuelo'],
+				$final[] = ['uniqueid'	=> $row['uniqueid'],
+							'idvuelo' 	=> $row['idvuelo'],
 							'alert'		=> $alert,
-							'enddate' 	=> $row['enddate'],
+							'begindate'	=> date('d/m/Y',strtotime($row['begindate'])),
+							'enddate' 	=> date('d/m/Y',strtotime($row['enddate'])),
 							'departure' => $departure,
 							'arrival' 	=> $arrival,
 							'origen'	=> $row['origen'],
@@ -183,6 +185,7 @@ class Vuelos extends CI_Controller {
 	public function PostVuelo()
 	{
 
+		$uniqueid = $this->input->post('uniqueid');
 		$code = $this->input->post("code");
 		$origen = $this->input->post("origen");
 		$horasalida = $this->input->post("horasalida");
@@ -198,7 +201,7 @@ class Vuelos extends CI_Controller {
 		$begindate = $this->input->post("begindate");
 		$enddate = $this->input->post("enddate");
 	
-		$insert = $this->Vuelos_model->PostVuelo($code,$origen,$horasalida,$destino,$duracionvuelo,$lun,$mar,$mie,$jue,$vie,$sab,$dom,$begindate,$enddate);
+		$insert = $this->Vuelos_model->PostVuelo($uniqueid,$code,$origen,$horasalida,$destino,$duracionvuelo,$lun,$mar,$mie,$jue,$vie,$sab,$dom,$begindate,$enddate);
 		if($insert)
 		{
 			$this->response($this->json($insert), 200);
@@ -212,10 +215,11 @@ class Vuelos extends CI_Controller {
 
 	public function DeleteRowId()
 	{
+		$uniqueid = $this->input->post('uniqueid');
 		$idvuelo = $this->input->post("idvuelo");
 		$origen = $this->input->post("origen");
 		
-		$data = $this->Vuelos_model->DeleteRowId($idvuelo,$origen);
+		$data = $this->Vuelos_model->DeleteRowId($uniqueid,$idvuelo,$origen);
 		print_r(json_encode($data));
 		return $data;
 	}
@@ -223,9 +227,9 @@ class Vuelos extends CI_Controller {
 	
 	public function LoadVueloCode()
 	{
-		$idvuelo = $this->input->post("idvuelo");
+		$uniqueid = $this->input->post("uniqueid");
 		
-		$data = $this->Vuelos_model->LoadVueloCode($idvuelo);
+		$data = $this->Vuelos_model->LoadVueloId($uniqueid);
 		print_r(json_encode($data));
 		return $data;
 		

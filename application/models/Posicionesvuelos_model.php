@@ -121,7 +121,7 @@ class Posicionesvuelos_model extends CI_Model {
 		}
 		
 		//echo $this->db->last_query();
-		return $this->LoadRowCode($idempresa, $idoficina, $idvuelo);
+		return $this->LoadRowCode($idempresa, $idoficina, $idvuelo, $linea);
 	}
 	
 	public function LoadRowCode($idempresa, $idoficina, $idvuelo, $linea){

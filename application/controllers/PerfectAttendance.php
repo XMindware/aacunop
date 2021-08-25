@@ -140,8 +140,8 @@ class PerfectAttendance extends CI_Controller {
 							$firstname = explode('.',$shortname)[0];
 							$lastname = explode('.',$shortname)[1];
 						}
-						$lastname = trim($lastname);
-						$firstname = trim($firstname);
+						$lastname = strtoupper(trim($lastname));
+						$firstname = strtoupper(trim($firstname));
 
 						// obtenemos todos los agentes por apellido
 						//echo '-- ' . $firstname . ' ' . $lastname . '<br>' . PHP_EOL;

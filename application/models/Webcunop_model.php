@@ -61,9 +61,25 @@ class Webcunop_model extends CI_Model {
 
 		//$query = $this->db->get('cunop_distribucionvuelos');
 
-		$sql = 'SELECT d.*,v.destino FROM cunop_distribucionvuelos d inner join cunop_vuelos v on d.idvuelo=v.idvuelo where d.idempresa=? and d.idoficina=? and d.fecha=? order by d.horasalida asc ';
+		/*
+			SELECT d.idempresa,d.idoficina,d.idvuelo,d.fecha,v.horasalida,d.newdeparture,d.mensaje,d.updated,v.destino FROM cunop_distribucionvuelos d inner join cunop_vuelos v on d.idvuelo=v.idvuelo where d.idempresa=1 and d.idoficina=1 and d.fecha='2020-11-04' and '2020-11-04' between v.begindate and v.enddate order by d.horasalida asc 
+			*/
 
-		$query = $this->db->query($sql,array($empresa,$oficina,$qdate));
+		$day_of_week = date('N', strtotime($qdate)) ;
+		switch ($day_of_week) {
+			case 1:	$diasemana = 'lun=1'; break;   //lunes
+			case 2:	$diasemana = 'mar=1'; break;   //martes
+			case 3:	$diasemana = 'mie=1'; break;   //miercoles
+			case 4:	$diasemana = 'jue=1'; break;   //jueves
+			case 5:	$diasemana = 'vie=1'; break;   //viernes
+			case 6:	$diasemana = 'sab=1'; break;   //sabado
+			case 7:	$diasemana = 'dom=1'; break;   //domingo
+		}
+		//$diasemana = 'mie=1';
+
+		$sql = 'SELECT d.*,v.destino FROM cunop_distribucionvuelos d inner join cunop_vuelos v on d.idvuelo=v.idvuelo where d.idempresa=? and d.idoficina=? and d.fecha=? and ? between v.begindate and v.enddate and ' . $diasemana . ' order by d.horasalida asc ';
+
+		$query = $this->db->query($sql,array($empresa,$oficina,$qdate,$qdate));
 		
 
 		if($query->num_rows() > 0)
@@ -294,6 +310,33 @@ class Webcunop_model extends CI_Model {
 		}	
 	}
 
+	// consulta el agente actual registrado para una posicion
+	public function EmptyFlightAgents($idempresa,$idoficina,$idvuelo,$fecha,$departure,$usuario)
+	{
+		$this->db->where('idempresa', $idempresa);
+		$this->db->where('idoficina', $idoficina);
+		$this->db->where('idvuelo', $idvuelo);
+		$this->db->where('fecha', $fecha);
+
+		$this->db->delete('cunop_distribucionvuelos', $data);
+
+		$this->db->where('idempresa', $idempresa);
+		$this->db->where('idoficina', $idoficina);
+		$this->db->where('idvuelo', $idvuelo);
+		$this->db->where('fecha', $fecha);
+
+		$this->db->delete('cunop_distribucionagentesvuelos', $data);
+
+
+		$query = $this->LoadFlightDateDetail($idempresa, $idoficina, $fecha, $idvuelo);
+		if(sizeof($query) > 0)
+		{
+			return $query;
+		}	
+
+	}
+
+
 	public function ConsultarLeadActual($idempresa,$idoficina,$uniqueid)
 	{
 		$this->db->where('idempresa', $idempresa);
@@ -361,7 +404,7 @@ class Webcunop_model extends CI_Model {
 		*/
 
 
-		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_distribleads a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente INNER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion != '' and a.posicion!='XX' and a.posicion!='VAC' order by c.orden,w.hours,a.posicion";
+		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_distribleads a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente LEFT OUTER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion != '' and a.posicion!='XX' and a.posicion!='VAC' order by c.orden,w.hours,a.posicion";
 
 
 		$query = $this->db->query($sql,array(date('m',strtotime($qdate)),date('Y',strtotime($qdate)),$qdate,$idempresa,$idoficina));
@@ -412,7 +455,7 @@ class Webcunop_model extends CI_Model {
 		$sql = "SELECT distinct a.*,w.hours,c.orden FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c " .
 			   " ON c.code = p.cando where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion";*/
 		// XAS 15-05-2019 se agrega una validacion extra contra los skills del agente para evitar duplicados
-		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente INNER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion";
+		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente and ag.status!='RL' INNER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion";
 
 
 		$query = $this->db->query($sql,array(date('m',strtotime($qdate . ' -1 month')),date('Y',strtotime($qdate  . ' -1 month')),$qdate,$idempresa,$idoficina,$hours));
@@ -607,6 +650,20 @@ class Webcunop_model extends CI_Model {
 		return $this->LoadAgentSchedule($uniqueid,$empresa,$oficina,$agenteid,$fecha,$posicion);
 	}
 
+	// XAS marzo 2020. Se borra la asignacion a un agente en un dia
+	public function DeletePostSchedule($idempresa, $idoficina, $uniqueid, $fecha, $usuario)
+	{	
+		// actualiza la info
+		$this->db->where('idempresa', $idempresa);
+		$this->db->where('idoficina', $idoficina);
+		$this->db->where('uniqueid', $uniqueid);
+		$this->db->where('fecha', $fecha);
+        $this->db->delete('cunop_agentscheduler');
+		
+		//echo $this->db->last_query() . PHP_EOL;
+			
+	}
+
 	public function PostCambioScheduleLead($empresa, $oficina, $uniqueid, $fecha, $agenteid, $shortname, $posicion, $usuario)
 	{
 		$data = array(
@@ -662,10 +719,10 @@ class Webcunop_model extends CI_Model {
 	public function ConsultarQuickSchedule($idempresa,$idoficina,$idagente,$fecha)
 	{
 		$sql = "SELECT a.uniqueid,a.posicion,a.fecha,p.starttime,p.endtime FROM cunop_agentscheduler a inner join cunop_positions p on " .
-			   "p.code=a.posicion and p.workday = a.workday where a.idempresa=? and a.idoficina=? and a.fecha=? and a.idagente=? UNION " .
+			   "p.code=a.posicion and p.workday = a.workday where a.idempresa=? and a.idoficina=? and a.fecha=? and a.idagente=? and ? between p.startdate and p.enddate UNION " .
 			   "SELECT d.uniqueid,d.posicion,d.fecha,p.starttime,p.endtime FROM cunop_distribleads d inner join cunop_positions p on " .
-			   "p.code=d.posicion and p.workday = d.workday where d.idempresa=? and d.idoficina=? and d.fecha=? and d.idagente=?";
-		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idagente,$idempresa,$idoficina,$fecha,$idagente));
+			   "p.code=d.posicion and p.workday = d.workday where d.idempresa=? and d.idoficina=? and d.fecha=? and d.idagente=? and ? between p.startdate and p.enddate";
+		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idagente,$fecha,$idempresa,$idoficina,$fecha,$idagente,$fecha));
 
 		if($query->num_rows() > 0)
 		{
@@ -770,6 +827,25 @@ class Webcunop_model extends CI_Model {
 		$this->db->where('idoficina', $idoficina);
 		$this->db->where('uniqueid', $uniqueid);
         $this->db->delete('cunop_distribleads');
+	}
+
+	public function ConsultarHorasAsignadasAgenteFecha($idempresa,$idoficina,$idagente,$fecha)
+	{
+		$sql = 'SELECT ifnull(sum(w.hours),0) as horas FROM `cunop_agentscheduler` a inner join cunop_workday w on a.workday=w.code ' .
+				'where a.idempresa=? and a.idoficina=? and a.idagente=? and a.fecha=?';
+
+		$query = $this->db->query($sql,array($idempresa,$idoficina,$idagente,$fecha));
+		
+		if($query->num_rows() > 0)
+		{
+			return $query->row();
+		}
+
+		//$this->db->where('idempresa', $idempresa);
+		//$this->db->where('idoficina', $idoficina);
+		//$this->db->where('idagente', $idagente);
+		//$this->db->where('fecha', $fecha);
+        //$this->db->delete('cunop_agentscheduler');		
 	}
 
 }

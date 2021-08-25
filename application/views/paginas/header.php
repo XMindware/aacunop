@@ -118,6 +118,7 @@
               <li><?=anchor(base_url().'Newsfeed', 'Newsfeed')?></li>
               <li><?=anchor(base_url().'Agentcomments', 'Posted comments')?></li>
               <li><?=anchor(base_url().'Timeswitch', 'My Shift Requests')?></li>
+              <li><?=anchor(base_url().'Notes', 'Daily Notes')?></li>
               <li role="separator" class="divider"></li>
               <li><?=anchor(base_url().'Loadleadsmensual', 'Import LEADS Monthly Assignments')?></li> 
               <li><?=anchor(base_url().'Loadimpresionmensual', 'Import AGENTS Monthly Assignments')?></li> 

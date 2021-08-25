@@ -62,6 +62,7 @@
                 	{
                 ?>
                 <button type="button" id="btnNewAgent" class="btn btn-link">New Request</button>
+                <button type="button" id="btnNewThreeRequest" class="btn btn-link">Place New Triangular Request </button>
                 <?
                 	}
                 ?>
@@ -197,6 +198,110 @@
 	                </fieldset>
 	            </div>
             </form>
+
+            <!-- Inicia form de cambios triangulares -->
+
+            <form id="frmThreeRequestInfo" action="#" style="display:none">   
+            	 	
+		
+	            <div id="divThreeStep2">
+	            	<fieldset required="required" style="text-align: center">
+	                    <legend>2. Please select the date requested</legend>
+	                    <label id="lblThreeInfo" style="color: red"></label>
+	                    <div id="threecalendar"></div>
+	                    <br/>
+	                    <br/>
+	                </fieldset>
+	            </div>
+	            <div id="divThreeStep3" style="display:none">
+	            	 <fieldset required="required" style="text-align: center">
+	                    <legend>3. Who is working your shift?</legend>
+	                   
+	                    <div class='row'>
+	                        <div class='col-sm-8'>
+	                            <div class='form-group'>
+	                            <label for="inputThreeSelectAgentCambio">Enter the agent name</label>
+	                               <input class="form-control typeahead" id="inputThreeSelectAgentCambio" name="inputThreeSelectAgentCambio" required="true" placeholder="Search Agents" size="30" type="text" />
+	                            </div>
+	                        </div>
+	                    </div>
+	                    <div class='col-sm-4'>
+	                        <div class='form-group'>
+	                            <button type="button" id="btnThreeNext3" class="btn btn-success">Next</button>
+	                            <button type="button" id="btnThreeCancel3" class="btn btn-default">Back</button>
+	                        </div>
+	                    </div>        
+	                </fieldset>
+	            </div>
+	            <div id="divThreeStep4" style="display:none">
+	            	 <fieldset required="required" style="text-align: center">
+	                    <legend>4. Select Agent that is off</legend>
+	                   
+	                    <div class='row'>
+	                        <div class='col-sm-8'>
+	                            <div class='form-group'>
+	                            <label for="inputThreeSelectFinalAgent">Enter the agent name</label>
+	                               <input class="form-control typeahead" id="inputThreeSelectFinalAgent" name="inputThreeSelectFinalAgent" required="true" placeholder="Search Agents" size="30" type="text" />
+	                            </div>
+	                        </div>
+	                    </div>
+	                    <div class='col-sm-4'>
+	                        <div class='form-group'>
+	                            <button type="button" id="btnThreeNext4" class="btn btn-success">Next</button>
+	                            <button type="button" id="btnThreeCancel4" class="btn btn-default">Back</button>
+	                        </div>
+	                    </div>        
+	                </fieldset>
+	            </div>
+	            
+	            <div id="divThreeFinalStep" style="display:none">
+	            	 <fieldset required="required" style="text-align: center">
+	                    <legend>Confirm Triangular Request Info</legend>
+	               		<div class="row">
+	               			<input type="hidden" id="inputThreeIdAgent1" value='<? echo $idagente; ?>'><input type="hidden" id="inputThreeAgentPos1">
+	               			<input type="hidden" id="inputThreeIdAgent2"><input type="hidden" id="inputThreeAgentPos2">
+	               			<input type="hidden" id="inputThreeIdAgent3"><input type="hidden" id="inputThreeAgentPos3">
+		                    <div class='col-sm-3 col-xs-6'>
+			                    <div class='form-group'>
+			                       <label for="inputThreeFechaCover">Date Selected</label>
+			                       <input class="form-control" id="inputThreeFechaCover" name="inputThreeFechaCover" size="30" type="date" readonly="true" />
+			                    </div>
+			                </div>
+			                <div class='col-sm-3 col-xs-6'>
+				                <div class='form-group'>
+				                    <label for="inputThreeAgent1">Requesting Agent</label>
+				                       <input class="form-control" id="inputThreeAgent1" name="inputThreeAgent1" size="30" type="text" readonly="true" />
+				                </div>
+				            </div>
+				            <div class='col-sm-3 col-xs-6'>
+				                <div class='form-group'>
+				                    <label for="inputThreeAgent2">Middle Agent</label>
+				                       <input class="form-control" id="inputThreeAgent2" name="inputThreeAgent2" size="30" type="text" readonly="true" />
+				                </div>
+				            </div>
+				            <div class='col-sm-3 col-xs-6'>
+				                <div class='form-group'>
+				                    <label for="inputThreeAgent3">Day Off Agent</label>
+				                       <input class="form-control" id="inputThreeAgent3" name="inputThreeAgent3" size="30" type="text" readonly="true" />
+				                </div>
+				            </div>
+				             
+				        </div>
+				       
+				        <div class="row">
+		                    <div class='col-sm-4'>
+		                        <div class='form-group'>
+		                            <button type="button" id="btnThreeSubmitRequest" class="btn btn-success">Send Request</button>
+		                            <button type="button" id="btnThreeBackFinal" class="btn btn-default">Back</button>
+		                        </div>
+		                    </div>
+		                </div>        
+	                </fieldset>
+	            </div>
+            </form> 
+
+            <!-- Termina form de cambios Triangulares -->
+
             <? 
             if($registros){
             	?>
@@ -228,14 +333,14 @@
 					?>
                     <tbody>
                       <tr>
-                        <td><? echo $tipocambio; ?></button></td>
-                        <td><? echo date('d/m/Y',strtotime($row['fechacambio'])); ?></td>
-                        <td><? echo $row['shortname']; ?></td>
-                        <td><? echo $row['posicioninicial'] . '->' . $row['posicionsolicitada']; ?></td>
-                        <td><? echo $row['fechatarget'] == '0000-00-00' ? '' : date('d/m/Y',strtotime($row['fechatarget'])) ; ?></td>
+                       <td><? echo $row['tipocambio']; ?></button></td>
                         <td><? echo $row['agentecambio']; ?></td>
+                        <td><? echo date('d/m/Y',strtotime($row['fechacambio'])); ?></td>
+                        <td><? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial']; ?></td>
+                        <td><? echo $row['shortname']; ?></td>
+                        <td><? echo $row['fechatarget'] == '0000-00-00' ? '' : date('d/m/Y',strtotime($row['fechatarget'])) ; ?></td>
                         <td><? echo $row['fechaacepta'] == '0000-00-00 00:00:00' ? 'NO' : 'YES'; ?></td>
-                        <td><? echo $row['fechaautoriza'] == '0000-00-00 00:00:00' ? 'NO' : 'YES'; ?></td>
+                        <td><? echo $row['fechaautoriza'] == '0000-00-00 00:00:00' ? 'NO' : 'YES ' . $row['leadautoriza']; ?></td>
                         <td>
                         	<?
                         	if($row['status']=='REQ' || $row['status']=='ACC')
@@ -291,6 +396,7 @@
 	                    <td><? echo $tipocambio; ?></button></td>
 	                    <td><? echo date('d/m/Y',strtotime($row['fechacambio'])); ?></td>
 	                    <td><? echo $row['shortname']; ?></td>
+	                    
 	                    <td><? echo $row['posicioninicial'] . '->' . $row['posicionsolicitada']; ?></td>
 	                    <td><? echo $row['fechatarget'] == '0000-00-00' ? '' : date('d/m/Y',strtotime($row['fechatarget'])) ; ?></td>
 	                    <td><? echo $row['agentecambio']; ?></td>
@@ -697,6 +803,112 @@
 			$("#inputDaysOff").val('');
 			$("#frmAgentData").hide();	
 		});
+
+		// eventos del proceso de request triangulado
+
+		// iniciar el cambio triangular
+		$("#btnNewThreeRequest").click(function(){
+			$("#frmThreeRequestInfo").show();	
+			$('#calendar').fullCalendar('render');
+			CargarThreeAgenteMes();
+		});
+
+
+		// oculta paso 2 y regresa a paso 1
+		$("#btnCancel2").click(function(){
+			$("#divThreeStep2").hide();
+			$("#divThreeStep1").show();
+		});
+
+		// next paso 3 a 4
+		$("#btnThreeNext3").click(function(){
+
+			cargarThreeAgentesLastCoverFecha();
+
+			$("#divThreeStep3").hide();
+			$("#divThreeStep4").show();
+		});
+
+		// cancel de 3 a 2
+		$("#btnThreeCancel3").click(function(){
+			$("#divThreeStep3").hide();
+			$("#divThreeStep2").show();
+		});
+
+		// next de 4 a final
+		$("#btnThreeNext4").click(function(){
+
+			// muestra la informacion
+
+			$("#divThreeStep4").hide();
+			$("#divThreeFinalStep").show();
+		});
+
+		// cancel de 4 a 3
+		$("#btnThreeCancel4").click(function(){
+			$("#divThreeStep4").hide();
+			$("#divThreeStep3").show();
+		});
+
+		$("#btnThreeBackFinal").click(function(){
+			$("#divThreeFinalStep").hide();
+			$("#divThreeStep4").show();
+		});
+
+		$("#btnThreeSubmitRequest").click(function(){
+			
+			var lfechacambiar = $("#inputFinalDate").val();
+			var lagent1 = $("#inputThreeAgent1").val();
+			var lidagent1 = $("#inputThreeIdAgent1").val();
+			var lpos1 = $("#inputThreeAgentPos1").val();
+			var lagent2 = $("#inputThreeAgent2").val();
+			var lidagent2 = $("#inputThreeIdAgent2").val();
+			var lpos2 = $("#inputThreeAgentPos2").val();
+			var lagent3 = $("#inputThreeAgent3").val();
+			var lidagent3 = $("#inputThreeIdAgent3").val();
+			var lpos3 = $("#inputThreeAgentPos3").val();
+			var laccepted = $("#inputThreeAccepted").is(":checked")?1:0;
+			
+			var agent = {
+				 fechacambiar : lfechacambiar,
+				 agent1 : lagent1,
+				 idagent1 : lidagent1,
+				 posicion1 : lpos1,
+				 agent2 : lagent2,
+				 idagent2 : lidagent2,
+				 posicion2 : lpos2,
+				 agent3 : lagent3,
+				 idagent3 : lidagent3,
+				 posicion3 : lpos3,
+				 accepted : laccepted
+				 };
+
+			
+			var request = $.ajax({
+				url: '<? echo base_url(); ?>timeswitch/expostthreerequest',
+				type: 'POST',
+				data: agent,
+				beforeSend:function(){
+					console.log('sending...');
+					$('#myPleaseWait').modal('show');
+				},
+				success:function(result){
+					result = jQuery.parseJSON(result);
+					alert(result.msg);
+					console.log('sent!');
+					console.log(result);
+					$('#myPleaseWait').modal('hide');
+					location.reload();
+				}, 
+				error:function(exception){console.log(exception);}
+				
+			});
+			
+			request.fail(function( jqXHR, textStatus ) {
+  			console.log( "Request failed: " + textStatus );
+			});
+			
+		});
 			
 		$("#frmRequestInfo").hide();
 		$("#divFinalStep").hide();
@@ -738,6 +950,99 @@
 			error:function(exception){console.log(exception);}
 			
 		});
+  	}
+
+  	function CargarThreeAgenteMes()
+  	{
+
+  		$("#inputThreeAgent1").val($("#inputShortname").val());
+  		var lagentecambio = $("#inputShortname").val();
+
+  		var agent = {
+			 shortname : lagentecambio
+			 };
+		console.log(agent);
+		
+		var request = $.ajax({
+			url: '<? echo base_url(); ?>timeswitch/AsyncMonthlySchedule',
+			type: 'POST',
+			data: agent,
+			beforeSend:function(){
+				console.log('sending...');
+				$('#myPleaseWait').modal('show');
+			},
+			success:function(result){
+				//console.log(result);
+				var listado = [];
+				$.each(result,function(value,row){
+					listado.push({
+						title : row.posicion,
+						start : row.fecha,
+						url : 'javascript:selectThreeFecha("' + row.fecha + '","' + row.posicion + '","' + row.workday + '");',
+						className : 'info'
+					});
+				});
+
+		  		/* initialize the calendar
+			      -----------------------------------------------------------------*/
+			      
+			    var calendar2 =  $('#threecalendar').fullCalendar({
+			        header: {
+			          left: 'title',
+			          center: false,
+			          right: 'prev,next today'
+			        },
+			        editable: false,
+			        height : '300px',
+			        firstDay: 1, //  1(Monday) this can be changed to 0(Sunday) for the USA system
+			        selectable: false,
+			        defaultView: 'month',
+			        axisFormat: 'h:mm',
+			        columnFormat: {
+			                  month: 'ddd',    // Mon
+			                  week: 'ddd d', // Mon 7
+			                  day: 'dddd M/d',  // Monday 9/7
+			                  agendaDay: 'dddd d'
+			              },
+			              titleFormat: {
+			                  month: 'MMMM yyyy', // September 2009
+			                  week: "MMMM yyyy", // September 2009
+			                  day: 'MMMM yyyy'                  // Tuesday, Sep 8, 2009
+			              },
+			        allDaySlot: false,
+			        weekMode : false,
+			        eventConstraint : { endTime : '2019-05-29' },
+			        selectHelper: true,
+			        select: function(start, end, allDay) {
+			          var title = prompt('Event Title:');
+			          if (title) {
+			            calendar.fullCalendar('renderEvent',
+			              {
+			                title: title,
+			                start: start,
+			                end: end,
+			                allDay: allDay
+			              },
+			              true // make the event "stick"
+			            );
+			          }
+			          calendar.fullCalendar('unselect');
+			        },
+			        droppable: false,
+			        navLinks : true,
+			        navLinkDayClick : function(date, jsEvent) {
+			            console.log('day', date.toISOString());
+			            console.log('coords', jsEvent.pageX, jsEvent.pageY);
+			        },
+			       
+			        events: listado
+			    });
+
+		      	$('#myPleaseWait').modal('hide');
+		    }
+			
+		});
+
   	}
 
   	function cargarAgentesSwitchFecha()
@@ -919,6 +1224,105 @@
 		});
   	}
 
+  	// carga las opciones para cubrir una triangulacion
+  	function cargarThreeAgentesCoverFecha(fecha,posicion,jornada)
+  	{
+
+  		var lagentecambio = $("#inputShortname").val();
+
+  		var agent = {
+  			 agente : lagentecambio,
+			 fechacambiar : fecha,
+			 userposicion : posicion,
+			 userjornada : jornada
+			 };
+		console.log(agent);
+		
+		var request = $.ajax({
+			url: '<? echo base_url(); ?>timeswitch/getagentscoverdate',
+			type: 'POST',
+			data: agent,
+			beforeSend:function(){
+				console.log('sending...');
+				$('#myPleaseWait').modal('show');
+			},
+			success:function(result){
+				console.log(result);
+				// arma la lista de agentes para seleccionar
+				agenteslista = result;
+
+				$('#inputThreeSelectAgentCambio.typeahead').typeahead({
+		            source : agenteslista,
+		            display : 'name',
+		            val : 'id',
+		            onSelect: function(item) {
+			        	$("#inputThreeFinalPosition").val(item.comment);
+			        	$("#inputThreeAgent2").val(item.text);
+			        	$("#inputThreeIdAgent2").val(item.value);
+			        	$("#inputThreeAgentPos2").val(item.comment);
+			    	}
+		        });
+				console.log('sent!');
+				//console.log(result);
+				$('#myPleaseWait').modal('hide');
+				//location.reload();
+			}, 
+			error:function(exception){console.log(exception);}
+			
+		});
+  	}
+
+
+  	// carga la lista de los que pueden ser last agents en la triangulacion
+  	function cargarThreeAgentesLastCoverFecha()
+  	{
+  		var lfechacambiar = $("#inputFinalDate").val();
+  		var luserposicion = $("#inputUserPosicion").val();
+  		var luserjornada = $("#inputUserJornada").val();
+
+  		var lagentecambio = $("#inputShortname").val();
+
+  		var agent = {
+  			 agente : lagentecambio,
+			 fechacambiar : lfechacambiar,
+			 userposicion : luserposicion,
+			 userjornada : luserjornada
+			 };
+		console.log(agent);
+		
+		var request = $.ajax({
+			url: '<? echo base_url(); ?>timeswitch/getagentslastcoverdate',
+			type: 'POST',
+			data: agent,
+			beforeSend:function(){
+				console.log('sending...');
+				$('#myPleaseWait').modal('show');
+			},
+			success:function(result){
+				console.log(result);
+				// arma la lista de agentes para seleccionar
+				agenteslista = result;
+
+				$('#inputThreeSelectFinalAgent.typeahead').typeahead({
+		            source : agenteslista,
+		            display : 'name',
+		            val : 'id',
+		            onSelect: function(item) {
+			        	$("#inputThreeSelectFinalAgent").val(item.name);
+			        	$("#inputThreeAgent3").val(item.text);
+			        	$("#inputThreeIdAgent3").val(item.value);
+			        	$("#inputThreeAgentPos3").val(item.comment);
+			    	}
+		        });
+				console.log('sent!');
+				//console.log(result);
+				$('#myPleaseWait').modal('hide');
+				//location.reload();
+			}, 
+			error:function(exception){console.log(exception);}
+			
+		});
+  	}
 
   	function cargarAgentesDayOffFecha()
   	{
@@ -1009,6 +1413,33 @@
 	  		$("#divStep3").show();
 		    $("#divStep2").hide();
 		}
+   	}
+
+   	// el usuario del cambio de triangulacion selecciona la fecha de cambio
+   	function selectThreeFecha(fecha, posicion, jornada){
+
+  		// evaluamos si aun tiene tiempo para seleccionar ese dia
+  		var umbral = moment(fecha).hour(9).minutes(0).add(-1,'days');
+
+  		/*if(!moment().isBefore(umbral))
+  		{
+  			$("#lblInfo").text('Ya esta fuera de horario');
+  		}
+  		else
+  		{*/
+  			$("#inputThreeFechaCover").val(fecha);
+	  		$("#inputFinalDate").val(fecha);
+	  		$("#inputFinalPosition").val(posicion);
+	  		$("#inputUserJornada").val(jornada);
+	  		$("#inputThreeAgentPos1").val(posicion);
+
+   			cargarThreeAgentesCoverFecha(fecha,posicion,jornada);
+   			
+   			
+	  		//$("#divSelectedInfo").show();
+	  		$("#divThreeStep3").show();
+		    $("#divThreeStep2").hide();
+		//}
    	}
 
    	function selectDayOffFecha(fecha, posicion)

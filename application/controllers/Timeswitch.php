@@ -11,7 +11,7 @@ class Timeswitch extends CI_Controller {
 		$this->load->model(array('Admin_model','Loadleadsmensual_model','Loadimpresionmensual_model'));
 		$this->load->model('Agentes_model');
 		$this->load->model('Timeswitch_model');
-		$this->load->model('Webcunop_model');
+		$this->load->model(array('Webcunop_model','Posiciones_model','Cando_model'));
 		$this->load->library(array('session'));
 		$this->load->helper(array('url'));
 	}
@@ -47,7 +47,7 @@ class Timeswitch extends CI_Controller {
 		$requests = $this->Timeswitch_model->ConsultarAgentRequests($idempresa,$idoficina,$this->session->userdata('idagente'));
 
 		// registro de transcciones pasadas
-		$registros = $this->Timeswitch_model->ConsultarAgentHistoricalRequests($idempresa,$idoficina);
+		$registros = $this->CompleteHistoricalRequests($idempresa,$idoficina);
 		$agentes = $this->Agentes_model->StationAgents($idempresa,$idoficina);
 		
 		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha);
@@ -71,6 +71,50 @@ class Timeswitch extends CI_Controller {
 		}
 	}
 
+	private function CompleteHistoricalRequests($idempresa,$idoficina)
+	{
+		$newregistros = array();
+		$registros = $this->Timeswitch_model->ConsultarAgentHistoricalRequests($idempresa,$idoficina);
+		foreach ($registros as $registro) {
+			if($registro['tipocambio'] == 'Triangle')
+			{
+
+				$triangulo = $this->Timeswitch_model->GetTriangleRecords($idempresa,$idoficina,$registro['triangulo']);
+				if(sizeof($triangulo)>1){
+					$registro['uniqueid'] = $triangulo[0]['triangulo'];
+					$registro['agentecambio'] = $triangulo[0]['agentecambio'] . '->' . $triangulo[1]['agentecambio'];
+					$registro['posicionsolicitada'] = $triangulo[0]['posicionsolicitada'] . ' &rarr; ' . $triangulo[1]['posicionsolicitada'];
+				}
+				else{
+					log_message('debug','Triangle incomplete ' . $triangulo[0]['triangulo']);
+				}
+
+			}
+			array_push($newregistros,$registro);
+		}	
+		return $newregistros;
+	}
+
+	private function AgentHistoricalRequests($idempresa,$idoficina,$idagent)
+	{
+		$newregistros = array();
+		$registros = $this->Timeswitch_model->ConsultarAgentRequests($idempresa,$idoficina,$idagent);
+		if($registros){
+		foreach ($registros as $registro) {
+			if($registro['tipocambio'] == 'Triangle')
+			{
+				$triangulo = $this->Timeswitch_model->GetTriangleRecords($idempresa,$idoficina,$registro['triangulo']);
+				if(sizeof($triangulo)>1){
+					$registro['agentecambio'] = $triangulo[0]['agentecambio'] . '->' . $triangulo[1]['agentecambio'];
+					$registro['posicionsolicitada'] = $triangulo[0]['posicionsolicitada'] . ' &rarr; ' . $triangulo[1]['posicionsolicitada'];
+				}
+
+			}
+			array_push($newregistros,$registro);
+		}	}
+		return $newregistros;
+	}
+
 	public function LoadAgentRequests(){
 
 		if($this->session->userdata('perfil') == FALSE )
@@ -90,7 +134,8 @@ class Timeswitch extends CI_Controller {
 		$tdata['perfil'] = $this->session->userdata('perfil');
 
 		$hayrequesthoy = false; //$this->Timeswitch_model->HayRequestsHoy($idempresa,$idoficina,$this->session->userdata('idagente'));
-		$registros = $this->Timeswitch_model->ConsultarAgentRequests($idempresa,$idoficina,$this->session->userdata('idagente'));
+		//$registros = $this->Timeswitch_model->ConsultarAgentRequests($idempresa,$idoficina,$this->session->userdata('idagente'));
+		$registros = $this->AgentHistoricalRequests($idempresa,$idoficina,$this->session->userdata('idagente'));
 		$agentes = $this->Agentes_model->StationAgents($idempresa,$idoficina);
 		
 		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha);
@@ -101,6 +146,7 @@ class Timeswitch extends CI_Controller {
 		$data['idempresa'] = $idempresa;
 		$data['idoficina'] = $idoficina;
 		$data['requestshoy'] = $hayrequesthoy;
+		$data['idagente'] = $this->session->userdata('idagente');
 		$data['shortname'] = $this->session->userdata('shortname');
 
 		if($data)
@@ -122,7 +168,7 @@ class Timeswitch extends CI_Controller {
 
 		if($this->session->userdata('perfil') == FALSE )
 		{
-			$error = array('status' => "Failed", "msg" => "La sesion ha expirado. Intente nuevamente.");
+			$error = array('status' => "Failed", "msg" => "Session is expired please login again");
 			$this->response($this->json($error), 429);
 			return;
 		}
@@ -153,9 +199,14 @@ class Timeswitch extends CI_Controller {
 		$buscar = $this->Timeswitch_model->BuscarAgenteSwitch($idempresa,$idoficina,$idagentecambio,$fechacambio);
 		if($buscar)
 		{
-			$error = array('status' => "Failed", "msg" => "The agent selected for switch has already a request on this day.");
-			$this->response($this->json($error), 429);
-			return;
+			// si ese dia es XX,PT o DPT le da chance
+			$horas = $this->Webcunop_model->ConsultarHorasAsignadasAgenteFecha($idempresa,$idoficina,$idagente,$fechacambio);
+			if($horas->horas > 6)
+			{
+				$error = array('status' => "Failed", "msg" => "The agent selected for switch has already met the maximum hours permited on this day.");
+				$this->response($this->json($error), 429);
+				return;
+			}
 		}
 
 
@@ -215,13 +266,15 @@ class Timeswitch extends CI_Controller {
 		$idagentecambio = $rowagente['idagente'];
 
 		// evaluamos si el agente idcambio no ha sido solicitado por alguien mas ese dia
+		/* Vamos a permitir personas que hayan doble cubre
+
 		$buscar = $this->Timeswitch_model->BuscarAgenteSwitch($idempresa,$idoficina,$idagentecambio,$fechacambio);
 		if($buscar)
 		{
 			$error = array('status' => "Failed", "msg" => "The agent selected for switch has already a request on this day.");
 			$this->response($this->json($error), 429);
 			return;
-		}
+		}*/
 
 
 		$inserted = $this->Timeswitch_model->PostSwitchRequest($idempresa,$idoficina,$idagente,$shortname,$fechacambio,$fechatarget,$posicioninicial,$tipocambio,$posicionsolicitada,$idagentecambio,$agentecambio);
@@ -243,6 +296,155 @@ class Timeswitch extends CI_Controller {
 		if($inserted)
 		{
 			$error = array('status' => "OK", "msg" => "Switch request has been placed succesfully.");
+			$this->response($this->json($error), 400);
+			return;
+			//$this->Agentes_model->RegistrarNotificacion();
+		}
+
+
+	}
+
+	// post de switch de triangulacion
+	public function ExPostThreeRequest()
+	{
+
+		if($this->session->userdata('perfil') == FALSE )
+		{
+			$error = array('status' => "Failed", "msg" => "La sesion ha expirado. Intente nuevamente.");
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		// viene de la sesion
+		$idempresa = $this->session->userdata('idempresa');
+		$idoficina = $this->session->userdata('idoficina');
+		
+		// la fecha solicitada por el agente 1
+		$fechacambiar = $this->input->post('fechacambiar');
+		
+		// agente 1
+		$agente1 = $this->input->post('agent1');
+		$idagente1 = $this->input->post('idagent1');
+		$posicion1 = $this->input->post('posicion1');
+
+		// agente 2 - middle
+		$agente2 = $this->input->post('agent2');
+		$idagente2 = $this->input->post('idagent2');
+		$posicion2 = $this->input->post('posicion2');
+
+		// agente 3 - ultimo
+		$agente3 = $this->input->post('agent3');
+		$idagente3 = $this->input->post('idagent3');
+		$posicion3 = $this->input->post('posicion3');
+
+		$accepted = $this->input->post('accepted');
+
+		// valida que los agentes esten bien
+		$rowagente1 = $this->Agentes_model->LoadValidAgentId($idempresa, $idoficina, $idagente1);
+		if(!$rowagente1)
+		{
+			$error = array('status' => "Failed", "msg" => "Agent solicitant for Cover is not registered.");
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		// skills para hacer la posicion del agente1
+		$skillpos1 = $this->Posiciones_model->GetSkillForPosition($idempresa,$idoficina,$posicion1,$rowagente1->jornada);
+
+		$rowagente2 = $this->Agentes_model->LoadValidAgentId($idempresa, $idoficina, $idagente2);
+		if(!$rowagente2)
+		{
+			$error = array('status' => "Failed", "msg" => "Middle Agent for Cover is not registered.");
+			$this->response($this->json($error), 429);
+			return;
+		}
+		// skills para hacer la posicion del agente1
+		$skillpos2 = $this->Posiciones_model->GetSkillForPosition($idempresa,$idoficina,$posicion2,$rowagente2->jornada);
+
+		$rowagente3 = $this->Agentes_model->LoadValidAgentId($idempresa, $idoficina, $idagente3);
+		if(!$rowagente3)
+		{
+			$error = array('status' => "Failed", "msg" => "Last Agent for Cover is not registered.");
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		
+		// evaluamos si el agente idcambio no ha sido solicitado por alguien mas ese dia
+		$buscar = $this->Timeswitch_model->BuscarAgenteSwitch($idempresa,$idoficina,$idagente3,$fechacambiar);
+		if($buscar)
+		{
+			$error = array('status' => "Failed", "msg" => "The Last Agent selected for Cover has already a request for " . 
+				date('d/m/Y',strtotime($fechacambiar)) . ".");
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		// checamos si tiene espacio para hacer la posicion solicitada por agente 2
+		$schedule3 = $this->Webcunop_model->ConsultarQuickSchedule($idempresa,$idoficina,$idagente3,$fechacambiar);
+		if($schedule3){
+			// si el agente hace cualquier cosa que no sea descanso o vacaciones (puede cubrir en vacaciones) nos avisa y termina
+			if($schedule3[0]['posicion'] != 'XX' || $schedule3[0]['posicion'] != 'VAC'){
+				$error = array('status' => "Failed", "msg" => "The Last Agent " . $agente3 . " selected is scheduled " . $schedule3[0]['posicion'] . " for this day therefore cannot cover Middle Agent.");
+				$this->response($this->json($error), 429);
+				return;
+			}
+		}
+
+		// agente 3 debe poder hacer el skill del agente 2
+		$skills3 = $this->Cando_model->GetAgentSkills($idempresa,$idoficina,$idagente3);
+
+		if(!$skills3 || !$this->haskill($skillpos2->cando,$skills3))
+		{
+			$error = array('status' => "Failed", "msg" => "The Last Agent selected for Cover does not have the skills required to cover middle agent.");
+			$this->response($this->json($error), 429);
+			return;
+
+		}
+
+		// agente 2 debe poder hacer el skill del agente 1
+		$skills2 = $this->Cando_model->GetAgentSkills($idempresa,$idoficina,$idagente2);
+
+		if(!$skills2 || !$this->haskill($skillpos1->cando,$skills2))
+		{
+			$error = array('status' => "Failed", "msg" => "The Middle Agent selected for Cover does not have the skills required to cover solicitant.");
+			$this->response($this->json($error), 429);
+			return;
+
+		}
+
+		// primero insertamos el req del agente 2 al agente 3
+		//TODO hacer el switch como cover y ponerle un tipo especial para trangulacion
+
+		$request1 = $this->Timeswitch_model->PostSwitchRequest($idempresa,$idoficina,$idagente2,$agente2,$fechacambiar,'0000-00-00',$posicion2,'Triangle',
+			$posicion3,$idagente3,$agente3);
+
+		// segundo insertamos el req del agente 1 al agente 2
+		$request2 = $this->Timeswitch_model->PostSwitchRequest($idempresa,$idoficina,$idagente1,$agente1,$fechacambiar,'0000-00-00',$posicion1,'Triangle',
+			$posicion2,$idagente2,$agente2);
+
+		$this->Timeswitch_model->JoinRequestsTriangle($idempresa, $idoficina, $request1->uniqueid,$request2->uniqueid);
+
+		
+		if($request1 && $request2 && !$accepted)
+		{
+			$error = array('status' => "OK", "msg" => "Tringular request has been placed succesfully.");
+			$this->response($this->json($error), 400);
+			return;
+			//$this->Agentes_model->RegistrarNotificacion();
+		}
+
+		// aceptamos el request
+		if($accepted)
+		{
+			$inserted1 = $this->Timeswitch_model->AcceptSwitchRequest($idempresa,$idoficina,$request1->uniqueid);
+
+			$inserted2 = $this->Timeswitch_model->AcceptSwitchRequest($idempresa,$idoficina,$request2->uniqueid);
+	
+		}
+		if($inserted1 && $inserted2)
+		{
+			$error = array('status' => "OK", "msg" => "Tringular request has been placed succesfully.");
 			$this->response($this->json($error), 400);
 			return;
 			//$this->Agentes_model->RegistrarNotificacion();
@@ -280,6 +482,13 @@ class Timeswitch extends CI_Controller {
 		$data['registros'] = $registros;
 		$data['idempresa'] = $idempresa;
 		$data['idoficina'] = $idoficina;
+
+
+		$limite = new DateTime($data['request']->fechacambio);
+		$limite->modify("-1 day");
+		$limite->setTime(14,0);
+		$data['limite'] = $limite->format('Y-m-d H:i:s');
+		
 
 		if($data)
 		{
@@ -321,7 +530,6 @@ class Timeswitch extends CI_Controller {
 			return;
 		}
 
-		print_r($requestinfo);
 		// validar que este request no haya sido aceptado previamente
 		if($requestinfo->fechaacepta != '0000-00-00 00:00:00')
 		{
@@ -372,7 +580,7 @@ class Timeswitch extends CI_Controller {
 		$tdata['oficinas'] = $adminoficina;
 		$tdata['perfil'] = $this->session->userdata('perfil');
 		
-		$data['coordinador'] = ($this->session->userdata('idagente') == '471974' || $this->session->userdata('idagente') == '555092' ) ? 'SI':'NO';
+		$data['coordinador'] = ($this->session->userdata('idagente') == '669958' || $this->session->userdata('idagente') == '555092' || $this->session->userdata('idagente') == '689234' ) ? 'SI':'NO'; 
 		$request = $this->Timeswitch_model->ConsultarLeadCambioRequestById($idempresa,$idoficina,$requestid);	
 		if($request)
 		{
@@ -396,11 +604,451 @@ class Timeswitch extends CI_Controller {
 
 	}
 
+	// abre un formulario para 
+	public function ReviewTriangleRequestLead()
+	{
+		if($this->session->userdata('perfil') == FALSE )
+		{
+			redirect(base_url().'login');
+		}
+
+		$fecha = date('Y-m-d');
+		$idempresa = $this->session->userdata('idempresa');
+		$idoficina = $this->session->userdata('idoficina');
+		$requestid = $this->input->get('uid');
+		
+		// consulta las oficinas de la cuales es admin el usuario actual
+		$adminoficina = $this->Admin_model->GetOficinasAdmin();
+		
+		$tdata['titulo'] = 'Time Shift Authorize Request';
+		$tdata['oficinas'] = $adminoficina;
+		$tdata['perfil'] = $this->session->userdata('perfil');
+		
+		$data['coordinador'] = ($this->session->userdata('idagente') == '669958' || $this->session->userdata('idagente') == '555092' ) ? 'SI':'NO';
+		$request = $this->Timeswitch_model->ConsultarLeadCambioThreeRequestById($idempresa,$idoficina,$requestid);
+
+		if($request){
+			if( sizeof($request)==2)
+			{
+				$agente1 = $this->Agentes_model->LoadAgentId($idempresa,$idoficina,$request[1]['idagente']);
+
+				$data['requestid'] = $request[0]['triangulo'];
+				$presentation = array(
+					"idagent1"		=> $request[1]['idagente'],
+					"agent1"		=> $request[1]['shortname'],
+					"puesto1"		=> $agente1[0]['puesto'],
+					"position1"		=> $request[1]['posicioninicial'],
+					"idagent2" 		=> $request[0]['idagente'],
+					"agent2"  		=> $request[0]['shortname'],
+					"position2"		=> $request[0]['posicioninicial'],
+					"idagent3" 		=> $request[0]['idagentecambio'],	
+					"agent3"		=> $request[0]['agentecambio'],
+					"position3"		=> $request[0]['posicionsolicitada'],
+					"fecha"			=> $request[0]['fechacambio'],
+					"tipocambio"	=> $request[0]['tipocambio']
+				);
+				$data['presentation'] = $presentation;
+			}
+		}
+		$data['idempresa'] = $idempresa;
+		$data['idoficina'] = $idoficina;
+		
+		if($data)
+		{
+			//$data = Array('userlist' => $userlist);
+			//print_r($data);
+			if($this->session->userdata('isadmin')!='1')
+				$this->load->view('paginas/header_u',$tdata);
+			else
+				$this->load->view('paginas/header',$tdata);
+			$this->load->view('TimeswitchThreeAuthorize_view',$data);
+			$this->load->view('paginas/footer');
+		}
+	}
+
+	// intenta autorizar un cambio triangular
+	public function AuthorizeThreeRequest()
+	{
+		$debug = true;
+		$file = fopen("/home/mindware/public_html/apps.mindware.com.mx/cun/logs/autorizaciones_" . date("Ymd"), "a+");
+
+		if($this->session->userdata('perfil') == FALSE )
+		{
+			$error = array('status' => "Failed", "msg" => "Session expired. Login and try again.");
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		if($this->session->userdata('perfil') != 'admin' )
+		{
+			$error = array('status' => "Failed", "msg" => "You don't have permission to authorize.");
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		// toma la informacion requerida
+		$idempresa = $this->session->userdata('idempresa');
+		$idoficina = $this->session->userdata('idoficina');
+		$idagente = $this->session->userdata('idagente');
+		$shortname = $this->session->userdata('shortname');
+		$requestid = $this->input->post('requestid');
+
+		$requestinfo = $this->Timeswitch_model->GetTriangleRecords($idempresa, $idoficina, $requestid);
+
+		if(!$requestinfo)
+		{
+			$error = array('status' => "Failed", "msg" => "The request provided is not valid");
+
+			if($debug)
+			{
+				fwrite($file,'Error: The request provided is not valid ' .  "\n");
+				fwrite($file,"\n");
+				//echo 'Request Info' . PHP_EOL;
+				//print_r($requestinfo);
+			}
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		if($debug)
+		{
+			fwrite($file,'Request info');
+			fwrite($file,print_r($requestinfo, true));
+		}
+
+		if(sizeof($requestinfo)<2)
+		{
+			if($debug)
+			{
+				fwrite($file,'Error: The Triangle Request is incomplete. Ask for tech support. ' .  "\n");
+				fwrite($file,"\n");
+				//echo 'Request Info' . PHP_EOL;
+				//print_r($requestinfo);
+			}
+			$error = array('status' => "Failed", "msg" => "The Triangle Request is incomplete. Ask for tech support.");
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		// validar que este request no haya sido aceptado previamente
+		if($requestinfo[0]['fechaacepta'] == '0000-00-00 00:00:00' || 
+		   $requestinfo[1]['fechaacepta'] == '0000-00-00 00:00:00' || 
+		   $requestinfo[0]['status'] != 'ACC' ||
+		   $requestinfo[1]['status'] != 'ACC')
+		{
+			if($debug)
+			{
+				fwrite($file,'Error: The Request was not previously accepted by the receiving agent.' .  "\n");
+				fwrite($file,"\n");
+				//echo 'Request Info' . PHP_EOL;
+				//print_r($requestinfo);
+			}
+			$error = array('status' => "Failed", "msg" => "The Request was not previously accepted by the receiving agent.");
+			$this->response($this->json($error), 429);
+			return;
+		}			
+
+		// validar que el agente cambio es que esta aceptando
+		if($requestinfo[0]['idleadautoriza'] != '')
+		{
+			if($debug)
+			{
+				fwrite($file,'Error: Current Request was previously authorized by ' . $requestinfo[0]['leadautoriza'] .  "\n");
+				fwrite($file,"\n");
+				//echo 'Request Info' . PHP_EOL;
+				//print_r($requestinfo);
+			}
+			$error = array('status' => "Failed", "msg" => "Current Request was previously authorized by " . $requestinfo[0]['leadautoriza']);
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+		// inicia la autorizacion 
+
+
+		// se autoriza el cambio
+		$inserted = $this->Timeswitch_model->PreAuthorizeSwitchThreeRequest($idempresa,$idoficina,$requestid,$idagente,$shortname);
+
+		if(!$inserted && $debug)
+			{
+				fwrite($file,'Error: El request no pudo ser preautorizado.' .  "\n");
+				fwrite($file,"\n");
+				//echo 'Request Info' . PHP_EOL;
+				//print_r($requestinfo);
+			}
+		if($inserted)
+		{
+
+			/*
+			 * INICIAMOS EL CAMBIO CON EL REQUEST 1 (agente 2 y 3)
+			 */
+
+			if($debug)
+			{
+				fwrite($file,'REQUEST 1' . "\n");
+				fwrite($file,"\n");
+				//echo 'Request Info' . PHP_EOL;
+				//print_r($requestinfo);
+			}
+
+			// cargamos el perfil de los agentes
+			$perfilsolicita = $this->Agentes_model->LoadAgentId($idempresa,$idoficina,$requestinfo[0]['idagente']);
+
+			$perfildestino = $this->Agentes_model->LoadAgentId($idempresa,$idoficina,$requestinfo[0]['idagentecambio']);
+
+			if($debug)
+			{
+				fwrite($file,'Perfil solicita' . "\n");
+				fwrite($file,print_r($perfilsolicita, true));
+				fwrite($file,"\n");
+				//echo 'perfil solicita ' . PHP_EOL;
+				//print_r($perfilsolicita);
+
+				fwrite($file,'Perfil destino' . "\n");
+				fwrite($file,print_r($perfildestino, true));
+				fwrite($file,"\n");
+				//echo 'perfil destino ' . PHP_EOL;
+				//print_r($perfildestino);
+			}
+
+
+			// consultamos la asignacion actual del solicitante para esa fecha (puede tener mas de una asignacion)
+			$agentesolicita = $this->Webcunop_model->ConsultarRegistroAgenteFechaPos($idempresa,$idoficina,$requestinfo[0]['idagente'],$requestinfo[0]['fechacambio'],$requestinfo[0]['posicioninicial']);
+
+			if($debug)
+			{
+				fwrite($file,'Agente solicita' . "\n");
+				fwrite($file,print_r($agentesolicita, true));
+				fwrite($file,"\n");
+				//print_r($agentesolicita);
+			}
+
+			$possolicitada = $requestinfo[0]['posicionsolicitada'] == '' ? 'XX' : $requestinfo[0]['posicionsolicitada'];
+
+			// consultamos la asignacion actual del destinatario para esa fecha (puede tener mas de una asignacion)
+			$agentedestino = $this->Webcunop_model->ConsultarRegistroAgenteFechaPos($idempresa,$idoficina,$requestinfo[0]['idagentecambio'],$requestinfo[0]['fechacambio'],$possolicitada);
+
+			if($debug)
+			{
+				fwrite($file,'Agente destino' . "\n");
+				fwrite($file,print_r($agentedestino, true));
+				fwrite($file,"\n");
+				//echo 'Agente Destino ' .PHP_EOL;
+				//print_r($agentedestino);
+			}
+
+			// COVER 1
+
+			$asignacion = '';
+
+			// 1. eliminamos el schedule inicial del agente que solicita
+			if($perfilsolicita[0]['puesto']=='LEAD')
+			{
+				$this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa,$idoficina,$agentesolicita->uniqueid);
+			}
+			else
+			{
+				$this->Webcunop_model->DeleteAgenteSchedulerUniqueid($idempresa,$idoficina,$agentesolicita->uniqueid);
+			}
+
+			// 2. si la asignacion del destino es descanso, se le elimina
+			if($agentedestino->posicion == 'XX')
+			{
+				if($perfildestino[0]['puesto']=='LEAD')
+				{
+					$this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa,$idoficina,$agentedestino->uniqueid);
+				}
+				else
+				{
+					$this->Webcunop_model->DeleteAgenteSchedulerUniqueid($idempresa,$idoficina,$agentedestino->uniqueid);
+				}
+			}
+
+			$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo[0]['fechacambio'],'',$requestinfo[0]['shortname'],$requestinfo[0]['posicioninicial'],$requestinfo[0]['agentecambio'],$requestinfo[0]['posicionsolicitada'],$shortname);
+
+			//  3. inserta nueva asignacion al lead / agente destino
+			if($perfilsolicita[0]['puesto']=='LEAD')
+			{
+					// ActualizarScheduleLead($idempresa, $idoficina, $idagente, $fecha, $workday, $shortname, $asignacion, $posicion)
+				$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo[0]['idagentecambio'], $requestinfo[0]['fechacambio'], $agentesolicita->workday, $requestinfo[0]['agentecambio'], $asignacion, $requestinfo[0]['posicioninicial']);
+			}
+			else
+			{
+
+				$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo[0]['idagentecambio'], $requestinfo[0]['fechacambio'], $agentesolicita->workday, $requestinfo[0]['agentecambio'], $asignacion, $requestinfo[0]['posicioninicial']);
+			}
+
+			// se le asigna un descanso
+			$possolicitada = $requestinfo[0]['posicionsolicitada'] == '' ? 'XX' : 'XX';
+			//  4. inserta una asignacio de descanso
+			if($perfilsolicita[0]['puesto']=='LEAD')
+			{
+				// ActualizarScheduleLead($idempresa, $idoficina, $idagente, $fecha, $workday, $shortname, $asignacion, $posicion)
+				
+				$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo[0]['idagente'], $requestinfo[0]['fechacambio'], $agentesolicita->workday, $requestinfo[0]['shortname'], $asignacion, $possolicitada);
+			}
+			else
+			{
+
+				$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo[0]['idagente'], $requestinfo[0]['fechacambio'], $agentesolicita->workday, $requestinfo[0]['shortname'], $asignacion, $possolicitada);
+			}
+
+			$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo[0]['fechacambio'],'',$requestinfo[0]['shortname'],$requestinfo[0]['posicioninicial'],$requestinfo[0]['agentecambio'],$possolicitada,$shortname);
+
+
+			/*
+			 * INICIAMOS EL CAMBIO CON EL REQUEST 2 (agente 1 y 2)
+			 */
+
+			if($debug)
+			{
+				fwrite($file,'REQUEST 2' . "\n");
+				fwrite($file,"\n");
+				//echo 'Request Info' . PHP_EOL;
+				//print_r($requestinfo);
+			}
+
+			// cargamos el perfil de los agentes
+			$perfilsolicita = $this->Agentes_model->LoadAgentId($idempresa,$idoficina,$requestinfo[1]['idagente']);
+
+			$perfildestino = $this->Agentes_model->LoadAgentId($idempresa,$idoficina,$requestinfo[1]['idagentecambio']);
+
+			if($debug)
+			{
+				fwrite($file,'Perfil solicita' . "\n");
+				fwrite($file,print_r($perfilsolicita, true));
+				fwrite($file,"\n");
+				//echo 'perfil solicita ' . PHP_EOL;
+				//print_r($perfilsolicita);
+
+				fwrite($file,'Perfil destino' . "\n");
+				fwrite($file,print_r($perfildestino, true));
+				fwrite($file,"\n");
+				//echo 'perfil destino ' . PHP_EOL;
+				//print_r($perfildestino);
+			}
+
+
+			// consultamos la asignacion actual del solicitante para esa fecha (puede tener mas de una asignacion)
+			$agentesolicita = $this->Webcunop_model->ConsultarRegistroAgenteFechaPos($idempresa,$idoficina,$requestinfo[1]['idagente'],$requestinfo[1]['fechacambio'],$requestinfo[1]['posicioninicial']);
+
+			if($debug)
+			{
+				fwrite($file,'Agente solicita' . "\n");
+				fwrite($file,print_r($agentesolicita, true));
+				fwrite($file,"\n");
+				//echo 'Agente solicita' . PHP_EOL;
+				//print_r($agentesolicita);
+			}
+
+			// hacemos que la posicion solicitada sea la del agente 3
+			$possolicitada = $requestinfo[0]['posicionsolicitada'] == '' ? 'XX' : $requestinfo[0]['posicionsolicitada'];
+
+			// consultamos la asignacion actual del destinatario para esa fecha (puede tener mas de una asignacion)
+			$agentedestino = $this->Webcunop_model->ConsultarRegistroAgenteFechaPos($idempresa,$idoficina,$requestinfo[1]['idagentecambio'],$requestinfo[1]['fechacambio'],$possolicitada);
+
+			if($debug)
+			{
+				fwrite($file,'Agente destino' . "\n");
+				fwrite($file,print_r($agentedestino, true));
+				fwrite($file,"\n");
+
+				//echo 'Agente Destino ' .PHP_EOL;
+				//print_r($agentedestino);
+			}
+
+			// COVER 2
+
+			$asignacion = '';
+
+			// 1. eliminamos el schedule inicial del agente que solicita
+			if($perfilsolicita[0]['puesto']=='LEAD')
+			{
+				$this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa,$idoficina,$agentesolicita->uniqueid);
+			}
+			else
+			{
+				$this->Webcunop_model->DeleteAgenteSchedulerUniqueid($idempresa,$idoficina,$agentesolicita->uniqueid);
+			}
+
+			// 2. si la asignacion del destino es descanso, se le elimina
+			if($agentedestino->posicion == 'XX')
+			{
+				if($perfildestino[0]['puesto']=='LEAD')
+				{
+					$this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa,$idoficina,$agentedestino->uniqueid);
+				}
+				else
+				{
+					$this->Webcunop_model->DeleteAgenteSchedulerUniqueid($idempresa,$idoficina,$agentedestino->uniqueid);
+				}
+			}
+
+			$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo[1]['fechacambio'],'',$requestinfo[1]['shortname'],$requestinfo[1]['posicioninicial'],$requestinfo[1]['agentecambio'],$requestinfo[0]['posicionsolicitada'],$shortname);
+
+			//  3. inserta nueva asignacion al lead / agente destino
+			if($perfilsolicita[0]['puesto']=='LEAD')
+			{
+					// ActualizarScheduleLead($idempresa, $idoficina, $idagente, $fecha, $workday, $shortname, $asignacion, $posicion)
+				$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo[1]['idagentecambio'], $requestinfo[1]['fechacambio'], $agentesolicita->workday, $requestinfo[1]['agentecambio'], $asignacion, $requestinfo[1]['posicioninicial']);
+			}
+			else
+			{
+
+				$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo[1]['idagentecambio'], $requestinfo[1]['fechacambio'], $agentesolicita->workday, $requestinfo[1]['agentecambio'], $asignacion, $requestinfo[1]['posicioninicial']);
+			}
+
+			// se le asigna un descanso
+			$possolicitada = $requestinfo[0]['posicionsolicitada'] == '' ? 'XX' : 'XX';
+
+			//  4. inserta una asignacio de descanso
+			if($perfilsolicita[0]['puesto']=='LEAD')
+			{
+				// ActualizarScheduleLead($idempresa, $idoficina, $idagente, $fecha, $workday, $shortname, $asignacion, $posicion)
+				
+				$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo[1]['idagente'], $requestinfo[1]['fechacambio'], $agentesolicita->workday, $requestinfo[1]['shortname'], $asignacion, $possolicitada);
+			}
+			else
+			{
+
+				$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo[1]['idagente'], $requestinfo[1]['fechacambio'], $agentesolicita->workday, $requestinfo[1]['shortname'], $asignacion, $possolicitada);
+			}
+
+			$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo[1]['fechacambio'],'',$requestinfo[1]['shortname'],$requestinfo[1]['posicioninicial'],$requestinfo[1]['agentecambio'],$possolicitada,$shortname);
+
+
+
+
+			
+			fwrite($file,'Fin de autorizacion' . "\n");
+			fwrite($file, '-------------------------------' . "\n");
+			
+			fclose($file);
+
+			$error = array('status' => "OK", "msg" => "Request provided was succesfully authorized.");
+			$this->response($this->json($error), 400);
+			return;
+
+		}
+		else
+		{
+			$error = array('status' => "Failed", "msg" => "Something odd happened processing the authorization");
+			$this->response($this->json($error), 429);
+			return;
+		}
+
+
+		$error = array('status' => "Failed", "msg" => "Its fine ");
+		$this->response($this->json($error), 429);
+		return;
+	}
+
 	// llamado por ajax para autorizar un request, debe ser un usuario admin
 	public function AuthorizeRequest()
 	{
 
-		$debug = false;
+		$debug = true;
+		$file = fopen("/home/mindware/public_html/apps.mindware.com.mx/cun/logs/autorizaciones_" . date("Ymd"), "a+");
 
 		if($this->session->userdata('perfil') == FALSE )
 		{
@@ -409,7 +1057,7 @@ class Timeswitch extends CI_Controller {
 			return;
 		}
 
-		if($this->session->userdata('perfil') != 'admin' )
+		if(!$this->session->userdata('isadmin') )
 		{
 			$error = array('status' => "Failed", "msg" => "No tiene permisos para hacer esta autorizacion.");
 			$this->response($this->json($error), 429);
@@ -433,7 +1081,10 @@ class Timeswitch extends CI_Controller {
 		}
 
 		if($debug)
-			print_r($requestinfo);
+		{
+			fwrite($file,'Request info');
+			fwrite($file,print_r($requestinfo, true));
+		}
 		// validar que este request no haya sido aceptado previamente
 		if($requestinfo->fechaacepta != '0000-00-00 00:00:00' && $requestinfo->status != 'ACC')
 		{
@@ -457,11 +1108,17 @@ class Timeswitch extends CI_Controller {
 
 		if($debug)
 		{
-			echo 'perfil solicita ' . PHP_EOL;
-			print_r($perfilsolicita);
+			fwrite($file,'Perfil solicita' . "\n");
+			fwrite($file,print_r($perfilsolicita, true));
+			fwrite($file,"\n");
+			//echo 'perfil solicita ' . PHP_EOL;
+			//print_r($perfilsolicita);
 
-			echo 'perfil destino ' . PHP_EOL;
-			print_r($perfildestino);
+			fwrite($file,'Perfil destino' . "\n");
+			fwrite($file,print_r($perfildestino, true));
+			fwrite($file,"\n");
+			//echo 'perfil destino ' . PHP_EOL;
+			//print_r($perfildestino);
 		}
 
 		// se autoriza el cambio
@@ -475,8 +1132,11 @@ class Timeswitch extends CI_Controller {
 
 			if($debug)
 			{
-				echo 'Agente Solicita ' .PHP_EOL;
-				print_r($agentesolicita);
+				fwrite($file,'Agente solicita' . "\n");
+				fwrite($file,print_r($agentesolicita, true));
+				fwrite($file,"\n");
+				//echo 'Agente Solicita ' .PHP_EOL;
+				//print_r($agentesolicita);
 			}
 
 			$possolicitada = $requestinfo->posicionsolicitada == '' ? 'XX' : $requestinfo->posicionsolicitada;
@@ -488,8 +1148,11 @@ class Timeswitch extends CI_Controller {
 
 			if($debug)
 			{
-				echo 'Agente Destino ' .PHP_EOL;
-				print_r($agentedestino);
+				fwrite($file,'Agente destino' . "\n");
+				fwrite($file,print_r($agentedestino, true));
+				fwrite($file,"\n");
+				//echo 'Agente Destino ' .PHP_EOL;
+				//print_r($agentedestino);
 			}
 
 			// Dependiendo del tipo de cambio se ejecuta 
@@ -527,22 +1190,48 @@ class Timeswitch extends CI_Controller {
 				$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo->fechacambio,'',$requestinfo->shortname,$requestinfo->posicioninicial,$requestinfo->agentecambio,$requestinfo->posicionsolicitada,$shortname);
 				
 
-				// 2. hace switch destino -> solicita 
+				// 3. hace switch destino -> solicita 
 				if($perfilsolicita[0]['puesto']=='LEAD')
 				{
 					// se cambia el schedule del usuario que solicita
-					$insert = $this->Webcunop_model->PostCambioScheduleLead($idempresa, $idoficina, $agentedestino->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);
+					//$insert = $this->Webcunop_model->PostCambioScheduleLead($idempresa, $idoficina, $agentedestino->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);
+
+					$this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa,$idoficina,$agentedestino->uniqueid);
 				}
 				else
 				{
+					
+					$this->Webcunop_model->DeleteAgenteSchedulerUniqueid($idempresa,$idoficina,$agentedestino->uniqueid);
 					// se cambia el schedule del usuario que solicita
-					$insert = $this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentedestino->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);	
+					//$insert = $this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentedestino->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);	
+				}
+
+				// 4. ingresar la nueva posicion y workday del agente destino
+				if($perfilsolicita[0]['puesto']=='LEAD')
+				{
+					// se cambia el schedule del usuario que solicita
+					//$insert = $this->Webcunop_model->PostCambioScheduleLead($idempresa, $idoficina, $agentedestino->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);
+					$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo->idagentecambio, $requestinfo->fechacambio, $agentesolicita->workday, $requestinfo->agentecambio, $asignacion, $requestinfo->posicioninicial);
+				}
+				else
+				{
+
+					$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo->idagentecambio, $requestinfo->fechacambio, $agentesolicita->workday, $requestinfo->agentecambio, $asignacion, $requestinfo->posicioninicial);
+
+
+					// se cambia el schedule del usuario que solicita
+					//$insert = $this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentedestino->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);	
 				}
 				
 				$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo->fechacambio,'',$requestinfo->agentecambio,$requestinfo->posicionsolicitada,$requestinfo->shortname,$requestinfo->posicioninicial,$shortname);
 	
 				// llamamos el proceso de process dates
 				$this->Processdates($idempresa,$idoficina,$requestinfo->fechacambio,'CUN',$this->session->userdata('shortname'));
+
+				fwrite($file,'Fin de autorizacion' . "\n");
+				fwrite($file, '-------------------------------' . "\n");
+				
+				fclose($file);
 
 				$error = array('status' => "OK", "msg" => "Request provided was succesfully authorized.");
 				$this->response($this->json($error), 400);
@@ -562,7 +1251,7 @@ class Timeswitch extends CI_Controller {
 
 				$asignacion = '';
 
-				// eliminamos el schedule inicial del agente que solicita
+				// 1. eliminamos el schedule inicial del agente que solicita
 				if($perfilsolicita[0]['puesto']=='LEAD')
 				{
 					$this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa,$idoficina,$agentesolicita->uniqueid);
@@ -571,33 +1260,47 @@ class Timeswitch extends CI_Controller {
 				{
 					$this->Webcunop_model->DeleteAgenteSchedulerUniqueid($idempresa,$idoficina,$agentesolicita->uniqueid);
 				}
+
+				// 2. si la asignacion del destino es descanso, se le elimina
+				if($agentedestino->posicion == 'XX')
+				{
+					if($perfildestino[0]['puesto']=='LEAD')
+					{
+						$this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa,$idoficina,$agentedestino->uniqueid);
+					}
+					else
+					{
+						$this->Webcunop_model->DeleteAgenteSchedulerUniqueid($idempresa,$idoficina,$agentedestino->uniqueid);
+					}
+				}
+
 				$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo->fechacambio,'',$requestinfo->shortname,$requestinfo->posicioninicial,$requestinfo->agentecambio,$requestinfo->posicionsolicitada,$shortname);
 
-				//  2. inserta nueva asignacion al lead / agente destino
+				//  3. inserta nueva asignacion al lead / agente destino
 				if($perfilsolicita[0]['puesto']=='LEAD')
 				{
 						// ActualizarScheduleLead($idempresa, $idoficina, $idagente, $fecha, $workday, $shortname, $asignacion, $posicion)
-					$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo->idagentecambio, $requestinfo->fechacambio, $agentedestino->workday, $requestinfo->agentecambio, $asignacion, $requestinfo->posicioninicial);
+					$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo->idagentecambio, $requestinfo->fechacambio, $agentesolicita->workday, $requestinfo->agentecambio, $asignacion, $requestinfo->posicioninicial);
 				}
 				else
 				{
 
-					$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo->idagentecambio, $requestinfo->fechacambio, $agentedestino->workday, $requestinfo->agentecambio, $asignacion, $requestinfo->posicioninicial);
+					$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo->idagentecambio, $requestinfo->fechacambio, $agentesolicita->workday, $requestinfo->agentecambio, $asignacion, $requestinfo->posicioninicial);
 				}
 
 				// se le asigna un descanso
 				$possolicitada = $requestinfo->posicionsolicitada == '' ? 'XX' : 'XX';
-				//  3. inserta una asignacio de descanso
+				//  4. inserta una asignacio de descanso
 				if($perfilsolicita[0]['puesto']=='LEAD')
 				{
 					// ActualizarScheduleLead($idempresa, $idoficina, $idagente, $fecha, $workday, $shortname, $asignacion, $posicion)
 					
-					$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo->idagente, $requestinfo->fechacambio, $agentedestino->workday, $requestinfo->shortname, $asignacion, $possolicitada);
+					$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $requestinfo->idagente, $requestinfo->fechacambio, $agentesolicita->workday, $requestinfo->shortname, $asignacion, $possolicitada);
 				}
 				else
 				{
 
-					$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo->idagente, $requestinfo->fechacambio, $agentedestino->workday, $requestinfo->shortname, $asignacion, $possolicitada);
+					$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $requestinfo->idagente, $requestinfo->fechacambio, $agentesolicita->workday, $requestinfo->shortname, $asignacion, $possolicitada);
 				}
 
 				$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo->fechacambio,'',$requestinfo->shortname,$requestinfo->posicioninicial,$requestinfo->agentecambio,$possolicitada,$shortname);
@@ -606,7 +1309,10 @@ class Timeswitch extends CI_Controller {
 				// llamamos el proceso de process dates
 				$this->Processdates($idempresa,$idoficina,$requestinfo->fechacambio,'CUN',$this->session->userdata('shortname'));
 
+				fwrite($file,'Fin de autorizacion' . "\n");
+				fwrite($file, '-------------------------------' . "\n");
 				
+				fclose($file);
 
 				$error = array('status' => "OK", "msg" => "Request provided was succesfully authorized.");
 				$this->response($this->json($error), 400);
@@ -615,11 +1321,6 @@ class Timeswitch extends CI_Controller {
 
 			if($requestinfo->tipocambio == 'Day Off')
 			{
-
-				if($debug){
-					echo 'requestinfo' . PHP_EOL;
-					print_r($requestinfo);
-				}
 				// consultamos la asignacion actual del solicitante para esa fecha (puede tener mas de una asignacion)
 				$agentesolicita1 = $this->Webcunop_model->ConsultarRegistroAgenteFecha($idempresa,$idoficina,$requestinfo->idagente,$requestinfo->fechacambio);
 
@@ -633,17 +1334,29 @@ class Timeswitch extends CI_Controller {
 
 				if($debug)
 				{
-						echo 'agentesolicita1' . PHP_EOL;
-						print_r($agentesolicita1);
+						fwrite($file,'Agente solicita1' . "\n") ;
+						fwrite($file,print_r($agentesolicita1, true));
+						fwrite($file,"\n");
+						//echo 'agentesolicita1' . PHP_EOL;
+						//print_r($agentesolicita1);
 
-						echo 'agentedestino1' . PHP_EOL;
-						print_r($agentedestino1);
+						fwrite($file,'Agente destino1' . "\n");
+						fwrite($file,print_r($agentedestino1, true));
+						fwrite($file,"\n");
+						//echo 'agentedestino1' . PHP_EOL;
+						//print_r($agentedestino1);
 
-						echo 'agentesolicita2' . PHP_EOL;
-						print_r($agentesolicita2);
+						fwrite($file,'Agente Solicita2' . "\n");
+						fwrite($file,print_r($agentesolicita2, true));
+						fwrite($file,"\n");
+						//echo 'agentesolicita2' . PHP_EOL;
+						//print_r($agentesolicita2);
 
-						echo 'agentedestino2' . PHP_EOL;
-						print_r($agentedestino2);
+						fwrite($file,'Agente Destino2' . "\n");
+						fwrite($file,print_r($agentedestino2, true));
+						fwrite($file,"\n");
+						//echo 'agentedestino2' . PHP_EOL;
+						//print_r($agentedestino2);
 				}
 
 				$asignacion = '';
@@ -657,13 +1370,13 @@ class Timeswitch extends CI_Controller {
 					if(!is_null($agentesolicita1))
 					{
 						if($debug)
-						echo '1/ LEAD Post cambio XX ' . $requestinfo->idagente  . ' ' . $requestinfo->fechacambio . PHP_EOL;
+						fwrite($file,'1/ LEAD Post cambio XX ' . $requestinfo->idagente  . ' ' . $requestinfo->fechacambio . "\n");
 						$this->Webcunop_model->PostCambioScheduleLead($idempresa, $idoficina, $agentesolicita1->uniqueid, $requestinfo->fechacambio, $requestinfo->idagente, $requestinfo->shortname, 'XX', $shortname);
 					}
 					else
 					{
 						if($debug)
-						echo '1. LEAD actualizar cambio XX ' . $requestinfo->idagente  . ' ' . $requestinfo->fechacambio . PHP_EOL;
+						fwrite($file,'1. LEAD actualizar cambio XX ' . $requestinfo->idagente  . ' ' . $requestinfo->fechacambio . "\n");
 						$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $agentesolicita1->idagente, $requestinfo->fechacambio, $perfilsolicita->jornada, $requestinfo->shortname, $asignacion, 'XX');
 					}
 				}
@@ -673,13 +1386,13 @@ class Timeswitch extends CI_Controller {
 					if(!is_null($agentesolicita1))
 					{
 						if($debug)
-						echo '1. Post cambio XX ' . $requestinfo->idagente  . ' ' . $requestinfo->fechacambio . PHP_EOL;
+						fwrite($file,'1. Post cambio XX ' . $requestinfo->idagente  . ' ' . $requestinfo->fechacambio . "\n");
 						$this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentesolicita1->uniqueid, $requestinfo->fechacambio, $requestinfo->idagente, $requestinfo->shortname, 'XX', $shortname);	
 					}
 					else
 					{
 						if($debug)
-						echo '1. Actualizar cambio XX ' . $requestinfo->idagente  . ' ' . $requestinfo->fechacambio . PHP_EOL;
+						fwrite($file,'1. Actualizar cambio XX ' . $requestinfo->idagente  . ' ' . $requestinfo->fechacambio . "\n");
 						$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $agentesolicita1->idagente, $requestinfo->fechacambio, $perfilsolicita->jornada, $requestinfo->shortname, $asignacion, 'XX');
 					}
 
@@ -695,13 +1408,13 @@ class Timeswitch extends CI_Controller {
 					if(!is_null($agentedestino1))
 					{
 						if($debug)
-						echo '2. LEAD Post cambio ' . $requestinfo->posicioninicial . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechacambio . PHP_EOL;
+						fwrite($file, '2. LEAD Post cambio ' . $requestinfo->posicioninicial . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechacambio . "\n");
 						$this->Webcunop_model->PostCambioScheduleLead($idempresa, $idoficina, $agentedestino1->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);
 					}
 					else
 					{
 						if($debug)
-						echo '2. LEAD actualizar cambio ' . $requestinfo->posicioninicial . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechacambio . PHP_EOL;
+						fwrite($file, '2. LEAD actualizar cambio ' . $requestinfo->posicioninicial . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechacambio . "\n");
 						$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $agentedestino1->idagente, $requestinfo->fechacambio, $perfildestino->jornada, $requestinfo->agentecambio, $asignacion, $requestinfo->posicioninicial);
 					}
 				}
@@ -711,13 +1424,13 @@ class Timeswitch extends CI_Controller {
 					if(!is_null($agentedestino1))
 					{
 						if($debug)
-						echo '2. Post cambio ' . $requestinfo->posicioninicial . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechacambio . PHP_EOL;
+						fwrite($file, '2. Post cambio ' . $requestinfo->posicioninicial . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechacambio . "\n");
 						$this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentedestino1->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);	
 					}
 					else
 					{
 						if($debug)
-						echo '2. Actualizar cambio ' . $requestinfo->posicioninicial . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechacambio . PHP_EOL;
+						fwrite($file, '2. Actualizar cambio ' . $requestinfo->posicioninicial . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechacambio . "\n");
 						$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $perfildestino[0]['idagente'], $requestinfo->fechacambio, $perfildestino[0]['jornada'], $requestinfo->agentecambio, $asignacion, $requestinfo->posicioninicial);
 					}
 
@@ -730,13 +1443,13 @@ class Timeswitch extends CI_Controller {
 					if(!is_null($agentesolicita2))
 					{
 						if($debug)
-						echo '3. LEAD Post cambio ' . $agentedestino2->posicion . ' ' . $requestinfo->idagente  . ' ' . $requestinfo->fechatarget . PHP_EOL;
+						fwrite($file, '3. LEAD Post cambio ' . $agentedestino2->posicion . ' ' . $requestinfo->idagente  . ' ' . $requestinfo->fechatarget . "\n");
 						$this->Webcunop_model->PostCambioScheduleLead($idempresa, $idoficina, $agentesolicita2->uniqueid, $requestinfo->fechatarget, $requestinfo->idagente, $requestinfo->shortname, $agentedestino2->posicion, $shortname);
 					}
 					else
 					{
 						if($debug)
-						echo '3. LEAD actualizar cambio ' . $agentedestino2->posicion . ' ' . $requestinfo->idagente  . ' ' . $requestinfo->fechatarget . PHP_EOL;
+						fwrite($file, '3. LEAD actualizar cambio ' . $agentedestino2->posicion . ' ' . $requestinfo->idagente  . ' ' . $requestinfo->fechatarget . "\n");
 						$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $agentesolicita2->idagente, $requestinfo->fechatarget, $perfilsolicita->jornada, $requestinfo->shortname, $asignacion, $agentedestino2->posicion);
 					}
 				}
@@ -746,13 +1459,13 @@ class Timeswitch extends CI_Controller {
 					if(!is_null($agentesolicita2))
 					{
 						if($debug)
-						echo '3. Post cambio ' . $agentedestino2->posicion . ' ' . $requestinfo->idagente  . ' ' . $requestinfo->fechatarget . PHP_EOL;
+						fwrite($file, '3. Post cambio ' . $agentedestino2->posicion . ' ' . $requestinfo->idagente  . ' ' . $requestinfo->fechatarget . "\n");
 						$this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentesolicita2->uniqueid, $requestinfo->fechatarget, $requestinfo->idagente, $requestinfo->shortname, $agentedestino2->posicion, $shortname);	
 					}
 					else
 					{
 						if($debug)
-						echo '3. Actualizar cambio ' . $requestinfo->posicionsolicitada . ' ' . $requestinfo->idagente  . ' ' . $requestinfo->fechatarget . PHP_EOL;
+						fwrite($file, '3. Actualizar cambio ' . $requestinfo->posicionsolicitada . ' ' . $requestinfo->idagente  . ' ' . $requestinfo->fechatarget . "\n");
 						$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $agentesolicita2->idagente, $requestinfo->fechatarget, $perfilsolicita[0]['jornada'], $requestinfo->shortname, $asignacion, $agentedestino2->posicion);
 					}
 
@@ -765,13 +1478,13 @@ class Timeswitch extends CI_Controller {
 					if(!is_null($agentedestino2))
 					{
 						if($debug)
-						echo '4. LEAD Post cambio ' . $agentesolicita2->posicion . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechatarget . PHP_EOL;
+						fwrite($file, '4. LEAD Post cambio ' . $agentesolicita2->posicion . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechatarget . "\n");
 						$this->Webcunop_model->PostCambioScheduleLead($idempresa, $idoficina, $agentedestino2->uniqueid, $requestinfo->fechatarget, $requestinfo->idagentecambio, $requestinfo->agentecambio, $agentesolicita2->posicion, $shortname);
 					}
 					else
 					{
 						if($debug)
-						echo '4. LEAD actualizar cambio ' . $agentesolicita2->posicion . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechatarget . PHP_EOL;
+						fwrite($file, '4. LEAD actualizar cambio ' . $agentesolicita2->posicion . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechatarget . "\n");
 						$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $agentedestino2->idagente, $requestinfo->fechatarget, $perfildestino[0]['jornada'], $requestinfo->shortname, $asignacion, $agentesolicita2->posicion);
 					}
 				}
@@ -781,83 +1494,23 @@ class Timeswitch extends CI_Controller {
 					if(!is_null($agentedestino2))
 					{
 						if($debug)
-						echo '4. Post cambio ' . $agentesolicita2->posicion . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechatarget . PHP_EOL;
+						fwrite($file, '4. Post cambio ' . $agentesolicita2->posicion . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechatarget . "\n");
 						$this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentedestino2->uniqueid, $requestinfo->fechatarget, $requestinfo->idagentecambio, $requestinfo->agentecambio, $agentesolicita2->posicion, $shortname);	
 					}
 					else
 					{
 						if($debug)
-						echo '4. Actualizar cambio ' . $agentesolicita2->posicion . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechatarget . PHP_EOL;
+						fwrite($file, '4. Actualizar cambio ' . $agentesolicita2->posicion . ' ' . $requestinfo->idagentecambio  . ' ' . $requestinfo->fechatarget . "\n");
 						$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $agentedestino2->idagente, $requestinfo->fechatarget, $perfildestino[0]['jornada'], $requestinfo->agentecambio, $asignacion, $agentesolicita2->posicion);
 					}
 
 				}
 
-
-
-				/* 
-				** cambiar agente solicitante
-				*/
-
-				// El switch no permite escribir directamente al scheduler la posicion nueva del solicitante, por duplicidad de campos, debemos
-				//   triangular
-
-				
-
-				/*
-				// eliminamos el schedule inicial (para evitar error de duplicidad de registros en index idempresa-idoficina-idagente-fecha-posicion)
-				if($perfilsolicita[0]['puesto']=='LEAD')
-				{
-					$this->Webcunop_model->DeleteLeadSchedulerUniqueid($idempresa,$idoficina,$agentesolicita->uniqueid);
-				}
-				else
-				{
-					$this->Webcunop_model->DeleteAgenteSchedulerUniqueid($idempresa,$idoficina,$agentesolicita->uniqueid);
-				}
-
-				//  2. inserta nueva asignacion al lead / agente
-				if($perfilsolicita[0]['puesto']=='LEAD')
-				{
-					$this->Loadleadsmensual_model->ActualizarScheduleLead($idempresa, $idoficina, $agentesolicita->idagente, $requestinfo->fechacambio, $agentedestino->workday, $requestinfo->shortname, $asignacion, $requestinfo->posicionsolicitada);
-				}
-				else
-				{
-					$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $agentesolicita->idagente, $requestinfo->fechacambio, $agentedestino->workday, $requestinfo->shortname, $asignacion, $requestinfo->posicionsolicitada);
-				}
-
-				$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo->fechacambio,'',$requestinfo->shortname,$requestinfo->posicioninicial,$requestinfo->agentecambio,$requestinfo->posicionsolicitada,$shortname);
-				
-
-				// 2. hace switch destino -> solicita 
-				if($perfildestino[0]['puesto']=='LEAD')
-				{
-					// se cambia el schedule del usuario que solicita
-					$insert = $this->Webcunop_model->PostCambioScheduleLead($idempresa, $idoficina, $agentedestino->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);
-				}
-				else
-				{
-					// se cambia el schedule del usuario que solicita
-					$insert = $this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentedestino->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);	
-				}
-				
-				$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo->fechacambio,'',$requestinfo->agentecambio,$requestinfo->posicionsolicitada,$requestinfo->shortname,$requestinfo->posicioninicial,$shortname);
-
-				$error = array('status' => "OK", "msg" => "Request provided was succesfully authorized.");
-				$this->response($this->json($error), 400);
-				return;
-
-				/* 
-				** cambiar agente solicitante
-				*/
-
-				/*
-				// se cambia el schedule del usuario que solicita
-				$cambio = $this->Webcunop_model->PostCambioSchedule($idempresa, $idoficina, $agentesolicita->uniqueid, $requestinfo->fechacambio, $requestinfo->idagentecambio, $requestinfo->agentecambio, $requestinfo->posicioninicial, $shortname);
-
-				//$shortname_old = $agenteActual[0]['shortname'];
-				$this->Webcunop_model->RegistrarBitacora($idempresa,$idoficina,$requestinfo->fechacambio,'',$requestinfo->shortname,$requestinfo->posicioninicial,$requestinfo->agentecambio,$requestinfo->posicionsolicitada,$shortname);
-				*/
 				// llamamos el proceso de process dates
+				fwrite($file,'Fin de autorizacion' . "\n");
+				fwrite($file, '-------------------------------' . "\n");
+				
+				fclose($file);
 				$this->Processdates($idempresa,$idoficina,$requestinfo->fechacambio,'CUN',$this->session->userdata('shortname'));
 				
 				$error = array('status' => "OK", "msg" => "Request provided was succesfully authorized.");
@@ -978,6 +1631,50 @@ class Timeswitch extends CI_Controller {
 		echo json_encode($data);
 	}
 
+	public function getAgentsLastCoverDate()
+	{
+		$idempresa = $this->session->userdata('idempresa');
+		$idoficina = $this->session->userdata('idoficina');
+		if($this->input->post('agente')){
+			$agente = $this->input->post('agente');
+			$rowagent = $this->Agentes_model->FindAgentByShortname($idempresa, $idoficina, $agente)[0];
+			$idagentebase = $rowagent['idagente'];
+			$puesto = $rowagent['puesto'];
+			$jornada = $rowagent['jornada'];
+
+		}
+		else
+		{
+			$idagentebase = $this->session->userdata('idagente');
+			$puesto = $this->session->userdata('puesto');
+			$jornada = $this->session->userdata('jornada');
+
+		}
+		$fecha = $this->input->post('fechacambiar');
+		/*
+		$userpos = $this->input->post('userposicion');
+		$userjornada = $this->input->post('userjornada');
+
+		switch($jornada)
+		{
+			case 'PT' :
+				$posiciones = "workday in ('PT6','PT4') ";
+				break;
+			case 'PT6' :
+				$posiciones = "workday in ('PT4')";
+			case 'FT' :
+				$posiciones = "true";
+				break;
+		}*/
+		
+
+		//echo 'puesto ' . $puesto;
+		//$data = $this->Timeswitch_model->getAgentsCoverDate($idempresa,$idoficina,$fecha,$posiciones,$userpos,$userjornada);
+		$data = $this->Timeswitch_model->getAgentsLastCoverDate($idempresa,$idoficina,$fecha,$idagentebase,$puesto);
+		header('Content-type: application/json; charset=utf-8');
+		echo json_encode($data);
+	}
+
 	public function getAgentsDayOffDate()
 	{
 		$idempresa = $this->session->userdata('idempresa');
@@ -1082,6 +1779,7 @@ class Timeswitch extends CI_Controller {
 		$maxagentspergate = 2;
 		$extraagentspergate = 2;
 		
+		if($vueloslist)
 		foreach ($vueloslist as $vuelo) {
 			
 			// vamos a evaluar si el vuelo existe ese dia de la semana
@@ -1130,6 +1828,7 @@ class Timeswitch extends CI_Controller {
 
 				$cagents = 1;
 				
+				if($posiciones)
 				foreach($posiciones as $thispos)
 				{
 					$posicion = $thispos[$posday];
@@ -1142,11 +1841,21 @@ class Timeswitch extends CI_Controller {
 					$agentesdisp = $this->Fillcunopdate_model->LoadAgentesScheduleDatePosicion($idempresa, $idoficina, $fecha, $posicion);
 
 					$lead= 'RH';
+					/*
 					$hora = intval($vuelo['horasalida']);
 					$horasalida = intval($hora) + (intval($timezone) * 60);
 					$hora = intval($horasalida / 3600) ;
 					$minutes = (($horasalida / 3600) - $hora) * 60;
+					*/
+
+					$horasalida = $vuelo['horasalida'] - ($timezone * 3600);
+					$hora = intval($horasalida / 3600);
+					$minutes =  ( ( $horasalida  - ( $hora * 3600 ) ) / 60);
+					
+
 					$stime = ($hora<=9?('0' . $hora) : $hora) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
+
+
 					//echo '-- vuelo ' . $vuelo['idvuelo'] . ' fecha ' . $fecha . ' salida ' . $hora . ':' . $minutes . '<br>';
 					$this->Fillcunopdate_model->SetFlightHeader($idempresa,$idoficina,$vuelo['idvuelo'],$fecha,$stime,$lead,$usuario);
 
@@ -1235,14 +1944,37 @@ class Timeswitch extends CI_Controller {
 		}
 	}
 	
-	/*
-		 *	Encode array into JSON
-		*/
-		private function json($data){
-			if(is_array($data)){
-				return json_encode($data);
+	private function haskill($skill,$array)
+	{
+		foreach ($array as $curr) {
+			// el caso del lead es especial
+			if($skill == 'L' )
+			{
+				// el skill necesario es AL o L
+				if($curr['idcando'] == 'AL' || $curr['idcando'] == 'L')
+				{	
+					return true;
+				}
+			}	
+			else
+			{
+				if($curr['idcando'] == $skill)
+				{	
+
+					return true;
+				}
 			}
 		}
+		return false;
+	}
+	/*
+	 *	Encode array into JSON
+	*/
+	private function json($data){
+		if(is_array($data)){
+			return json_encode($data);
+		}
+	}
 	
 	
 	public function response($data,$status){

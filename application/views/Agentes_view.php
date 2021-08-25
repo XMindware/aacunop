@@ -94,6 +94,7 @@
 										}
 									?>
                                     </select>
+                                    <button type="button" class="btn-link btn" id="btnUpdateAgentAssignments">Update Assignments</button>
                                 </div>
                             </div>
                         	<div class='col-sm-4'>
@@ -234,13 +235,81 @@
       </div>
     </div>
     <!-- End Horizontal Form -->
-    
+    <!-- Modal -->
+    <div id="modalUpdateAssignments" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal">&times;</button>
+            
+            <h2><span class="label label-primary" id="pFlightInfo">Update Agent Assignments</span></h2>
+          </div>
+          <div class="modal-body">
+            <center>
+                <h5>Would you like to update the current assignments for the current user based on the new workday?
+            </center>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-success" id="btnUpdateAssignments" data-dismiss="modal">Update</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+    <!-- End modal -->
     
     <script type="text/javascript">
  
 	$("#frmAgentData").hide();
 	$('#myPleaseWait').modal('hide');
 	$(document).ready(function(){
+
+		$("#btnUpdateAgentAssignments").click(function(){
+
+			$("#modalUpdateAssignments").modal('show');
+		});
+
+		$("#btnUpdateAssignments").click(function(){
+			var lidempresa = $("#inputIdEmpresa").val();
+			var lidoficina = $("#inputIdOficina").val();
+			var luniqueid = $("#inputUniqueId").val();
+			var lagentid = $("#inputAgentId").val();
+			
+			$("#frmAgentData").hide();	
+			var agent = {
+				 idempresa : lidempresa,
+				 idoficina : lidoficina,
+				 agenteid : lagentid,
+				 uniqueid : luniqueid,
+				 
+				 };
+			/*
+			$.each(agent, function(index, value) {
+				console.log(value);
+			});
+			*/
+			var request = $.ajax({
+				url: 'agentes/updateagentassignments',
+				type: 'POST',
+				data: agent,
+				beforeSend:function(){
+					console.log('sending...');
+					$('#myPleaseWait').modal('show');
+				},
+				success:function(result){
+					console.log('sent!');
+					console.log(result);
+					$('#myPleaseWait').modal('hide'); 
+					//location.reload();
+				}, 
+				error:function(exception){console.log(exception);}
+				
+			});
+			
+		})
 		
 		$("#btnSubmitAgent").click(function(){
 			

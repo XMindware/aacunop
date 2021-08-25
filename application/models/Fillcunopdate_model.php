@@ -9,7 +9,8 @@ class Fillcunopdate_model extends CI_Model {
 	}
 	
 	public function LoadAgentesScheduleDatePosicion($idempresa, $idoficina, $fecha, $posicion)
-	{
+	{	
+		/*
 		$this->db->where('idempresa', $idempresa);
 		$this->db->where('idoficina', $idoficina);
 		$this->db->where('fecha', $fecha);
@@ -17,7 +18,10 @@ class Fillcunopdate_model extends CI_Model {
 		$this->db->order_by('LENGTH(posicion)','ASC');
 		$this->db->order_by('posicion','ASC');
 		$query = $this->db->get('cunop_agentscheduler');
-		//echo $this->db->last_query();
+		*/
+		$sql = 'SELECT * FROM cunop_agentscheduler sch inner join cunop_agentes ag on sch.idagente=ag.idagente and 
+			ag.status="OK" where sch.idempresa=? and sch.idoficina=? and sch.fecha=? and sch.posicion=? order by length(sch.posicion) asc, sch.posicion asc';
+		$query = $this->db->query($sql, array($idempresa, $idoficina,$fecha,$posicion));
 		if($query->num_rows() > 0)
 		{
 			return $query->result_array();

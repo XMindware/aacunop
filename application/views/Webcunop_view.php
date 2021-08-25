@@ -50,7 +50,7 @@
                 <input type="hidden" id="typeaheadflag" value=""  />
                 </div>
             </div>           
-            <form id="frmDateData" method="post">
+            <form id="frmDateData" method="post" autocomplete="off">
                 <fieldset>
                     <legend>Load Date Schedule</legend>
                     <div class='row'>
@@ -74,7 +74,7 @@
 
 
             <!-- FORM PARA MODIFICAR LA ASIGNACION DE UN VUELO -->
-            <form id="frmVueloData" class="form-inline">
+            <form id="frmVueloData" class="form-inline" autocomplete="off">
                 <fieldset>
                     <legend>Flight assignments</legend>
                     <div class='row'>
@@ -127,11 +127,13 @@
                                         $horainicio = intval($position['starttime']) - ($timezone * 3600);
                                         $hours = intval($horainicio / 3600) ;
                                         $minutes = (($horainicio / 3600) - $hours) * 60;
+                                        $minutes = ceil($minutes);
                                         $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                                         
                                         $horafin = intval($position['endtime']) - ($timezone * 3600);
                                         $hours = intval($horafin / 3600);
                                         $minutes = (($horafin / 3600) - $hours) * 60;
+                                        $minutes = ceil($minutes);
                                         $etime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                                   ?>
                                         <option value="<? echo $position['code']; ?>"><? echo $position['code'] . ' ' . $stime . ' TO ' . $etime; ?></option>
@@ -157,11 +159,13 @@
                                         $horainicio = intval($position['starttime']) - ($timezone * 3600);
                                         $hours = intval($horainicio / 3600) ;
                                         $minutes = (($horainicio / 3600) - $hours) * 60;
+                                        $minutes = ceil($minutes);
                                         $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                                         
                                         $horafin = intval($position['endtime']) - ($timezone * 3600);
                                         $hours = intval($horafin / 3600);
                                         $minutes = (($horafin / 3600) - $hours) * 60;
+                                        $minutes = ceil($minutes);
                                         $etime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                                   ?>
                                         <option value="<? echo $position['code']; ?>"><? echo $position['code'] . ' ' . $stime . ' TO ' . $etime; ?></option>                                        }
@@ -188,11 +192,13 @@
                                         $horainicio = intval($position['starttime']) - ($timezone * 3600);
                                         $hours = intval($horainicio / 3600) ;
                                         $minutes = (($horainicio / 3600) - $hours) * 60;
+                                        $minutes = ceil($minutes);
                                         $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                                         
                                         $horafin = intval($position['endtime']) - ($timezone * 3600);
                                         $hours = intval($horafin / 3600);
                                         $minutes = (($horafin / 3600) - $hours) * 60;
+                                        $minutes = ceil($minutes);
                                         $etime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                                   ?>
                                         <option value="<? echo $position['code']; ?>"><? echo $position['code'] . ' ' . $stime . ' TO ' . $etime; ?></option>                                        }
@@ -221,11 +227,13 @@
                                         $horainicio = intval($position['starttime']) - ($timezone * 3600);
                                         $hours = intval($horainicio / 3600) ;
                                         $minutes = (($horainicio / 3600) - $hours) * 60;
+                                        $minutes = ceil($minutes);
                                         $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                                         
                                         $horafin = intval($position['endtime']) - ($timezone * 3600);
                                         $hours = intval($horafin / 3600);
                                         $minutes = (($horafin / 3600) - $hours) * 60;
+                                        $minutes = ceil($minutes);
                                         $etime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
                                   ?>
                                         <option value="<? echo $position['code']; ?>"><? echo $position['code'] . ' ' . $stime . ' TO ' . $etime; ?></option>                                        }
@@ -239,11 +247,17 @@
                         </div>
                     </div>
                     <div class='row'>
-                        <div class='col-sm-12'>
+                        <div class='col-sm-8'>
                             <div class='form-group'>
                                 <button type="button" id="btnAddFlightAgent" class="btn btn-info">Add Agent to Flight</button>
                                 <button type="button" id="btnSubmitFlightData" class="btn btn-success">Save</button>
                                 <button type="button" id="btnCancel" class="btn btn-default">Cancel</button>
+                            </div>
+                        </div>
+                        <div class='col-sm-4'>
+                            <div class='form-group'>
+                                <button type="button" id="btnEmptyFlight" class="btn btn-warning">Empty Flight</button>
+                                
                             </div>
                         </div>
                     </div>
@@ -251,7 +265,7 @@
             </form>
 
             <!-- LOAD AGENT POSITIONS -->
-            <form id="frmAgentPositionData">
+            <form id="frmAgentPositionData" autocomplete="off">
                 <fieldset>
                     <legend>Agent position assignment</legend>
                     <div class='row'>
@@ -274,6 +288,7 @@
                             <div class='form-group'>
                                 <button type="button" id="btnSubmitAgentPostionData" class="btn btn-success">Save</button>
                                 <button type="button" id="btnCancelPosition" class="btn btn-default">Cancel</button>
+                                <button type="button" id="btnDeleteAgentPositionData" class="btn btn-warning">Delete Asignment</button>
                             </div>
                         </div>
                     </div>
@@ -281,7 +296,7 @@
             </form>
 
             <!-- LOAD LEAD POSITIONS -->
-            <form id="frmLeadPositionData">
+            <form id="frmLeadPositionData" autocomplete="off">
                 <fieldset>
                     <legend>Lead position assignment</legend>
                     <div class='row'>
@@ -304,6 +319,7 @@
                             <div class='form-group'>
                                 <button type="button" id="btnSubmitLeadPostionData" class="btn btn-success">Save</button>
                                 <button type="button" id="btnCancelPosition" class="btn btn-default">Cancel</button>
+                                <button type="button" id="btnDeleteLeadPositionData" class="btn btn-warning">Delete Asignment</button>
                             </div>
                         </div>
                     </div>
@@ -666,7 +682,7 @@
     $("#frmAgentPositionData").hide();
     $(document).ready(function(){
 
-        var positions = [<? foreach($posiciones as $position) { echo "'" . $position['code'] . "',"; } ?>];
+        var positions = [<? foreach($posiciones as $position) { echo "{ id : '" . $position['code'] . "', name : '" . $position['code'] . "', status : ''},"; } ?>];
         var agenteslista = [<? foreach($fullagents as $agent) { echo "{ id : '" . $agent['idagente'] . "', name : '" . $agent['shortname'] . "', status : '" . $agent['comment'] . "'},"; } ?>];
 
         $("#btnPrintCUNOP").click(function(){
@@ -738,6 +754,16 @@
 
         $('#inputPositionAgent.typeahead').typeahead({
             source : positions,
+            onSelect : function(data){
+                $("#typeaheadflag").val("1");
+            }
+        });
+
+        $('#inputPositionLead.typeahead').typeahead({
+            source : positions,
+            onSelect : function(data){
+                $("#typeaheadflag").val("1");
+            }
         });
 
 
@@ -779,7 +805,7 @@
                 
                 
                 var request = $.ajax({
-                    url: 'webcunop/posicionesparaagente',
+                    url: '/cun/webcunop/posicionesparaagente',
                     type: 'POST',
                     data: agent,
                     beforeSend:function(){
@@ -838,6 +864,45 @@
             }
         });
 
+        $("#btnEmptyFlight").click(function(){
+            var lidempresa = $("#inputIdEmpresa").val();
+            var lidoficina = $("#inputIdOficina").val();
+            var lidvuelo = $("#inputFlight").val();
+            var lfecha = $("#inputFlightDate").val();
+            var ldeparture = $("#inputDeparture").val();
+            var lusuario = $("#inputUsuario").val();
+
+            var agent = {
+                idempresa : lidempresa,
+                idoficina : lidoficina,
+                idvuelo : lidvuelo,
+                fecha : lfecha,
+                usuario : lusuario,
+                departure : ldeparture
+            };
+            var request = $.ajax({
+                url: '/cun/webcunop/emptyflightagents',
+                type: 'POST',
+                data: agent,
+                beforeSend:function(){
+                    console.log('sending...');
+                    $('#myPleaseWait').modal('show');
+                },
+                success:function(result){
+                    
+                    console.log('sent!');
+                    //console.log(result);
+
+                    RefreshScheduler();
+                    RefreshFlights();
+                    $("#frmVueloData").hide();
+
+                }, 
+                error:function(exception){console.log(exception);}
+                
+            });
+        })
+
         $('#btnUpdateDeparture').click(function(){
 
             var lidempresa = $("#inputIdEmpresa").val();
@@ -856,7 +921,7 @@
                 departure : ldeparture
             };
             var request = $.ajax({
-                url: 'webcunop/updateflightdeparture',
+                url: '<? echo base_url(); ?>webcunop/updateflightdeparture',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -896,7 +961,7 @@
                 mensaje : lmensaje
             };
             var request = $.ajax({
-                url: 'webcunop/updateflightmessage',
+                url: '<? echo base_url(); ?>webcunop/updateflightmessage',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -934,7 +999,7 @@
                 fecha : lfecha
             };
             var request = $.ajax({
-                url: 'webcunop/deleteextraagent',
+                url: '<? echo base_url(); ?>webcunop/deleteextraagent',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -984,7 +1049,7 @@
             
             
             var request = $.ajax({
-                url: 'webcunop/addextraagent',
+                url: '<? echo base_url(); ?>webcunop/addextraagent',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -1039,7 +1104,7 @@
             
             
             var request = $.ajax({
-                url: 'webcunop/addextraagent',
+                url: '<? echo base_url(); ?>webcunop/addextraagent',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -1073,6 +1138,52 @@
             DoPostCambio(false);
             
         });
+
+        // borra una asignacion de agente en el schedule del dia
+        $("#btnDeleteAgentPositionData").click(function(){
+
+            //if($("#typeaheadflag").val()=="") return;
+
+            var lidempresa = $("#inputIdEmpresa").val();
+            var lidoficina = $("#inputIdOficina").val();
+            var luniqueid = $("#inputUniqueId").val();
+            var lfecha = $("#inputFlightDate").val();
+            var lusuario = $("#inputUsuario").val();
+            
+            $("#frmAgentPositionData").hide();  
+            var agent = {
+                idempresa : lidempresa,
+                idoficina : lidoficina,
+                uniqueid : luniqueid,
+                fecha : lfecha,
+                usuario : lusuario
+            };
+            
+            $.each(agent, function(index, value) {
+                console.log(value);
+            });
+            
+            var request = $.ajax({
+                url: '/cun/webcunop/deleteposagente',
+                type: 'POST',
+                data: agent,
+                beforeSend:function(){
+                    console.log('sending...');
+                    $('#myPleaseWait').modal('show');
+                },
+                success:function(result){
+                    
+                    console.log('sent!');
+                    //console.log(result);
+                    RefreshScheduler();
+                    RefreshFlights();
+                    $('#myPleaseWait').modal('hide');
+                  
+                }, 
+                error:function(exception){console.log(exception);}
+                
+            });
+        })
            
 
         // al guardar un cambio en el agent schedule del dia
@@ -1106,7 +1217,7 @@
             });
             
             var request = $.ajax({
-                url: 'webcunop/switchagente',
+                url: '<? echo base_url(); ?>webcunop/switchagente',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -1157,7 +1268,7 @@
             });
             
             var request = $.ajax({
-                url: 'webcunop/switchlead',
+                url: '/cun/webcunop/switchlead',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -1177,6 +1288,56 @@
                 
             });
         });
+
+        // borra una asignacion de agente en el schedule del dia
+        $("#btnDeleteLeadPositionData").click(function(){
+            
+            var lidempresa = $("#inputIdEmpresa").val();
+            var lidoficina = $("#inputIdOficina").val();
+            var luniqueid = $("#inputUniqueId").val();
+            var lfecha = $("#inputFlightDate").val();
+            var lposicion = $("#inputPositionLead").val();
+            var lagente = $("#inputLeadIdPos").val();
+            var lshortname = $("#inputLeadShortname").val();
+            var lusuario = $("#inputUsuario").val();
+            
+            $("#frmLeadPositionData").hide();  
+            var agent = {
+                idempresa : lidempresa,
+                idoficina : lidoficina,
+                uniqueid : luniqueid,
+                fecha : lfecha,
+                posicion : lposicion,
+                agenteid : lagente,
+                shortname : lshortname,
+                usuario : lusuario
+            };
+            
+            $.each(agent, function(index, value) {
+                console.log(value);
+            });
+            
+            var request = $.ajax({
+                url: '/cun/webcunop/deleteposlead',
+                type: 'POST',
+                data: agent,
+                beforeSend:function(){
+                    console.log('sending...');
+                    $('#myPleaseWait').modal('show');
+                },
+                success:function(result){
+                    
+                    console.log('sent!');
+                    //console.log(result);
+                    RefreshScheduler();
+                    RefreshFlights();
+                    $('#myPleaseWait').modal('hide');
+                  
+                }, 
+                error:function(exception){console.log(exception);}
+                
+            });
+        })
 
         // cuando cambia el agente
         $("#inputAgentShortname").blur(function(e){
@@ -1236,7 +1397,7 @@ function RefreshScheduler()
         fecha : lfecha
     }
     var request = $.ajax({
-        url: 'webcunop/asyncloadstationschedule',
+        url: '/cun/webcunop/asyncloadstationschedule',
         type: 'POST',
         data: fields,
         beforeSend:function(){
@@ -1253,6 +1414,7 @@ function RefreshScheduler()
             $('#tblBmas tr').remove();
             $('#tblLeads tr').remove();
 
+            if(result[0])
             $.each(result[0],function(row,agents){
 
                 var html = "<tr>" +
@@ -1263,6 +1425,7 @@ function RefreshScheduler()
                 $("#tblPt4").append(html);
             });
 
+            if(result[1])
             $.each(result[1],function(row,agents){
 
                 var html = "<tr>" +
@@ -1273,6 +1436,7 @@ function RefreshScheduler()
                 $("#tblPt6").append(html);
             });
 
+            if(result[2])
             $.each(result[2],function(row,agents){
 
                 var html = "<tr>" +
@@ -1285,6 +1449,7 @@ function RefreshScheduler()
 
             var bmas = '';
             var counter = 0;
+            if(result[3])
             $.each(result[3], function(row, agents){
                 console.log(agents['shortname'] + " " + agents['posicion']);
                 if(counter == 0)
@@ -1307,6 +1472,7 @@ function RefreshScheduler()
 
             html = '';
             var counter = 0;
+            if(result[4])
             $.each(result[4], function(row, agents){
                 console.log(agents['shortname'] + " " + agents['posicion']);
                 if(counter == 0)
@@ -1346,7 +1512,7 @@ function RefreshFlights()
     }
 
     var request = $.ajax({
-        url: 'webcunop/asyncloadstationdate',
+        url: '/cun/webcunop/asyncloadstationdate',
         type: 'POST',
         data: fields,
         beforeSend:function(){
@@ -1368,8 +1534,7 @@ function RefreshFlights()
                 html += "</td>";
                 if(flight['errormsj'])
                 {
-                    html += "<td colspan=3><strong>" + flight['errormsj'];
-                    html += "</strong></td>";
+                    html += "<td colspan=3></td>";
                 }
                 else
                 {
@@ -1444,7 +1609,7 @@ function DoPostCambio(r)
 
     
     var request = $.ajax({
-        url: 'webcunop/postcambio',
+        url: '/cun/webcunop/postcambio',
         type: 'POST',
         data: agent,
         beforeSend:function(){
@@ -1489,7 +1654,7 @@ function loadRowVuelo(idvuelo,linea,fecha)
               fecha : fecha
              };
     $.ajax({
-      url: '<? echo base_url(); ?>webcunop/loadflightdetail',
+      url: '/cun/webcunop/loadflightdetail',
       type: 'POST',
       data : infoData,
       beforeSend:function(){
@@ -1546,7 +1711,7 @@ function loadRowVuelo(idvuelo,linea,fecha)
           $("#inputPosicion2").val('');   
         }
 
-        if(posiciones.length > 0)
+        if(posiciones && posiciones.length > 0)
         {
             $('#inputPosicion1')
                 .find('option')
@@ -1606,7 +1771,7 @@ function loadRowAgentPosition(uniqueid, posicion, agenteid, fecha)
               fecha : fecha
              };
     $.ajax({
-      url: 'webcunop/loadagentschedule',
+      url: '/cun/webcunop/loadagentschedule',
       type: 'POST',
       data : infoData,
       beforeSend:function(){
@@ -1649,7 +1814,7 @@ function loadRowLeadPosition(uniqueid, posicion, agenteid, fecha)
               fecha : fecha
              };
     $.ajax({
-      url: 'webcunop/loadleadschedule',
+      url: '/cun/webcunop/loadleadschedule',
       type: 'POST',
       data : infoData,
       beforeSend:function(){
@@ -1683,7 +1848,7 @@ function loadFlightDetail(idempresa, idoficina, idvuelo, qdate)
                       fecha : qdate
                      };
     $.ajax({
-        url: 'webcunop/loadflightdetail',
+        url: '/cun/webcunop/loadflightdetail',
         type: 'POST',
         data : infoData,
         beforeSend:function(){

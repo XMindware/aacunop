@@ -17,7 +17,7 @@ class Loadimpresionmensual extends CI_Controller {
 	
 	public function index()
 	{
-		if($this->session->userdata('perfil') == FALSE || $this->session->userdata('perfil') != 'admin')
+		if($this->session->userdata('perfil') == FALSE || $this->session->userdata('isadmin')!='1')
 		{
 			redirect(base_url().'login');
 		}
@@ -84,12 +84,12 @@ class Loadimpresionmensual extends CI_Controller {
 
         		$linecount = 0;
 
-        		$this->Loadimpresionmensual_model->CleanSchedulerDates($idempresa,$idoficina,$fechaini,$fechafin);
+        		//$this->Loadimpresionmensual_model->CleanSchedulerDates($idempresa,$idoficina,$fechaini,$fechafin);
 
 				while (($line = fgetcsv($file)) !== FALSE) {
 
 					// esta linea no cuenta				
-					if($linecount > 5 && $line[0] != '')
+					if($linecount > 2 && $line[0] != '')
 					{
 						//echo $line[0] . ' ' . strpos($line[0], 'AGENT') . '-';
 						if(strpos($line[0], 'LEAD') !== false || strpos($line[0], 'AGENT') !== false)
@@ -98,6 +98,7 @@ class Loadimpresionmensual extends CI_Controller {
 						}
 						else
 						{
+
 							// tenemos ya la linea de un agente, ahora la analizamos y vamos creando cada campo para insertar
 							$notfound = $this->ProcesarLineaAgente($line, $fechaini, $fechafin);
 						  	//print_r($line);
@@ -140,7 +141,20 @@ class Loadimpresionmensual extends CI_Controller {
 		if(!isset($linea[0]) || trim($linea[0]) == '') return;
 		$shortname = $linea[0];
 
+	
+		//echo 'agente-' . $shortname . '-';
+		$agente = $this->Agentes_model->FindAgentByShortname($idempresa, $idoficina, $shortname)[0];
+
+		if(!$agente)
+		{
+			return;
+		}
+		$idagente = $agente['idagente'];
+		//$fecha = date('Y-m-d', mktime(0, 0, 0, $mes, $tokencount, $year)); 
+		$workday = $agente['jornada'];
+
 		// depurar al agente en ese rango de fechas
+		$this->Loadimpresionmensual_model->CleanSchedulerDatesAgente($idempresa,$idoficina,$fechaini,$fechafin,$idagente);
 		
 		$positions = array();
 		$agentsnotfound = array();
@@ -151,15 +165,12 @@ class Loadimpresionmensual extends CI_Controller {
 			// nos brincamos el nombre del agente
 			if($tokencount > 0)
 			{
-				//echo 'agente-' . $shortname . '-';
-				$agente = $this->Agentes_model->FindAgentByShortname($idempresa, $idoficina, $shortname)[0];
+				
 				//print_r($agente);
 				if(isset($agente['idagente'])){
 					
 					$fecha = date('Y-m-d', strtotime("+".$dias." days", strtotime($fechaini)));
-					$idagente = $agente['idagente'];
-					//$fecha = date('Y-m-d', mktime(0, 0, 0, $mes, $tokencount, $year)); 
-					$workday = $agente['jornada'];
+					
 					$posicion = $token;
 					$asignacion = '';
 					//echo $fecha . ' ' . $agente['shortname'] . '<br>';

@@ -17,9 +17,8 @@ class Castigados extends CI_Controller {
 	
 	public function index()
 	{
-		if($this->session->userdata('perfil') == FALSE )
+		if($this->session->userdata('perfil') == FALSE || $this->session->userdata('isadmin')!='1')
 		{
-			//echo 'no paso';
 			redirect(base_url().'login');
 		}
 

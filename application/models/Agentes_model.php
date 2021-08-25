@@ -37,8 +37,6 @@ class Agentes_model extends CI_Model {
 		$this->db->where('idoficina',$oficina);
 		$this->db->where('idagente',$agentid);
 		$query = $this->db->get('cunop_agentes');
-		//echo($this->db->last_query());
-		//$query = $this->db->query('select * from cunop_agentes where idagente='.$agentid);
 		if($query->num_rows() > 0)
 		{
 			return $query->result_array();
@@ -48,6 +46,28 @@ class Agentes_model extends CI_Model {
 			return array();
 		}
 	}
+
+	// solicitamos record de agentes validos
+	public function LoadValidAgentId($empresa,$oficina,$agentid){
+		$this->db->where('idempresa',$empresa);
+		$this->db->where('idoficina',$oficina);
+		$this->db->where('idagente',$agentid);
+		$this->db->where('status','OK');
+		
+		$query = $this->db->get('cunop_agentes');
+		//echo($this->db->last_query());
+		//$query = $this->db->query('select * from cunop_agentes where idagente='.$agentid);
+		if($query->num_rows() > 0)
+		{
+			return $query->row();
+		}	
+		else
+		{
+			return false;
+		}
+	}
+
+
 
 	public function LoadAgentUniqueId($empresa,$oficina,$uniqueid){
 		$this->db->where('idempresa',$empresa);
@@ -161,6 +181,34 @@ class Agentes_model extends CI_Model {
 		
 	}
 
+	public function UpdateAgentAssignments($idempresa, $idoficina, $uniqueid, $idagente){
+		$agent = $this->LoadAgentId($idempresa,$idoficina,$idagente);
+
+		if($agent){
+			$workday = $agent[0]['jornada'];
+
+			$data = array(
+				'workday' 	=> $workday,
+				'updated' 	=> $date = date('Y-m-d H:i:s')
+	        );
+			
+			// actualiza la info
+			$this->db->set($data);
+			$this->db->where('idempresa',$idempresa)
+					 ->where('idoficina',$idoficina)
+					 ->where('idagente',$idagente)
+					 ->where('fecha>=', date('Y-m-d'))
+					 ->where('workday!=',$workday);
+	        $this->db->update('cunop_agentscheduler', $data);
+
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+
 	public function UpdateDeviceId($uniqueid, $deviceid)
 	{
 
@@ -202,6 +250,8 @@ class Agentes_model extends CI_Model {
 		$this->db->where('idempresa', $idempresa);
 		$this->db->where('idoficina', $idoficina);
 		$this->db->where('shortname', $shortname);
+		$this->db->where('status', 'OK');
+		
 		$query = $this->db->get('cunop_agentes');
 		//echo $this->db->last_query();
 		if($query->num_rows() > 0)
@@ -214,7 +264,7 @@ class Agentes_model extends CI_Model {
 
 	public function GetBirthdayPeople($idempresa, $idoficina)
 	{
-		$sql = "SELECT shortname,birthday FROM cunop_agentes WHERE idempresa=? and idoficina=? and concat(year(now()),'-',DATE_FORMAT(birthday,'%m-%d')) between DATE_FORMAT(NOW(),'%Y-%m-%d') and DATE_FORMAT(NOW() + INTERVAL 11 DAY,'%Y-%m-%d')";
+		$sql = "SELECT shortname,birthday FROM cunop_agentes WHERE status='OK' and idempresa=? and idoficina=? and concat(year(now()),'-',DATE_FORMAT(birthday,'%m-%d')) between DATE_FORMAT(NOW() + INTERVAL -1 DAY,'%Y-%m-%d') and DATE_FORMAT(NOW() + INTERVAL 30 DAY,'%Y-%m-%d') and birthday<>'0000-00-00' order by EXTRACT(month FROM birthday), EXTRACT(day FROM birthday) asc";
 		$query = $this->db->query($sql,array($idempresa,$idoficina));
 		//echo $this->db->last_query();
 		if($query->num_rows() > 0)

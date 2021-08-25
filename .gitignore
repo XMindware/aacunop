@@ -1,5 +1,7 @@
-
-# Elastic Beanstalk Files
-.elasticbeanstalk/*
-!.elasticbeanstalk/*.cfg.yml
-!.elasticbeanstalk/*.global.yml
+/user_guide
+/application/logs
+/application/.DS_Store
+/logs
+/uploads
+/sftp-config.json
+/aa.sublime-project

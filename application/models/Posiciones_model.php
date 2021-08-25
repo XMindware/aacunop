@@ -136,4 +136,21 @@ class Posiciones_model extends CI_Model {
 		$query = $this->db->delete('cunop_positions');
 		
 	}
+
+
+	// regresa el skills necesario para una posicion
+	public function GetSkillForPosition($idempresa,$idoficina,$posicion,$workday){
+
+		$sql = "SELECT cando FROM cunop_positions WHERE".
+		" idempresa=? and code=?"; //" and workday=? ";
+
+		$query = $this->db->query($sql,array($idempresa,$posicion));//,$workday));
+		if($query){
+			return $query->row();
+		}
+		else{
+			return array();
+		}
+
+	}
 }

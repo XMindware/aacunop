@@ -17,7 +17,7 @@ class Descansos extends CI_Controller {
 	
 	public function index()
 	{
-		if($this->session->userdata('perfil') == FALSE || $this->session->userdata('perfil') != 'admin')
+		if($this->session->userdata('perfil') == FALSE || $this->session->userdata('isadmin')!='1')
 		{
 			redirect(base_url().'login');
 		}

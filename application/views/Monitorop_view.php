@@ -168,6 +168,10 @@
             margin-bottom: 0px;
         }
 
+        p.lead {
+            margin-top:5px;
+        }
+
         .col-md-4 {
             width: 32%;
         }

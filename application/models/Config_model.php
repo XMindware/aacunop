@@ -157,6 +157,22 @@ class Config_model extends CI_Model {
 		}	
 	}
 
+	public function HasCandoAgent($idempresa,$idoficina,$idagente,$cando)
+	{
+		$this->db->where('idempresa',$idempresa);
+		$this->db->where('idoficina',$idoficina);
+		$this->db->where('idagente',$idagente);
+		$this->db->where('idcando',$cando);
+
+		$query = $this->db->get('cunop_relcandoagents');
+		print_r($this->db->last_query());
+		//$query = $this->db->query('select * from cunop_agentes where idagente='.$agentid);
+		if($query->num_rows() > 0)
+		{
+			return $query->row();
+		}	
+	}
+
 	public function SetCandoAgent($idempresa,$idoficina,$idagente,$idcando,$user)
 	{
 		$data = array(
