@@ -10,7 +10,7 @@ class Config extends CI_Controller {
 		
 		$this->load->model('Config_model');
 		$this->load->model('Agentes_model');
-
+		$this->load->model('Login_model');
 		$this->load->library(array('session'));
 		$this->load->helper(array('url'));
 
@@ -27,11 +27,14 @@ class Config extends CI_Controller {
 			redirect(base_url().'login');
 		}
 		
-		$empresa = $this->session->userdata('idempresa');
-		$oficina = $this->session->userdata('idoficina');
+		$idempresa = $this->session->userdata('idempresa');
+		$idoficina = $this->session->userdata('idoficina');
+		$agenteslist = $this->Agentes_model->StationAgents($idempresa,$idoficina);
 
-		$data['idempresa'] = $empresa;
-		$data['idoficina'] = $oficina;
+		$data['idempresa'] = $idempresa;
+		$data['idoficina'] = $idoficina;
+		$data['agentes'] = $agenteslist;
+
 		$data['empresas'] = $this->Config_model->GetEmpresas();
 		$tdata['perfil'] = $this->session->userdata('perfil');
 		$this->load->view('paginas/header',$data);
@@ -52,6 +55,50 @@ class Config extends CI_Controller {
 		
 	}
 
+	public function SimulateSession(){
+		$idempresa = $this->session->userdata('idempresa');
+		$idoficina = $this->session->userdata('idoficina');
+		$idagente = $this->input->post('inputAgent');
+
+		if($this->session->userdata('isadmin')){
+
+			$check_user = $this->Login_model->SimulateSession($idempresa, $idoficina, $idagente);
+
+			if($check_user){
+
+				// obtiene la version del webapp
+				$versionweb = $this->Config_model->GetEmpresas()[0]['versionweb'];
+
+				// registra el acceso
+				$user = $this->login_model->log_signin($check_user->shortname, $versionweb, 'web');
+
+				// obtiene la oficina a la que pertenece el usuario
+				$oficina = $this->login_model->getOficinaAdmin($check_user->idempresa, $check_user->idoficina);
+
+				$isadmin = $this->Agentes_model->IsAdmin($check_user->idempresa,$check_user->idoficina,$check_user->uniqueid);
+
+				$data = array(
+                		'is_logued_in' 	=> 	TRUE,
+				'idempresa'	=>	$check_user->idempresa,
+				'idoficina'	=>	$check_user->idoficina,
+				'iatacode'	=>	$oficina->iatacode,
+               			'idagente'	=> 	$check_user->idagente,
+                		'perfil'	=>	$check_user->perfil,
+                		'email' 	=> 	$check_user->email,
+                		'jornada'	=> 	$check_user->jornada,
+                		'puesto'	=>	$check_user->puesto,
+                		'isadmin'	=>	$isadmin,
+				'shortname' 	=> 	$check_user->shortname,
+				'fullname'	=> 	$check_user->nombre . ' ' . $check_user->apellidos,
+				'timezone'	=>	$oficina->timezone,
+				'termsaccepted' =>	$check_user->termsaccepted
+    				);		
+				$this->session->set_userdata($data);
+				redirect(base_url().'admin');
+
+			}
+		}
+	}
 	
 	public function SetMinimumPos()
 	{

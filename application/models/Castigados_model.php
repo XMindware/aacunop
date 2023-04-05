@@ -91,8 +91,19 @@ class Castigados_model extends CI_Model {
 			return $this->LoadRow($empresa, $oficina, $this->db->insert_id() );
 			//echo $this->db->last_query();
 		}
-		//echo $this->db->last_query();
-
 		
+	}
+
+	public function EstaCastigado($idempresa, $idoficina, $idagentebase, $fecha){
+		$this->db->where('idempresa', $idempresa);
+		$this->db->where('idoficina', $idoficina);
+		$this->db->where('idagente', $idagentebase);
+		$this->db->where('fechacastigo<=', $fecha);
+		$this->db->where('fechafin>=', $fecha);
+		$query = $this->db->get('cunop_castigados');
+		if($query->num_rows() > 0)
+		{
+			return $query->row();
+		}	
 	}
 }

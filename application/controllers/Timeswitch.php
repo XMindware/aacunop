@@ -11,7 +11,7 @@ class Timeswitch extends CI_Controller {
 		$this->load->model(array('Admin_model','Loadleadsmensual_model','Loadimpresionmensual_model'));
 		$this->load->model('Agentes_model');
 		$this->load->model('Timeswitch_model');
-		$this->load->model(array('Webcunop_model','Posiciones_model','Cando_model'));
+		$this->load->model(array('Webcunop_model','Posiciones_model','Cando_model','Castigados_model'));
 		$this->load->library(array('session'));
 		$this->load->helper(array('url'));
 	}
@@ -37,6 +37,15 @@ class Timeswitch extends CI_Controller {
 		$fecha = date('Y-m-d');
 		$idempresa = $this->session->userdata('idempresa');
 		$idoficina = $this->session->userdata('idoficina');
+
+		$fechaini = date('Y-m-d');
+		$fechafin = date('Y-m-d',strtotime('+10 days'));
+		if($this->input->get('ini') != '' && $this->input->get('fin') != '')
+		{
+			$fechaini = $this->input->get('ini');
+			$fechafin = $this->input->get('fin');
+		}
+		$filter = $this->input->get('filter');
 		
 		// consulta las oficinas de la cuales es admin el usuario actual
 		$adminoficina = $this->Admin_model->GetOficinasAdmin();
@@ -47,7 +56,7 @@ class Timeswitch extends CI_Controller {
 		$requests = $this->Timeswitch_model->ConsultarAgentRequests($idempresa,$idoficina,$this->session->userdata('idagente'));
 
 		// registro de transcciones pasadas
-		$registros = $this->CompleteHistoricalRequests($idempresa,$idoficina);
+		$registros = $this->CompleteHistoricalRequestsByDates($idempresa,$idoficina,$fechaini,$fechafin);
 		$agentes = $this->Agentes_model->StationAgents($idempresa,$idoficina);
 		
 		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha);
@@ -71,6 +80,33 @@ class Timeswitch extends CI_Controller {
 		}
 	}
 
+	private function CompleteHistoricalRequestsByDates($idempresa,$idoficina,$fechaini,$fechafin)
+	{
+		$newregistros = array();
+		$registros = $this->Timeswitch_model->ConsultarAgentHistoricalRequestsDates($idempresa,$idoficina,$fechaini,$fechafin);
+		
+		if($registros)
+		foreach ($registros as $registro) {
+			if($registro['tipocambio'] == 'Triangle')
+			{
+				$triangulo = $this->Timeswitch_model->GetTriangleRecords($idempresa,$idoficina,$registro['triangulo']);
+				
+				if(sizeof($triangulo)>1){
+					$registro['uniqueid'] = $triangulo[0]['triangulo'];
+					$registro['agentecambio'] = $triangulo[0]['agentecambio'] . ' &rarr; ' . $triangulo[1]['agentecambio'];
+					$registro['posicionsolicitada'] = $triangulo[0]['posicionsolicitada'] . ' &rarr; ' . $triangulo[1]['posicionsolicitada'];
+				}
+				else{
+					log_message('debug','Triangle incomplete ' . $triangulo[0]['triangulo']);
+				}
+
+			}
+			array_push($newregistros,$registro);
+		}	
+
+		return $newregistros;
+	}
+
 	private function CompleteHistoricalRequests($idempresa,$idoficina)
 	{
 		$newregistros = array();
@@ -82,7 +118,7 @@ class Timeswitch extends CI_Controller {
 				$triangulo = $this->Timeswitch_model->GetTriangleRecords($idempresa,$idoficina,$registro['triangulo']);
 				if(sizeof($triangulo)>1){
 					$registro['uniqueid'] = $triangulo[0]['triangulo'];
-					$registro['agentecambio'] = $triangulo[0]['agentecambio'] . '->' . $triangulo[1]['agentecambio'];
+					$registro['agentecambio'] = $triangulo[0]['agentecambio'] . ' &rarr; ' . $triangulo[1]['agentecambio'];
 					$registro['posicionsolicitada'] = $triangulo[0]['posicionsolicitada'] . ' &rarr; ' . $triangulo[1]['posicionsolicitada'];
 				}
 				else{
@@ -580,7 +616,7 @@ class Timeswitch extends CI_Controller {
 		$tdata['oficinas'] = $adminoficina;
 		$tdata['perfil'] = $this->session->userdata('perfil');
 		
-		$data['coordinador'] = ($this->session->userdata('idagente') == '669958' || $this->session->userdata('idagente') == '555092' || $this->session->userdata('idagente') == '689234' ) ? 'SI':'NO'; 
+		$data['coordinador'] = ($this->session->userdata('idagente') == '300101' || $this->session->userdata('idagente') == '669958' || $this->session->userdata('idagente') == '555092' || $this->session->userdata('idagente') == '689234' ) ? 'SI':'NO'; 
 		$request = $this->Timeswitch_model->ConsultarLeadCambioRequestById($idempresa,$idoficina,$requestid);	
 		if($request)
 		{
@@ -670,7 +706,7 @@ class Timeswitch extends CI_Controller {
 	public function AuthorizeThreeRequest()
 	{
 		$debug = true;
-		$file = fopen("/home/mindware/public_html/apps.mindware.com.mx/cun/logs/autorizaciones_" . date("Ymd"), "a+");
+		$file = fopen("/home/mindware/public_html/wctest/logs/autorizaciones_" . date("Ymd"), "a+");
 
 		if($this->session->userdata('perfil') == FALSE )
 		{
@@ -1048,7 +1084,7 @@ class Timeswitch extends CI_Controller {
 	{
 
 		$debug = true;
-		$file = fopen("/home/mindware/public_html/apps.mindware.com.mx/cun/logs/autorizaciones_" . date("Ymd"), "a+");
+		$file = fopen("/home/mindware/public_html/wctest/logs/autorizaciones_" . date("Ymd"), "a+");
 
 		if($this->session->userdata('perfil') == FALSE )
 		{
@@ -1108,13 +1144,13 @@ class Timeswitch extends CI_Controller {
 
 		if($debug)
 		{
-			fwrite($file,'Perfil solicita' . "\n");
+			fwrite($file,'1 Perfil solicita' . "\n");
 			fwrite($file,print_r($perfilsolicita, true));
 			fwrite($file,"\n");
 			//echo 'perfil solicita ' . PHP_EOL;
 			//print_r($perfilsolicita);
 
-			fwrite($file,'Perfil destino' . "\n");
+			fwrite($file,'2 Perfil destino' . "\n");
 			fwrite($file,print_r($perfildestino, true));
 			fwrite($file,"\n");
 			//echo 'perfil destino ' . PHP_EOL;
@@ -1132,7 +1168,7 @@ class Timeswitch extends CI_Controller {
 
 			if($debug)
 			{
-				fwrite($file,'Agente solicita' . "\n");
+				fwrite($file,'3 Agente solicita' . "\n");
 				fwrite($file,print_r($agentesolicita, true));
 				fwrite($file,"\n");
 				//echo 'Agente Solicita ' .PHP_EOL;
@@ -1148,7 +1184,7 @@ class Timeswitch extends CI_Controller {
 
 			if($debug)
 			{
-				fwrite($file,'Agente destino' . "\n");
+				fwrite($file,'4 Agente destino' . "\n");
 				fwrite($file,print_r($agentedestino, true));
 				fwrite($file,"\n");
 				//echo 'Agente Destino ' .PHP_EOL;
@@ -1582,6 +1618,15 @@ class Timeswitch extends CI_Controller {
 			$idagentebase = $this->session->userdata('idagente');
 		$fecha = $this->input->post('fechacambiar');
 
+		// testeamos si no esta castigado
+		if( $this->Castigados_model->EstaCastigado($idempresa, $idoficina, $idagentebase, $fecha) )
+		{
+			header('Content-type: application/json; charset=utf-8');
+			$error = array('status' => "ERROR", "msg" => "You are not available to request a Switch this day.");
+			echo json_encode($error);
+			return;
+		}
+		
 		$data = $this->Timeswitch_model->getAgentsSwitchDate($idempresa,$idoficina,$fecha,$idagentebase);
 		header('Content-type: application/json; charset=utf-8');
 		echo json_encode($data);
@@ -1607,25 +1652,15 @@ class Timeswitch extends CI_Controller {
 
 		}
 		$fecha = $this->input->post('fechacambiar');
-		/*
-		$userpos = $this->input->post('userposicion');
-		$userjornada = $this->input->post('userjornada');
-
-		switch($jornada)
+		// testeamos si no esta castigado
+		if( $this->Castigados_model->EstaCastigado($idempresa, $idoficina, $idagentebase, $fecha) )
 		{
-			case 'PT' :
-				$posiciones = "workday in ('PT6','PT4') ";
-				break;
-			case 'PT6' :
-				$posiciones = "workday in ('PT4')";
-			case 'FT' :
-				$posiciones = "true";
-				break;
-		}*/
-		
+			header('Content-type: application/json; charset=utf-8');
+			$error = array('status' => "ERROR", "msg" => "You are not available to request a Cover this day.");
+			echo json_encode($error);
+			return;
+		}
 
-		//echo 'puesto ' . $puesto;
-		//$data = $this->Timeswitch_model->getAgentsCoverDate($idempresa,$idoficina,$fecha,$posiciones,$userpos,$userjornada);
 		$data = $this->Timeswitch_model->getAgentsCoverDate($idempresa,$idoficina,$fecha,$idagentebase,$puesto);
 		header('Content-type: application/json; charset=utf-8');
 		echo json_encode($data);
@@ -1681,6 +1716,31 @@ class Timeswitch extends CI_Controller {
 		$idoficina = $this->session->userdata('idoficina');
 		$jornada = $this->session->userdata('jornada');
 		$fecha = $this->input->post('fechacambiar');
+
+		if($this->input->post('agente')){
+			$agente = $this->input->post('agente');
+			$rowagent = $this->Agentes_model->FindAgentByShortname($idempresa, $idoficina, $agente)[0];
+			$idagentebase = $rowagent['idagente'];
+			$puesto = $rowagent['puesto'];
+			$jornada = $rowagent['jornada'];
+
+		}
+		else
+		{
+			$idagentebase = $this->session->userdata('idagente');
+			$puesto = $this->session->userdata('puesto');
+			$jornada = $this->session->userdata('jornada');
+
+		}
+
+		// testeamos si no esta castigado
+		if( $this->Castigados_model->EstaCastigado($idempresa, $idoficina, $idagentebase, $fecha) )
+		{
+			header('Content-type: application/json; charset=utf-8');
+			$error = array('status' => "ERROR", "msg" => "You are not available to request a Switch this day.");
+			echo json_encode($error);
+			return;
+		}
 
 		$data = $this->Timeswitch_model->getAgentsDayOffDate($idempresa,$idoficina,$fecha);
 		header('Content-type: application/json; charset=utf-8');

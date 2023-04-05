@@ -105,7 +105,7 @@ public function new_user()
 				}
 			}
 		}else{
-			//redirect(base_url().'login');
+			redirect(base_url().'login');
 		}
 	}
 

@@ -34,6 +34,7 @@
             color : #F1948A;
             font-size: 12px;
         }
+
     </style>
     <script src="<? echo base_url(); ?>assets/js/custypeahead.js"></script>
     <button onclick="topFunction()" id="myBtn" title=""><img src="<? echo base_url(); ?>assets/images/Circled Up-50.png" /></button>

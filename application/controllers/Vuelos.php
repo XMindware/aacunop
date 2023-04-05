@@ -91,10 +91,10 @@ class Vuelos extends CI_Controller {
 			{
 				$horasalida = $row['horasalida'] - ($timezone * 3600);
 				$hours = intval($horasalida / 3600);
-				$minutes =  ( ( $horasalida  - ( $hours * 3600 ) ) / 60);
+				$minutes =  intval( ( $horasalida  - ( $hours * 3600 ) ) / 60);
 				$departure = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
 				$hours = intval($row['duracionvuelo'] / 3600);
-				$minutes = (($row['duracionvuelo'] / 3600) - $hours) * 60;
+				$minutes = intval((($row['duracionvuelo'] / 3600) - $hours) * 60);
 				$arrival = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
 				
 				if($row['lun']==1 && $row['mar']==1 && $row['mie']==1 && $row['jue']==1 && $row['vie']==1 &&

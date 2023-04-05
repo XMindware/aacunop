@@ -359,6 +359,34 @@
 
             <!-- Termina form de cambios Triangulares -->
 
+			<!-- Display next 10 days -->
+			<div class="row align-items-start">
+				<div class="col-sm-3">
+					<h4>Display filters</h4>
+				</div>
+				<div class="col-sm-3">
+					<div class="form-group">
+						<select class="form-control" id="inputSelectFilter" name="inputSelectFilter">
+							<option value="">Select Period</option>
+							<option value="0" <? echo ($filter=='0') ? 'selected' : ''; ?>>Today</option>
+							<option value="10" <? echo ($filter=='10' || $filter=='') ? 'selected' : ''; ?>>Next 10 days</option>
+							<option value="-10" <? echo ($filter=='-10') ? 'selected' : ''; ?>>Previous 10 days</option>
+							<option value="date" <? echo ($filter=='date') ? 'selected' : ''; ?>>Custom date</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-sm-4 container">
+					<div class="row customdates" style="display:none;">
+						<div class="col-4">
+						<input class="form-control" id="inputFechaIniCustom" name="inputFechaIniCustom" type="date" value="<?= $fechaini; ?>" />
+						</div><div class="col-4">
+						<input class="form-control" id="inputFechaFinCustom" name="inputFechaFinCustom" type="date" value="<?= $fechafin; ?>"/>
+						</div><div class="col-4">
+						<button type="button" id="btnFechaCustom" class="btn btn-success">Apply</button>
+						</div>
+					</div>
+				</div>
+			</div>
         
           	<div class="row">
             	<div class="col-md-12">
@@ -391,7 +419,7 @@
                       <tr>
                       	<td>
                       		<?
-                      			if($row['status'] != 'AUT')
+                      			if($row['status'] == 'ACC')
                       			{
                       				if($row['tipocambio'] == 'Triangle')
                       				{
@@ -406,14 +434,36 @@
 	                      				<?
 	                      			}
                       			}
+                      			else{
+                      				if($row['status'] != 'AUT'){
+                      					if($row['tipocambio'] == 'Triangle')
+	                      				{
+		                      				?>
+		                      				<span class="glyphicon glyphicon-remove-sign redc" style="cursor:pointer" onclick="javascript:goRemove('<? echo $row['uniqueid'];?>','<? echo $row['idagente'];?>');"></span>	
+		                      				<?
+		                      			}
+		                      			else
+		                      			{
+		                      				?>
+		                      				<span class="glyphicon glyphicon-remove-sign redc" style="cursor:pointer" onclick="javascript:goRemove('<? echo $row['uniqueid'];?>','<? echo $row['idagente'];?>');"></span>	
+		                      				<?
+		                      			}
+                      				}
+                      			}
+								if($row['info'] != '')
+								{
+									?>
+									<span class="glyphicon glyphicon-list-alt" style="cursor:pointer" onclick="javascript:alert('<?=$row['info'];?>');"></span>	
+									<?
+								}
                       		?>
                       		</td>
-                        <td><? echo $row['tipocambio']; ?></button></td>
+                        <td><? echo $row['tipocambio'] . ($row['status'] == 'DEC'? '/Declined' : ''); ?></button></td>
                         <td><? echo $row['agentecambio']; ?></td>
                         <td><? echo date('d/m/Y',strtotime($row['fechacambio'])); ?></td>
                         <td><? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial']; ?></td>
                         <td><? echo $row['shortname']; ?></td>
-                        <td><? echo $row['fechatarget'] == '0000-00-00' ? '' : date('d/m/Y',strtotime($row['fechatarget'])) ; ?></td>
+                        <td><? echo !isset($row['fechatarget']) ? '' : date('d/m/Y',strtotime($row['fechatarget'])) ; ?></td>
                         <td><? echo $row['fechaacepta'] == '0000-00-00 00:00:00' ? 'NO' : 'YES'; ?></td>
                         <td><? echo $row['fechaautoriza'] == '0000-00-00 00:00:00' ? 'NO' : 'YES ' . $row['leadautoriza']; ?></td>
                       </tr>
@@ -458,7 +508,7 @@
                         <td><? echo date('d/m/Y',strtotime($row['fechacambio'])); ?></td>
                         <td><? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial']; ?></td>
                         <td><? echo $row['shortname']; ?></td>
-                        <td><? echo $row['fechatarget'] == '0000-00-00' ? '' : date('d/m/Y',strtotime($row['fechatarget'])) ; ?></td>
+                        <td><? echo !isset($row['fechatarget']) ? '' : date('d/m/Y',strtotime($row['fechatarget'])) ; ?></td>
                         <td><? echo $row['fechaacepta'] == '0000-00-00 00:00:00' ? 'NO' : 'YES'; ?></td>
                         <td><? echo $row['fechaautoriza'] == '0000-00-00 00:00:00' ? 'NO' : 'YES ' . $row['leadautoriza']; ?></td>
                       </tr>
@@ -770,6 +820,43 @@
 			$("#inputAgentId").val('');
 			$("#inputDaysOff").val('');
 			$("#frmAgentData").hide();	
+		});
+
+		$("#inputSelectFilter").change(function(){
+			var filter = $("#inputSelectFilter").val();
+			if(filter == 'date'){
+				$(".customdates").show();
+				return;
+			}
+			$(".customdates").hide();
+			var url = '<?php echo base_url(); ?>timeswitch/pending?';
+			switch(filter){
+				case '0': // today
+					var ini = moment().format('YYYY-MM-DD');
+					var fin = moment().format('YYYY-MM-DD');
+					url += 'ini=' + ini + '&fin=' + fin + '&filter=' + filter;
+					break;
+				case '10':
+					var ini = moment().format('YYYY-MM-DD');
+					var fin = moment().add(10,'days').format('YYYY-MM-DD');
+					url += 'ini=' + ini + '&fin=' + fin	+ '&filter=' + filter;
+					break;
+				case '-10':
+					var ini = moment().subtract(10, 'days').format('YYYY-MM-DD');
+					var fin = moment().format('YYYY-MM-DD');
+					url += 'ini=' + ini + '&fin=' + fin + '&filter=' + filter;
+					break;
+			}
+			window.location.href = url;
+		});
+
+		$("#btnFechaCustom").click(function(){
+			var ini = $("#inputFechaIniCustom").val();
+			var fin = $("#inputFechaFinCustom").val();
+			var filter = $("#inputSelectFilter").val();
+			var url = '<?php echo base_url(); ?>timeswitch/pending?';
+			url += 'ini=' + ini + '&fin=' + fin + '&filter=' + filter;
+			window.location.href = url;
 		});
 
 		// eventos del proceso de request triangulado

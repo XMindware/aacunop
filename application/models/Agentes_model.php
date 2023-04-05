@@ -9,9 +9,9 @@ class Agentes_model extends CI_Model {
 	}
 	
 	
-	public function StationAgents($empresa,$oficina){
-		$this->db->where('idempresa',$empresa);
-		$this->db->where('idoficina',$oficina);
+	public function StationAgents($idempresa,$idoficina){
+		$this->db->where('idempresa',$idempresa);
+		$this->db->where('idoficina',$idoficina);
 		$this->db->where('status="OK"');
 		$this->db->order_by('nombre,apellidos','ASC');
 		$query = $this->db->get('cunop_agentes');

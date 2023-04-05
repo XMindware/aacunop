@@ -10,7 +10,7 @@
                 <input type="hidden" id="inputUsuario" value="<? echo $usuario; ?>" />
                 </div>
             </div>           
-            <form id="frmAgentData" method="post">
+            <form id="frmAgentData" method="post" autocomplete="off">
             	
                 <fieldset required="required">
                         <div class='row'>
@@ -254,7 +254,7 @@
                         "<td><button type='button' onclick=\"loadAgent('" + line['uniqueid'] + "','" + line['idempresa'] + "','" + line['idoficina'] + "');\" class='btn btn-link'>" + 
                         line['idagente'] + "</button></td>";
                     html += "<td>" + line['shortname'] + "</td>";
-                    html += "<td>" + line['fechacastigo'] + ' to ' + line['fechafin'] + "</td>";
+                    html += "<td>" + moment(line['fechacastigo']).format('D/MMM/Y') + ' to ' + moment(line['fechafin']).format('D/MMM/Y') + "</td>";
                     html += "<td>" + line['razon'] + "</td>";
                     html += "<td>" + line['aplicocastigo'] + "</td>";
                     html += "</tr>";

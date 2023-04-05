@@ -285,6 +285,10 @@ html .fc,
 	background-color: #f4d03f;
 }
 
+.fc-event.declined{
+	background-color: #fb8088;
+}
+
 .fc-event.info{
     background-color: #c6ebfe;
 }

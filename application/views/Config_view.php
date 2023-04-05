@@ -81,6 +81,47 @@
             </form>
            
         </div>
+
+        <!-- Simular sesion -->
+        <? 
+        if($this->session->isadmin){ ?>
+        <div class="panel-body">
+            <form action="<? echo base_url(); ?>config/simulatesession" method="post">
+                </center>
+                <fieldset>
+                    <legend>Simulate session</legend>              
+                    <div class='row'>
+                        <div class='col-sm-6'>
+                            <div class='form-group'>
+                                <label for="inputAgent"></label>
+                                <select name="inputAgent" required="true" class="form-control">
+                                <?
+								foreach($agentes as $agente)
+								{
+								
+								?>
+                                  <option value="<? echo $agente['idagente']; ?>"><? echo $agente['shortname']; ?></option>
+                                  <?
+									}
+								?>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                        
+                    <div class='row'>
+                        <div class='col-sm-12'>
+                            <div class='form-group'>
+                                <button type="submit" id="btnSubmit" class="btn btn-success">Simulate</button>
+                                <button type="button" id="btnCancel" class="btn btn-default">Cancel</button>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+    	<? } ?>
     </div>
     
     

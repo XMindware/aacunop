@@ -59,8 +59,10 @@
 </style>
   <script>
 
+
     $(document).ready(function() {
-        var date = new Date();
+
+      var date = new Date();
       var d = date.getDate();
       var m = date.getMonth();
       var y = date.getFullYear();
@@ -214,6 +216,10 @@
               $color='warning';
               $posicion = $pos['posicion'] . ' ' . $tipocambio . ' ' . $agentecambio;
             }
+            else if($pos['status'] == 'DEC'){
+              $color='declined';
+              $posicion = $pos['posicion'] . ' Declined';
+            }
             else
               $color='info';
             ?>
@@ -236,6 +242,7 @@
   </script>
   <div class="page-header">
     <h1 style="text-align: center">Bienvenido de nuevo <?=$this->session->userdata('fullname') ?></h1>
+     
      <input type="hidden" id="inputIdEmpresa" value="<? echo $idempresa; ?>" />
      <input type="hidden" id="inputIdOficina" value="<? echo $idoficina; ?>" />
      <input type="hidden" id="inputUsuario" value="<? echo $idusuario; ?>" />
@@ -255,13 +262,13 @@
       <div class='row'>
         <div class='col-sm-6'>
           <div class='form-group'>
+          <?
+              if(sizeof($newslist)> 0){ ?>
             <h2><span class="label label-primary"> News </span></h2>
-              <? if($isadmin=='1')
-              { ?>
+              
               <ul>
-                <li> Add News! Action -> Newsfeed :)</li>
                 <?
-                if(sizeof($newslist)> 0){
+
                   foreach($newslist as $row)
                   {
         
@@ -270,52 +277,20 @@
                   <? echo $row['fullnews']; ?></li>
                   
                   <? }
-                        
-                  } 
-                  if(sizeof($requesttoauthorize)> 0){
-                    foreach($requesttoauthorize as $row)
-                    {
-                  ?>                      
-                      <? 
-                      if($row['tipocambio'] == 'Triangle'){
-                        if($row['uniqueid'] != $row['triangulo']){
-                        echo '<li>' . $row['tipocambio']; ?> to authorize: <b><? echo $row['agentecambio'] . ' &rarr; ' . $row['shortname']; ?></b>,
-                        <? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial'] . ', ' . date('d/m/Y',strtotime($row['fechacambio'])) . '<br/> ' ?> <a href="<? echo base_url(); ?>timeswitch/reviewTriangleRequestLead?uid=<? echo $row['triangulo']; ?>">Click here to review</a></li>
-                      
-                      <? 
-                          }
-                        }else{
-                        echo '<li>' . $row['tipocambio']; ?> to authorize: <b><? echo $row['agentecambio'] . ' &rarr; ' . $row['shortname']; ?></b>,
-                        <? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial'] . ', ' . date('d/m/Y',strtotime($row['fechacambio'])) . '<br/> ' ?> <a href="<? echo base_url(); ?>timeswitch/reviewRequestLead?uid=<? echo $row['uniqueid']; ?>">Click here to review</a></li>
-                      
-                      <? 
-                        }
-                      }
-                          
-                    }
-                    ?>
+                  ?>      
+                  
               </ul>
-              <? 
-                }
-                else
-                {
+              <?
+              }
                 ?>
+            <h2><span class="label label-primary"> Shift Changes</span></h2>
               <ul>
                 <?
-                if(sizeof($newslist)> 0){
-                  foreach($newslist as $row)
-                  {
-        
-                ?>
-                  <li><b><? echo $row['author']; ?> - <? echo $row['title']; ?></b><br/>
-                  <? echo $row['fullnews']; ?></li>
-                  
-                  <? }
-                        
-                  }
-                }
              
                 if(sizeof($requestpending)> 0){
+                  ?>
+                  <h4>Shifts to accept</h4>
+                  <?
                   foreach($requestpending as $row)
                   {
                 ?>
@@ -325,6 +300,9 @@
                         
                   }
                 if(sizeof($requestaccepted)> 0){
+                  ?>
+                  <h4>Old Shifts</h4>
+                  <?
                   foreach($requestaccepted as $row)
                   {
                     if(strtotime($row['fechacambio']) >= strtotime("today"))
@@ -338,6 +316,30 @@
                         
                   } ?>
               </ul> 
+            
+              <? if($isadmin=='1')
+              { ?>
+              <h4>Shifts to authorize</h4>
+              <ul> 
+                <?
+                  if(sizeof($requesttoauthorize)> 0){
+                    $limit = 0;
+                    foreach($requesttoauthorize as $row)
+                    {
+                  ?>
+                    <li><? echo $row['tipocambio']; ?> to authorize: <b><? echo $row['agentecambio'] . ' &rarr; ' . $row['shortname']; ?></b>,
+                      <? echo $row['posicionsolicitada'] . ' &rarr; ' . $row['posicioninicial'] . ', ' . date('d/m/Y',strtotime($row['fechacambio'])) . '<br/> ' ?> <a href="<? echo base_url(); ?>timeswitch/reviewRequestLead?uid=<? echo $row['uniqueid']; ?>">Click here to review</a></li>
+                    
+
+                    <?
+                      if(++$limit >= 10) break;
+                     }
+                          
+                    }
+                }
+                  ?>
+                    <h5><a href="<? echo base_url() . ($isadmin == '1' ? 'timeswitch/pending' : 'timeswitch') ; ?>">...See more</a></h5>
+              </ul>
               <ul>
                 <div class="panel-heading">
                   <h3><span class="label label-info">Assignments</span></h3>

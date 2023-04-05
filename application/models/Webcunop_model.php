@@ -162,6 +162,7 @@ class Webcunop_model extends CI_Model {
 				else
 				{}
 				
+				if($det)
 				if(count($det) >= 2){
 					$jefe = $det[0];
 					//echo $header['idvuelo'] . ' ' . $det[0]['idagente'] . '<br>';	
@@ -197,6 +198,8 @@ class Webcunop_model extends CI_Model {
 					
 					array_push($fullarray, $row);
 				}
+
+				if($det)
 				if(count($det) == 0 )
 				{
 					// si el vuelo no tiene agentes asignados, se muestra un error
@@ -404,7 +407,7 @@ class Webcunop_model extends CI_Model {
 		*/
 
 
-		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_distribleads a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente LEFT OUTER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion != '' and a.posicion!='XX' and a.posicion!='VAC' order by c.orden,w.hours,a.posicion";
+		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_distribleads a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = TRIM(a.posicion) INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente LEFT OUTER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion != '' and a.posicion!='XX' and a.posicion!='VAC' order by c.orden,w.hours,a.posicion";
 
 
 		$query = $this->db->query($sql,array(date('m',strtotime($qdate)),date('Y',strtotime($qdate)),$qdate,$idempresa,$idoficina));

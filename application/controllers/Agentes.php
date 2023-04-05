@@ -1,7 +1,7 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 
-require('assets/aws/aws-autoloader.php');
+require_once '/home/mindware/resources/vendor/autoload.php';
 use Aws\Ses\SesClient;
 use Aws\Exception\AwsException;
 
@@ -204,9 +204,10 @@ class Agentes extends CI_Controller {
 	public function GetAccess()
 	{
 		$uniqueid = $this->input->get('u');
-		$encrypt = $this->input->get('e');
-
+		$encrypt = md5($this->input->get('e'));
+	
 		$agent = $this->Agentes_model->LoadUniqueId($uniqueid,$encrypt);
+	
 		if($agent)
 		{
 			$data['uniqueid'] = $uniqueid;
@@ -220,7 +221,7 @@ class Agentes extends CI_Controller {
 			$data['joindate'] = $agent['ingreso'];
 			$this->load->view('GetAccessAgentes_view',$data);
 			$this->load->view('paginas/footer');
-		}
+		}	
 	}
 
 	public function NotifyGrantAccess()

@@ -41,6 +41,20 @@ class Login_model extends CI_Model {
 		}
 	}
 
+	public function SimulateSession($idempresa, $idoficina, $idagente){
+
+		$this->db->where('idempresa',$idempresa);
+		$this->db->where('idoficina',$idoficina);
+		$this->db->where('idagente',$idagente);
+
+		$query = $this->db->get('cunop_agentes');
+		
+		if($query->num_rows() > 0)
+		{
+			return $query->row();
+		}
+	}
+
 	public function TestUpdate($os)
 	{
 		$query=$this->db->get('cunop_empresas');

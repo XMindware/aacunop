@@ -58,6 +58,23 @@ class Timeswitch_model extends CI_Model {
 		}		
 	}
 
+	public function ConsultarAgentHistoricalRequestsDates($idempresa,$idoficina,$fechaini,$fechafin)
+	{
+		$sql = "SELECT uniqueid,tipocambio,agentecambio,fechacambio,posicionsolicitada,posicioninicial,shortname,leadautoriza,fechaacepta,fechaautoriza,status,info,triangulo, case when fechatarget>'0000-00-00' " .
+			   "then (case when fechatarget<fechacambio then fechatarget else fechacambio end) else fechacambio end as fechaorden " .
+			   "FROM `cunop_switchrequests` WHERE `idempresa` = ? AND `idoficina` = ? and tipocambio not in ('Triangle','Partial') and fechacambio between ? and ? UNION " .
+			   "select triangulo,tipocambio,agentecambio,fechacambio,posicionsolicitada,posicioninicial,shortname,leadautoriza,fechaacepta, fechaautoriza,status,info,triangulo, fechacambio as fechaorden from cunop_switchrequests where triangulo in( SELECT triangulo from cunop_switchrequests " .
+			   "where idempresa=? and idoficina=? and tipocambio='Triangle' and fechacambio between ? and ? group by triangulo) and uniqueid not in(SELECT triangulo from " .
+			   "cunop_switchrequests where idempresa=? and idoficina=? and tipocambio='Triangle' group by triangulo)" .
+			   "ORDER BY `fechaorden` asc";
+			$query = $this->db->query($sql,array($idempresa,$idoficina,$fechaini,$fechafin,$idempresa,$idoficina,$fechaini,$fechafin,$idempresa,$idoficina));	
+		//echo $this->db->last_query() . PHP_EOL;
+		if($query->num_rows() > 0)
+		{
+			return $query->result_array();
+		}		
+	}
+
 	public function HayRequestsHoy($idempresa,$idoficina,$idagente)
 	{
 		$this->db->where('idempresa', $idempresa);
@@ -116,6 +133,7 @@ class Timeswitch_model extends CI_Model {
 		$this->db->where('fechaautoriza', '0000-00-00');
 		$this->db->where('status', 'REQ');
 		$this->db->where('idagentecambio', $idagente);
+		$this->db->where('fechacambio>curdate()');
 
 
 		$query = $this->db->get('cunop_switchrequests');
@@ -326,7 +344,7 @@ class Timeswitch_model extends CI_Model {
 	{
 		$this->db->where('idempresa', $idempresa);
 		$this->db->where('idoficina', $idoficina);
-		$this->db->where('idagente', $idagente);
+		//$this->db->where('idagente', $idagente);
 		$this->db->where('uniqueid', $idrequest);
 		$this->db->delete('cunop_switchrequests');
 
@@ -413,7 +431,8 @@ class Timeswitch_model extends CI_Model {
 		// XAS 2020-03-08 en la consulta considera que no se ponga al mismo agente para cubrir y que no permita hacer switch a un agente mas de una veces en una fecha
 		$sql = "SELECT distinct sc.idagente,ag.shortname as name,sc.posicion as status from cunop_agentscheduler sc inner join cunop_agentes ag on " .
 			   "ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in " .
-			   "(SELECT cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc " .
+			   "(SELECT cando from cunop_positions where ag.idagente not in (select idagente from cunop_castigados cas where ? between cas.fechacastigo and cas.fechafin) and " .
+			   "code in (SELECT posicion FROM `cunop_agentscheduler` sc " .
 			   "WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? union " .
 			   "SELECT posicion  FROM cunop_distribleads sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0'))) and " . 
 			   "sc.idagente not in (select idagentecambio from cunop_switchrequests where fechacambio=? union select ?) and sc.fecha=? and " .
@@ -427,7 +446,7 @@ class Timeswitch_model extends CI_Model {
 			"SELECT distinct sc.idagente,ag.shortname as name,sc.posicion as status from cunop_agentscheduler sc inner join cunop_agentes ag on ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in (SELECT cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa='1' and idoficina='1' and fecha='2020-11-07' and posicion not in ('XX','0') and idagente='201611' union SELECT posicion  FROM cunop_distribleads sc WHERE idempresa='1' and idoficina='1' and fecha='2020-11-07' and posicion not in ('XX','0'))) and sc.idagente not in (select idagentecambio from cunop_switchrequests where fechacambio='2020-11-07' union select '201611') and sc.fecha='2020-11-07' and sc.posicion not in ('XX','0') UNION select distinct sc.idagente,sc.shortname as name,sc.posicion as status from cunop_distribleads sc inner join cunop_agentes ag on ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in (select cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa='1' and idoficina='1' and fecha='2020-11-07' and posicion not in ('XX','0') and idagente='201611' union SELECT posicion  FROM cunop_distribleads sc WHERE idempresa='1' and idoficina='1' and fecha='2020-11-07' and posicion not in ('XX','0'))) and sc.idagente not in (select idagentecambio from cunop_switchrequests where fechacambio='2020-11-07' union select '201611') and sc.fecha='2020-11-07' and sc.posicion not in ('XX','0') order by idagente
 			*/
 
-		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha, $idagentebase,$idempresa,$idoficina,$fecha,$fecha,$idagentebase,
+		$query = $this->db->query($sql,array($fecha,$idempresa,$idoficina,$fecha, $idagentebase,$idempresa,$idoficina,$fecha,$fecha,$idagentebase,
 				$fecha,$idempresa,$idoficina,$fecha, $idagentebase,$idempresa,$idoficina,$fecha,$fecha,$idagentebase,
 				$fecha));
 		//echo $this->db->last_query() .PHP_EOL;
@@ -458,7 +477,8 @@ class Timeswitch_model extends CI_Model {
 			$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idempresa,$idoficina,$fecha));*/
 			$sql = "select distinct dl.idagente as id,ag.shortname as name, dl.posicion as status from cunop_distribleads dl inner join cunop_agentes ag on ag.idagente=dl.idagente " . 
 				   "where dl.idagente in (select ag.idagente from cunop_relcandoagents can " .
-				   "inner join cunop_agentes ag on ag.uniqueid=can.idagente where ag.status='OK' and idcando in(select distinct cando from cunop_positions where code in " .
+				   "inner join cunop_agentes ag on ag.uniqueid=can.idagente where ag.status='OK' and idcando in(select distinct cando from cunop_positions where " .
+				   "code in " .
 				   "(SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? " .
 				   "union SELECT posicion  FROM `cunop_distribleads` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') " .
 				   "and idagente=?)union select 'AL' union select 'L'  ) ) and dl.idagente!=? and dl.fecha=? and dl.posicion!='0' union select distinct dl.idagente as id,dl.shortname as name, dl.posicion as status from cunop_agentscheduler dl where dl.idagente in (select distinct  ag.idagente from cunop_relcandoagents can inner join cunop_agentes ag on ag.uniqueid=can.idagente where ag.status='OK' and idcando='AL' ) and dl.idagente!=? and dl.fecha=? and dl.posicion!='0' order by id";
@@ -474,7 +494,8 @@ class Timeswitch_model extends CI_Model {
 			$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha));*/
 			$sql = "select distinct dl.idagente as id,ag.shortname as name,dl.posicion as status from cunop_agentscheduler dl inner join cunop_agentes ag on ag.idagente=dl.idagente " . 
 				   "where dl.idagente in (select ag.idagente from cunop_relcandoagents can " .
-				   "inner join cunop_agentes ag on ag.uniqueid=can.idagente and ag.status='OK' where idcando in(select cando from cunop_positions where code in " .
+				   "inner join cunop_agentes ag on ag.uniqueid=can.idagente and ag.status='OK' where idcando in(select cando from cunop_positions where " .
+				   "code in " .
 				   "(SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? " .
 				   "union SELECT posicion  FROM `cunop_distribleads` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') " .
 				   "and idagente=?))) and dl.idagente!=? and dl.fecha=? order by dl.idagente";
@@ -544,9 +565,12 @@ class Timeswitch_model extends CI_Model {
 	public function getAgentsDayOffDate($idempresa,$idoficina,$fecha)
 	{
 
-		$sql = "SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? and posicion='XX' union SELECT idagente as id,shortname as name,posicion as status FROM `cunop_distribleads` WHERE idempresa=? and idoficina = ? and fecha=? and posicion='XX' order by id desc";
+		$sql = "SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? and posicion='XX' " .
+		"and idagente not in (select idagente from cunop_castigados cas where ? between cas.fechacastigo and cas.fechafin)  " .
+		"union SELECT idagente as id,shortname as name,posicion as status FROM `cunop_distribleads` WHERE idempresa=? and idoficina = ? and fecha=? and posicion='XX' " . 
+		"and idagente not in (select idagente from cunop_castigados cas where ? between cas.fechacastigo and cas.fechafin)  order by id desc";
 		
-		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idempresa,$idoficina,$fecha));
+		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$fecha, $idempresa,$idoficina,$fecha,$fecha));
 		//echo $this->db->last_query();
 		if($query->num_rows() > 0)
 		{
@@ -560,6 +584,7 @@ class Timeswitch_model extends CI_Model {
 		$this->db->where('idoficina', $idempresa);
 		$this->db->where('idagentecambio', $idagentecambio);
 		$this->db->where('fechacambio',$fechacambio);
+		$this->db->where('status!=','DEC');
 
 		$query = $this->db->get('cunop_switchrequests');
 		if($query->num_rows() > 0)

@@ -44,11 +44,12 @@ class Admin extends CI_Controller {
 		$fecha = date('Y-m-d');
 		$data['quickscheduler1'] = $this->Webcunop_model->ConsultarQuickSchedule($idempresa,$idoficina,$idagente,$fecha);
 		$data['quickgates1'] = $this->Webcunop_model->ConsultarQuickGates($idempresa,$idoficina,$this->session->userdata('shortname'),$fecha);
-		
+		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$idagente,$fecha);
 		$fecha = date('Y-m-d',strtotime('tomorrow'));
+		
 		$data['quickscheduler2'] = $this->Webcunop_model->ConsultarQuickSchedule($idempresa,$idoficina,$idagente,$fecha);
 
-		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$idagente,$fecha);
+		
 		$data['requestpending'] = $this->Timeswitch_model->ConsultarSolicitudesCambioAgente($idempresa,$idoficina,$idagente);
 		$data['requestaccepted'] = $this->Timeswitch_model->ConsultarSolicitudesAceptadasAgente($idempresa,$idoficina,$idagente);
 

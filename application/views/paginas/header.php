@@ -124,7 +124,8 @@
               <li><?=anchor(base_url().'Loadimpresionmensual', 'Import AGENTS Monthly Assignments')?></li> 
               <li><?=anchor(base_url().'Fillcunopdate', 'Process Daily Scheduler')?></li> 
               <li role="separator" class="divider"></li>
-              <li><?=anchor(base_url().'Monitorop', 'Monitor OP<span style="color:red">New</span>')?></li>
+              <li><?=anchor(base_url().'MonthlyRoster', 'Monthly Roster')?></li>
+              <li><?=anchor(base_url().'Monitorop', 'Monitor OP')?></li>
               <li><?=anchor(base_url().'Webcunop', 'Station OP')?></li>  
             </ul>
           </li>

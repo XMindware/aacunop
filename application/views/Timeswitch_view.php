@@ -73,7 +73,7 @@
                 </div>
             </div>    
              
-            <form id="frmRequestInfo" action="#">          	
+            <form id="frmRequestInfo" action="#" autocomplete="off">          	
 				<div id="divStep1">               
 	                <fieldset required="required" style="text-align: center">
 	                    <legend>1. Select the type of Request</legend>
@@ -201,7 +201,7 @@
 
             <!-- Inicia form de cambios triangulares -->
 
-            <form id="frmThreeRequestInfo" action="#" style="display:none">   
+            <form id="frmThreeRequestInfo" action="#" style="display:none" autocomplete="off">   
             	 	
 		
 	            <div id="divThreeStep2">
@@ -693,6 +693,10 @@
 
 	     // selecciono el agente pasa a la revision
 	     $("#btnNext3").click(function(){
+			if($("#inputFinalPosition").val() == ''){
+				alert('Please enter a valid agent');
+				return;
+			}
 	     	//validar que no se elija a si mismo
 	     	if($("#inputSelectAgentCambio").val() == $("#inputShortname").val())
 	     	{
@@ -1063,21 +1067,26 @@
 				$('#myPleaseWait').modal('show');
 			},
 			success:function(result){
-				//console.log(result);
-				// arma la lista de agentes para seleccionar
-				agenteslista = result;
+				if(result.msg){
+					$("#lblInfo").text(result.msg);
+				}
+				else{
+					//console.log(result);
+					// arma la lista de agentes para seleccionar
+					agenteslista = result;
 
-				$('#inputSelectAgentCambio.typeahead').typeahead({
-		            source : agenteslista,
-		            display : 'name',
-		            val : 'id',
-		            onSelect: function(item) {
+					$('#inputSelectAgentCambio.typeahead').typeahead({
+						source : agenteslista,
+						display : 'name',
+						val : 'id',
+						onSelect: function(item) {
+							$("#inputFinalPosition").val(item.comment);
+						}
+					});
+					$("#divStep3").show();
+		    		$("#divStep2").hide();
+				}
 
-			        	$("#inputFinalPosition").val(item.comment);
-			        	
-			    	}
-		        });
-				console.log('sent!');
 				//console.log(result);
 				$('#myPleaseWait').modal('hide');
 				//location.reload();
@@ -1202,19 +1211,25 @@
 				$('#myPleaseWait').modal('show');
 			},
 			success:function(result){
-				console.log(result);
-				// arma la lista de agentes para seleccionar
-				agenteslista = result;
+				if(result.msg){
+					$("#lblInfo").text(result.msg);
+				}
+				else{
+					// arma la lista de agentes para seleccionar
+					//agenteslista = result;
 
-				$('#inputSelectAgentCambio.typeahead').typeahead({
-		            source : agenteslista,
-		            display : 'name',
-		            val : 'id',
-		            onSelect: function(item) {
-			        	$("#inputFinalPosition").val(item.comment);
-			    	}
-		        });
-				console.log('sent!');
+					$('#inputSelectAgentCambio.typeahead').typeahead({
+						source : result,
+						display : 'name',
+						val : 'id',
+						onSelect: function(item) {
+							$("#inputFinalPosition").val(item.comment);
+						}
+					});
+					console.log('sent!');
+					$("#divStep3").show();
+		    		$("#divStep2").hide();
+				}
 				//console.log(result);
 				$('#myPleaseWait').modal('hide');
 				//location.reload();
@@ -1349,17 +1364,24 @@
 				console.log(result);
 				// arma la lista de agentes para seleccionar
 				agenteslista = result;
+				if(result.msg){
+					$("#lblInfo").text(result.msg);
+				}
+				else{
 
-				$('#inputSelectAgentCambio.typeahead').typeahead({
-		            source : agenteslista,
-		            display : 'name',
-		            val : 'id',
-		            onSelect: function(item) {
-			        	$("#inputFinalPosition").val(item.comment);		        	
-			        	$("#inputIdAgenteCambio").val(item.value);
-			    	}
-		        });
-				console.log('sent!');
+					$('#inputSelectAgentCambio.typeahead').typeahead({
+						source : agenteslista,
+						display : 'name',
+						val : 'id',
+						onSelect: function(item) {
+							$("#inputFinalPosition").val(item.comment);		        	
+							$("#inputIdAgenteCambio").val(item.value);
+						}
+					});
+					console.log('sent!');
+					$("#divStep3").show();
+		    		$("#divStep2").hide();
+				}
 				//console.log(result);
 				$('#myPleaseWait').modal('hide');
 				//location.reload();
@@ -1402,16 +1424,16 @@
 	     		}
 	     		case 'dayoff' : 
 	     			cargarAgentesDayOffFecha();
-	     			$("#inputFinalTipo").val('Day Off');
+	     			$("#inputFinalTipo").val('Day Off');					
 	     			break;
 	     		case 'cover' : 
 	     			cargarAgentesCoverFecha();
 	     			$("#inputFinalTipo").val('Cover');
+					
 	     			break;
 	     	}
 	  		//$("#divSelectedInfo").show();
-	  		$("#divStep3").show();
-		    $("#divStep2").hide();
+	  		
 		}
    	}
 
