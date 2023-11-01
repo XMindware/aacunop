@@ -60,6 +60,7 @@ class Timeswitch_model extends CI_Model {
 
 	public function ConsultarAgentHistoricalRequestsDates($idempresa,$idoficina,$fechaini,$fechafin)
 	{
+		/*
 		$sql = "SELECT uniqueid,tipocambio,agentecambio,fechacambio,posicionsolicitada,posicioninicial,shortname,leadautoriza,fechaacepta,fechaautoriza,status,info,triangulo, case when fechatarget>'0000-00-00' " .
 			   "then (case when fechatarget<fechacambio then fechatarget else fechacambio end) else fechacambio end as fechaorden " .
 			   "FROM `cunop_switchrequests` WHERE `idempresa` = ? AND `idoficina` = ? and tipocambio not in ('Triangle','Partial') and fechacambio between ? and ? UNION " .
@@ -67,6 +68,85 @@ class Timeswitch_model extends CI_Model {
 			   "where idempresa=? and idoficina=? and tipocambio='Triangle' and fechacambio between ? and ? group by triangulo) and uniqueid not in(SELECT triangulo from " .
 			   "cunop_switchrequests where idempresa=? and idoficina=? and tipocambio='Triangle' group by triangulo)" .
 			   "ORDER BY `fechaorden` asc";
+			   */
+		$sql = "SELECT
+					`cunop_switchrequests`.uniqueid,
+					`cunop_switchrequests`.tipocambio,
+					`cunop_switchrequests`.agentecambio,
+					`cunop_switchrequests`.fechacambio,
+					`cunop_switchrequests`.posicionsolicitada,
+					`cunop_switchrequests`.posicioninicial,
+					`cunop_switchrequests`.shortname,
+					`cunop_switchrequests`.leadautoriza,
+					`cunop_switchrequests`.fechaacepta,
+					`cunop_switchrequests`.fechaautoriza,
+					`cunop_switchrequests`.status,
+					`cunop_switchrequests`.info,
+					`cunop_switchrequests`.triangulo,
+					CASE 
+						WHEN `cunop_switchrequests`.fechatarget > '0000-00-00' THEN (CASE 
+							WHEN `cunop_switchrequests`.fechatarget < `cunop_switchrequests`.fechacambio THEN `cunop_switchrequests`.fechatarget 
+							ELSE `cunop_switchrequests`.fechacambio END) 
+			ELSE `cunop_switchrequests`.fechacambio END AS fechaorden 
+			FROM
+			`cunop_switchrequests` 
+			WHERE
+			`cunop_switchrequests`.`idempresa` = ? 
+			AND `cunop_switchrequests`.`idoficina` = ?
+			AND `cunop_switchrequests`.tipocambio NOT IN (
+				'Triangle', 'Partial'
+			) 
+			AND `cunop_switchrequests`.fechacambio BETWEEN ? AND ? 
+			UNION
+			SELECT
+			cunop_switchrequests.triangulo,
+			cunop_switchrequests.tipocambio,
+			cunop_switchrequests.agentecambio,
+			cunop_switchrequests.fechacambio,
+			cunop_switchrequests.posicionsolicitada,
+			cunop_switchrequests.posicioninicial,
+			cunop_switchrequests.shortname,
+			cunop_switchrequests.leadautoriza,
+			cunop_switchrequests.fechaacepta,
+			cunop_switchrequests.fechaautoriza,
+			cunop_switchrequests.status,
+			cunop_switchrequests.info,
+			cunop_switchrequests.triangulo,
+			cunop_switchrequests.fechacambio AS fechaorden 
+			FROM
+			cunop_switchrequests 
+			WHERE
+			cunop_switchrequests.triangulo IN (
+				SELECT
+					cunop_switchrequests.triangulo 
+				FROM
+					cunop_switchrequests 
+				WHERE
+					cunop_switchrequests.idempresa = ? 
+					AND cunop_switchrequests.idoficina = '?
+					AND cunop_switchrequests.tipocambio = 'Triangle' 
+					AND cunop_switchrequests.fechacambio BETWEEN ? AND ? 
+				GROUP BY
+					cunop_switchrequests.triangulo 
+				ORDER BY
+					NULL
+			) 
+			AND cunop_switchrequests.uniqueid NOT IN (
+				SELECT
+					cunop_switchrequests.triangulo 
+				FROM
+					cunop_switchrequests 
+				WHERE
+					cunop_switchrequests.idempresa = ?
+					AND cunop_switchrequests.idoficina = ?
+					AND cunop_switchrequests.tipocambio = 'Triangle' 
+				GROUP BY
+					cunop_switchrequests.triangulo 
+				ORDER BY
+					NULL
+			) 
+			ORDER BY
+			`fechaorden` ASC";
 			$query = $this->db->query($sql,array($idempresa,$idoficina,$fechaini,$fechafin,$idempresa,$idoficina,$fechaini,$fechafin,$idempresa,$idoficina));	
 		//echo $this->db->last_query() . PHP_EOL;
 		if($query->num_rows() > 0)
