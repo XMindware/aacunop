@@ -5,6 +5,9 @@
  *  XALFEIRAN 2019
  */
 class Timeswitch extends CI_Controller {
+
+	// current station manager Raquel Cerbon
+	const STATION_MANAGER = '667837';
 	
 	public function __construct() {
 		parent::__construct();
@@ -616,7 +619,7 @@ class Timeswitch extends CI_Controller {
 		$tdata['oficinas'] = $adminoficina;
 		$tdata['perfil'] = $this->session->userdata('perfil');
 		
-		$data['coordinador'] = ($this->session->userdata('idagente') == '300101' || $this->session->userdata('idagente') == '669958' || $this->session->userdata('idagente') == '555092' || $this->session->userdata('idagente') == '689234' ) ? 'SI':'NO'; 
+		$data['coordinador'] = ($this->session->userdata('idagente') == '300101' || $this->session->userdata('idagente') == self::STATION_MANAGER || $this->session->userdata('idagente') == '555092' || $this->session->userdata('idagente') == '689234' ) ? 'SI':'NO'; 
 		$request = $this->Timeswitch_model->ConsultarLeadCambioRequestById($idempresa,$idoficina,$requestid);	
 		if($request)
 		{
@@ -660,7 +663,7 @@ class Timeswitch extends CI_Controller {
 		$tdata['oficinas'] = $adminoficina;
 		$tdata['perfil'] = $this->session->userdata('perfil');
 		
-		$data['coordinador'] = ($this->session->userdata('idagente') == '669958' || $this->session->userdata('idagente') == '555092' ) ? 'SI':'NO';
+		$data['coordinador'] = ($this->session->userdata('idagente') == self::STATION_MANAGER || $this->session->userdata('idagente') == '555092' ) ? 'SI':'NO';
 		$request = $this->Timeswitch_model->ConsultarLeadCambioThreeRequestById($idempresa,$idoficina,$requestid);
 
 		if($request){
@@ -706,7 +709,7 @@ class Timeswitch extends CI_Controller {
 	public function AuthorizeThreeRequest()
 	{
 		$debug = true;
-		$file = fopen("/home/mindware/public_html/wctest/logs/autorizaciones_" . date("Ymd"), "a+");
+		$file = fopen(APPPATH . "logs/autorizaciones_" . date("Ymd"), "a+");
 
 		if($this->session->userdata('perfil') == FALSE )
 		{
@@ -1084,7 +1087,7 @@ class Timeswitch extends CI_Controller {
 	{
 
 		$debug = true;
-		$file = fopen("/home/mindware/public_html/wctest/logs/autorizaciones_" . date("Ymd"), "a+");
+		$file = fopen(APPPATH . "logs/autorizaciones_" . date("Ymd"), "a+");
 
 		if($this->session->userdata('perfil') == FALSE )
 		{
