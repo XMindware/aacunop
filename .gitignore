@@ -5,8 +5,9 @@
 /uploads
 /sftp-config.json
 /aa.sublime-project
-.DS_Store
 /.vscode
 /system2
 /system
 aa.sublime-workspace
+/application/vendor
+*/.DS_Store
