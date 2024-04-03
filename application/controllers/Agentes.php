@@ -232,21 +232,8 @@ class Agentes extends CI_Controller {
 
 		$agents = $this->Agentes_model->LoadAgentUniqueId($empresa,$oficina,$uniqueid);
 		$agent = $agents[0];
-		//print_r($agent);
-
-		// Create an SesClient. Change the value of the region parameter if you're 
-		// using an AWS Region other than EE.UU. Oeste (Oregón). Change the value of the
-		// profile parameter if you want to use a profile in your credentials file
-		// other than the default.
-
-		$SesClient = new SesClient([
-		    'credentials' => array(
-		    	'key' => 'AKIAQLB77NPZBNP5OGMR',
-				'secret' => 'wqtDadbSjXl2AYjtVVYTe/duKiIO9asnDXfJGOAn'
-			),
-		    'version' => '2010-12-01',
-		    'region'  => 'us-east-1',
-		]);
+		
+		$SesClient = new SesClient($this->config->item('aws_ses_keys'));
 
         
         //$uniqueid = $agents['uniqueid'];
