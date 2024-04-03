@@ -845,7 +845,7 @@
                     <td>
                         <!-- 16:9 aspect ratio -->
                         <div class="embed-responsive embed-responsive-16by9">
-                          <iframe class="embed-responsive-item" src="https://apps.mindware.com.mx/cun/ppolicy_en_gen_view.php"></iframe>
+                          <iframe class="embed-responsive-item" src="https://apps.mindware.com.mx/ppolicy_en_gen_view.php"></iframe>
                         </div>
                     </td>
                 </tr>

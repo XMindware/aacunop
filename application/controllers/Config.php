@@ -186,7 +186,7 @@ class Config extends CI_Controller {
         //$uniqueid = $agents['uniqueid'];
         $encrypt = $encrypt = md5($agent['shortname']);
 
-        $message = 'Hello, ' . $agent['shortname'] . '<br/> <br/>As requested, this mail is to inform that you can access to the WebCUNOP Web App.<br/><br/>If you already have access to the Web App, please ignore this mail, if not please click the following link <br><br>https://apps.mindware.com.mx/cun/agentes/getaccess?e=' . $encrypt .'&u=' . $uniqueid . 
+        $message = 'Hello, ' . $agent['shortname'] . '<br/> <br/>As requested, this mail is to inform that you can access to the WebCUNOP Web App.<br/><br/>If you already have access to the Web App, please ignore this mail, if not please click the following link <br><br>https://apps.mindware.com.mx/agentes/getaccess?e=' . $encrypt .'&u=' . $uniqueid . 
         		   '<br/><br/><br/>There you will be able to setup a password for your account and then a you will be redirected to the login page.<br/><br/>This mail was sent automatically by mindWARE.com.mx.</body></html>';
         //$message = 'Hi, ' . $agent['nombre'] . '<br/> <br/>Your please click the following link to set tus access token for Web CUNOP<br><br><br/><br/>.';
 

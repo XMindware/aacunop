@@ -806,7 +806,7 @@
                 
                 
                 var request = $.ajax({
-                    url: '/cun/webcunop/posicionesparaagente',
+                    url: '<?php echo base_url(); ?>webcunop/posicionesparaagente',
                     type: 'POST',
                     data: agent,
                     beforeSend:function(){
@@ -882,7 +882,7 @@
                 departure : ldeparture
             };
             var request = $.ajax({
-                url: '/cun/webcunop/emptyflightagents',
+                url: '<?php echo base_url(); ?>webcunop/emptyflightagents',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -1165,7 +1165,7 @@
             });
             
             var request = $.ajax({
-                url: '/cun/webcunop/deleteposagente',
+                url: '<?php echo base_url(); ?>webcunop/deleteposagente',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -1269,7 +1269,7 @@
             });
             
             var request = $.ajax({
-                url: '/cun/webcunop/switchlead',
+                url: '<?php echo base_url(); ?>webcunop/switchlead',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -1319,7 +1319,7 @@
             });
             
             var request = $.ajax({
-                url: '/cun/webcunop/deleteposlead',
+                url: '<?php echo base_url(); ?>webcunop/deleteposlead',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
@@ -1398,7 +1398,7 @@ function RefreshScheduler()
         fecha : lfecha
     }
     var request = $.ajax({
-        url: '/cun/webcunop/asyncloadstationschedule',
+        url: '<?php echo base_url(); ?>webcunop/asyncloadstationschedule',
         type: 'POST',
         data: fields,
         beforeSend:function(){
@@ -1513,7 +1513,7 @@ function RefreshFlights()
     }
 
     var request = $.ajax({
-        url: '/cun/webcunop/asyncloadstationdate',
+        url: '<?php echo base_url(); ?>webcunop/asyncloadstationdate',
         type: 'POST',
         data: fields,
         beforeSend:function(){
@@ -1610,7 +1610,7 @@ function DoPostCambio(r)
 
     
     var request = $.ajax({
-        url: '/cun/webcunop/postcambio',
+        url: '<?php echo base_url(); ?>webcunop/postcambio',
         type: 'POST',
         data: agent,
         beforeSend:function(){
@@ -1655,7 +1655,7 @@ function loadRowVuelo(idvuelo,linea,fecha)
               fecha : fecha
              };
     $.ajax({
-      url: '/cun/webcunop/loadflightdetail',
+      url: '<?php echo base_url(); ?>webcunop/loadflightdetail',
       type: 'POST',
       data : infoData,
       beforeSend:function(){
@@ -1772,7 +1772,7 @@ function loadRowAgentPosition(uniqueid, posicion, agenteid, fecha)
               fecha : fecha
              };
     $.ajax({
-      url: '/cun/webcunop/loadagentschedule',
+      url: '<?php echo base_url(); ?>webcunop/loadagentschedule',
       type: 'POST',
       data : infoData,
       beforeSend:function(){
@@ -1815,7 +1815,7 @@ function loadRowLeadPosition(uniqueid, posicion, agenteid, fecha)
               fecha : fecha
              };
     $.ajax({
-      url: '/cun/webcunop/loadleadschedule',
+      url: '<?php echo base_url(); ?>webcunop/loadleadschedule',
       type: 'POST',
       data : infoData,
       beforeSend:function(){
@@ -1849,7 +1849,7 @@ function loadFlightDetail(idempresa, idoficina, idvuelo, qdate)
                       fecha : qdate
                      };
     $.ajax({
-        url: '/cun/webcunop/loadflightdetail',
+        url: '<?php echo base_url(); ?>webcunop/loadflightdetail',
         type: 'POST',
         data : infoData,
         beforeSend:function(){

@@ -219,7 +219,7 @@
 					success:function(result){
 						console.log('sent!');
 						$('#myPleaseWait').modal('hide'); 
-						window.location.href="https://apps.mindware.com.mx/cun/"
+						window.location.href="https://apps.mindware.com.mx/"
 						
 					}, 
 					error:function(exception){

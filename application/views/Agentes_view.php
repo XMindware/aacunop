@@ -492,7 +492,7 @@
 
 
 		var shortname = $("#inputShortName").val();
-		window.open('https://apps.mindware.com.mx/cun/agentes/getaccess?e=' + shortname + '&u=' + lidagente, '_blank');
+		window.open('https://apps.mindware.com.mx/agentes/getaccess?e=' + shortname + '&u=' + lidagente, '_blank');
 /*
 		var agentData = { 
 				uniqueid : lidagente,

@@ -258,7 +258,7 @@ class Agentes extends CI_Controller {
         $recipient_emails = [$agent['email']];
         //$configuration_set = 'ConfigSet';
 
-        $html_body = 'Hello, ' . $agent['shortname'] . '<br/> <br/>This mail is to inform that you can have access to the WebCUNOP Web software, for checking your CUNOP and daily positions.<br/><br/>Please click the following link to set your access token for Web App<br><br>https://apps.mindware.com.mx/cun/agentes/getaccess?e=' . $encrypt .'&u=' . $uniqueid . 
+        $html_body = 'Hello, ' . $agent['shortname'] . '<br/> <br/>This mail is to inform that you can have access to the WebCUNOP Web software, for checking your CUNOP and daily positions.<br/><br/>Please click the following link to set your access token for Web App<br><br>https://apps.mindware.com.mx/agentes/getaccess?e=' . $encrypt .'&u=' . $uniqueid . 
         		   '<br/><br/><br/>There you will be able to setup a password for your account and then a you will be redirected to the login page.<br/><br/>This mail was sent automatically by mindWARE.com.mx.</body></html>';
        	//$subject = 'Amazon SES test (AWS SDK para PHP)';
        	$char_set = 'UTF-8';
