@@ -570,7 +570,6 @@
 			},
 			success:function(data){
 				console.log('loading data...');
-				//var agent = jQuery.parseJSON(data);
 				var agent = data[0];
 				console.log('uniqueid ' + agent.uniqueid);
 				$("#inputAgentId").val(idagente);

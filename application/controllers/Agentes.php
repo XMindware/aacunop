@@ -98,7 +98,7 @@ class Agentes extends CI_Controller {
 		$data = $this->Agentes_model->LoadAgentUniqueId($empresa,$oficina,$uniqueid);
 
 		header('Content-type: application/json; charset=utf-8');
-		print_r(json_encode($data));
+		echo json_encode($data);
 		//return $data;
 		
 	}
@@ -232,7 +232,7 @@ class Agentes extends CI_Controller {
 
 		$agents = $this->Agentes_model->LoadAgentUniqueId($empresa,$oficina,$uniqueid);
 		$agent = $agents[0];
-		
+
 		$SesClient = new SesClient($this->config->item('aws_ses_keys'));
 
         
