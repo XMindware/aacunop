@@ -8,4 +8,7 @@
 /.vscode
 aa.sublime-workspace
 /application/vendor
+/application/.env
+error_log
+application/composer.lock
 */.DS_Store
