@@ -274,66 +274,15 @@ class Agentes extends CI_Controller {
 		    ]);
 		    $messageId = $result['MessageId'];
 		    echo("Email sent! Message ID: $messageId"."\n");
+			$myfile = file_put_contents('uploads/log_notify.txt',"Email sent! Message ID: " . $messageId.PHP_EOL , FILE_APPEND | LOCK_EX);
 		} catch (AwsException $e) {
 		    // output error message if fails
 		    echo $e->getMessage();
 		    echo("The email was not sent. Error message: ".$e->getAwsErrorMessage()."\n");
 		    echo "\n";
+			$myfile = file_put_contents('uploads/log_notify.txt', $e->getMessage().PHP_EOL , FILE_APPEND | LOCK_EX);
+		    $myfile = file_put_contents('uploads/log_notify.txt',"The email was not sent. Error message: ".$e->getAwsErrorMessage().PHP_EOL , FILE_APPEND | LOCK_EX);
 		}
-
-		/*
-		//Create a new PHPMailer instance
-		$mail = new PHPMailer;
-		//Tell PHPMailer to use SMTP
-		$mail->isSMTP();
-		//Enable SMTP debugging
-		// 0 = off (for production use)
-		// 1 = client messages
-		// 2 = client and server messages
-		$mail->SMTPDebug = 2;
-		//Ask for HTML-friendly debug output
-		$mail->Debugoutput = function($str, $level){
-
-			$txt = "$level: $str\n";
- 			$myfile = file_put_contents('uploads/log_notify.txt', $txt.PHP_EOL , FILE_APPEND | LOCK_EX);
-		};
-		//Set the hostname of the mail server
-		$mail->Host = "apps.mindware.com.mx";
-		//Set the SMTP port number - likely to be 25, 465 or 587
-		$mail->Port = 587;
-		//Whether to use SMTP authentication
-		$mail->SMTPAuth = true;
-
-		//$mail->SMTPSecure = 'tls';
-		//Username to use for SMTP authentication
-		$mail->Username = "cunop@apps.mindware.com.mx";
-		//Password to use for SMTP authentication
-		$mail->Password = "AjBE+I7MMEKX0VateR2iyibN0jBa3UqmD5sdku7tDmm7";
-
-		//Set who the message is to be sent from
-		$mail->setFrom('cunop@apps.mindware.com.mx', 'WebCunOP');
-		//Set an alternative reply-to address
-		//$mail->addReplyTo('x@mindware.com.mx', 'First Last');
-		$mail->addAddress($agent['email'], $agent['nombre'] . ' ' . $agent['apellidos']);
-		//Set the subject line
-		$mail->Subject = $subject;
-		//Read an HTML message body from an external file, convert referenced images to embedded,
-		//convert HTML into a basic plain-text alternative body
-		$mail->msgHTML($message);
-		//Replace the plain text body with one created manually
-		//$mail->AltBody = 'This is a plain-text message body';
-		//Attach an image file
-		//$mail->addAttachment('PHPMailer-master/images/phpmailer_mini.png');
-
-		//send the message, check for errors
-
-		if (!$mail->send()) {
-			$error = array('status' => "Failed", "msg" => "Mailer Error: " . $mail->ErrorInfo);
-			$this->response($this->json($error), 400);
-		} else {
-			//$mail->copyToFolder("Sent"); // Will save into Sent folder
-		    $this->response('OK', 200);
-		}*/
 	}
 
 	public function EnableAccount()
