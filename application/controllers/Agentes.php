@@ -1,7 +1,5 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
-
-require_once '/home/mindware/resources/vendor/autoload.php';
 use Aws\Ses\SesClient;
 use Aws\Exception\AwsException;
 
