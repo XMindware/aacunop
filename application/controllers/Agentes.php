@@ -231,9 +231,16 @@ class Agentes extends CI_Controller {
 		$agents = $this->Agentes_model->LoadAgentUniqueId($empresa,$oficina,$uniqueid);
 		$agent = $agents[0];
 
-		$SesClient = new SesClient($this->config->item('aws_ses_keys'));
+		$ses_keys = [
+			'credentials' => array(
+				'key' => getenv('AWS_KEY'),
+				'secret' => getenv('AWS_SEC')
+			),
+			'version' => '2010-12-01',
+			'region'  => 'us-east-1',
+		];
+		$SesClient = new SesClient($ses_keys);
 
-        
         //$uniqueid = $agents['uniqueid'];
         $encrypt = $encrypt = md5($agent['shortname']);
 
