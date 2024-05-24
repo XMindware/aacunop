@@ -7,7 +7,7 @@
 class Timeswitch extends CI_Controller {
 
 	// current station manager Raquel Cerbon
-	const STATION_MANAGER = '667837';
+	const STATION_MANAGERS = ['667837','669958','555092','689234'];
 	
 	public function __construct() {
 		parent::__construct();
@@ -619,7 +619,7 @@ class Timeswitch extends CI_Controller {
 		$tdata['oficinas'] = $adminoficina;
 		$tdata['perfil'] = $this->session->userdata('perfil');
 		
-		$data['coordinador'] = ($this->session->userdata('idagente') == '300101' || $this->session->userdata('idagente') == self::STATION_MANAGER || $this->session->userdata('idagente') == '555092' || $this->session->userdata('idagente') == '689234' ) ? 'SI':'NO'; 
+		$data['coordinador'] = in_array($this->session->userdata('idagente'), self::STATION_MANAGERS) ? 'SI':'NO'; 
 		$request = $this->Timeswitch_model->ConsultarLeadCambioRequestById($idempresa,$idoficina,$requestid);	
 		if($request)
 		{
@@ -663,7 +663,7 @@ class Timeswitch extends CI_Controller {
 		$tdata['oficinas'] = $adminoficina;
 		$tdata['perfil'] = $this->session->userdata('perfil');
 		
-		$data['coordinador'] = ($this->session->userdata('idagente') == self::STATION_MANAGER || $this->session->userdata('idagente') == '555092' ) ? 'SI':'NO';
+		$data['coordinador'] = in_array($this->session->userdata('idagente'), self::STATION_MANAGERS) ? 'SI':'NO'; 
 		$request = $this->Timeswitch_model->ConsultarLeadCambioThreeRequestById($idempresa,$idoficina,$requestid);
 
 		if($request){
