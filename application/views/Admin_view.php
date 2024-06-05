@@ -351,8 +351,8 @@
                             <?
                             foreach($quickscheduler1 as $eachday)
                             {
-                              $stime = $this->utilities->convertIntDateToString($eachday['starttime']);
-                              $etime = $this->utilities->convertIntDateToString($eachday['endtime']);
+                              $stime = $this->utilities->convertIntTimeToString($eachday['starttime']);
+                              $etime = $this->utilities->convertIntTimeToString($eachday['endtime']);
                               /*
                               $horainicio = intval($eachday['starttime']) - ($timezone * 3600);
                               $hours = intval($horainicio / 3600) ;
