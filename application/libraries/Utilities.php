@@ -43,12 +43,18 @@ class Utilities
     {
 
         $fullhora = $time - ($tz * 3600);
-        $hora = intval($fullhora / 3600);
-        $minutes = ceil((($fullhora / 3600) - $hora) * 60);
 
-        $hora = str_pad($hora, 2, "0", STR_PAD_LEFT);
+        // Get total hours and remaining minutes
+        $hours = intval($fullhora / 3600);
+        $remaining_seconds = $fullhora % 3600;
+        $minutes = intval($remaining_seconds / 60);
+
+        // Convert hours and minutes to strings with leading zeros
+        $hours = str_pad($hours, 2, "0", STR_PAD_LEFT);
         $minutes = str_pad($minutes, 2, "0", STR_PAD_LEFT);
-        $fullhora = $hora . ":" . $minutes;
+
+        // Combine hours and minutes into final time string
+        $fullhora = $hours . ":" . $minutes;
 
         return $fullhora;
        

@@ -5,8 +5,11 @@
 /uploads
 /sftp-config.json
 /aa.sublime-project
-.DS_Store
 /.vscode
-/system2
-/system
 aa.sublime-workspace
+/application/vendor
+/application/.env
+error_log
+application/composer.lock
+*/.DS_Store
+error_log

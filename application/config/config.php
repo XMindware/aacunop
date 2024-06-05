@@ -19,6 +19,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 $config['base_url'] = '';
 
+$config['aws_ses_keys'] = [
+    'credentials' => array(
+        'key' => getenv('AWS_KEY'),
+        'secret' => getenv('AWS_SEC')
+    ),
+    'version' => '2010-12-01',
+    'region'  => 'us-east-1',
+];
 /*
 |--------------------------------------------------------------------------
 | Index File
@@ -95,7 +103,7 @@ $config['charset'] = 'UTF-8';
 | setting this variable to TRUE (boolean).  See the user guide for details.
 |
 */
-$config['enable_hooks'] = FALSE;
+$config['enable_hooks'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------
@@ -131,7 +139,7 @@ $config['subclass_prefix'] = 'MY_';
 | Note: This will NOT disable or override the CodeIgniter-specific
 |	autoloading (application/config/autoload.php)
 */
-$config['composer_autoload'] = FALSE;
+$config['composer_autoload'] = TRUE;
 
 /*
 |--------------------------------------------------------------------------

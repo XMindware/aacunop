@@ -98,7 +98,7 @@ switch (ENVIRONMENT)
  * Include the path if the folder is not in the same directory
  * as this file.
  */
-	$system_path = '/home/mindware/resources/system';
+	$system_path = 'system';
 
 /*
  *---------------------------------------------------------------
@@ -290,3 +290,4 @@ switch (ENVIRONMENT)
  * And away we go...
  */
 require_once BASEPATH.'core/CodeIgniter.php';
+require APPPATH . 'vendor/autoload.php';

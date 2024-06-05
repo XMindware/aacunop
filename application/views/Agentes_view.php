@@ -492,8 +492,8 @@
 
 
 		var shortname = $("#inputShortName").val();
-		window.open('https://apps.mindware.com.mx/cun/agentes/getaccess?e=' + shortname + '&u=' + lidagente, '_blank');
-/*
+//		window.open('https://apps.mindware.com.mx/agentes/getaccess?e=' + shortname + '&u=' + lidagente, '_blank');
+
 		var agentData = { 
 				uniqueid : lidagente,
 				idempresa : lidempresa,
@@ -514,7 +514,7 @@
 				error:function(exception){console.log(exception);}
 				
 			});
-			*/
+			
 	});
 	
 	function LoadAgentSkills(){
@@ -570,7 +570,6 @@
 			},
 			success:function(data){
 				console.log('loading data...');
-				//var agent = jQuery.parseJSON(data);
 				var agent = data[0];
 				console.log('uniqueid ' + agent.uniqueid);
 				$("#inputAgentId").val(idagente);

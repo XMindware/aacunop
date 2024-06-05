@@ -103,7 +103,7 @@ class Loadimpresionmensual extends CI_Controller {
 							$notfound = $this->ProcesarLineaAgente($line, $fechaini, $fechafin);
 						  	//print_r($line);
 						  	
-						  	if(sizeof($notfound) > 0)
+						  	if($notfound && sizeof($notfound) > 0)
 						  		array_push($finalnotfound, $notfound);
 						  	else
 						  		$agentesok++;
@@ -208,19 +208,7 @@ class Loadimpresionmensual extends CI_Controller {
 			$this->response($this->json($error), 400);
 		}
 	}
-	
-	public function RemoveSkillAgente()
-	{
-		$idempresa = $this->session->userdata('idempresa');
-		$idoficina = $this->session->userdata('idoficina');
-		$idagente = $this->input->post("idagente");
-		$idcando = $this->input->post("idcando");
-			
-		$this->Cando_model->RemoveSkillAgente($idempresa,$idoficina,$idagente,$idcando);
 		
-		$this->response($this->json($insert), 200);
-	}
-	
 	public function LoadSkillsAgente()
 	{
 		$idagente = $this->input->post("idagente");

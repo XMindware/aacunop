@@ -3,6 +3,8 @@ if ( ! defined('BASEPATH')) exit('No direct script access allowed');
  
 class Login extends CI_Controller
 {
+	const TITULO = 'WebRoster AA CUN';
+
     public function __construct()
     {
         parent::__construct();
@@ -29,7 +31,7 @@ class Login extends CI_Controller
 		switch ($this->session->userdata('perfil')) {
 			case '':
 				$data['token'] = $this->token();
-				$data['titulo'] = 'CUN Staff Roster';
+				$data['titulo'] = self::TITULO;
 				$this->load->view('Login_view',$data);
 				break;
 			case 'admin':	
@@ -39,7 +41,7 @@ class Login extends CI_Controller
 				redirect(base_url() . 'admin');
 				break;
 			default :	
-				$data['titulo'] = 'CUN Staff Roster';
+				$data['titulo'] = self::TITULO;
 				$this->load->view('Login_view',$data);
 				break;		
 		}

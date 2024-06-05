@@ -74,7 +74,7 @@ class Jornadas extends CI_Controller {
 		if($rowlist)
 		{
 			header('Content-type: application/json; charset=utf-8');
-			print_r(json_encode($rowlist));
+			echo json_encode($rowlist);
 		}
 		else
 		{
