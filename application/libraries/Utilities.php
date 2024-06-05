@@ -2,7 +2,7 @@
 
 class Utilities
 {
-    const TIMEZONE = -6;
+    const TIMEZONE = -5;
     const POSICIONES_DESCANSO = ['XX', 'VAC', 'FLO', 'HDY', 'INC', 'V', 'V-', 'TRA', 'PASS'];
 
     const POSICIONES_VACACION = ['VAC', 'V', 'V-'];
