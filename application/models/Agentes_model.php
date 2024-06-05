@@ -259,7 +259,7 @@ class Agentes_model extends CI_Model {
 			return $query->result_array();
 		}	
 		else
-			return false;
+			return [];
 	}
 
 	public function GetBirthdayPeople($idempresa, $idoficina)
