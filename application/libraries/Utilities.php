@@ -56,7 +56,6 @@ class Utilities
         // Combine hours and minutes into final time string
         $fullhora = $hours . ":" . $minutes;
 
-
         return $fullhora;
        
     }
