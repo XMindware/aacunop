@@ -351,16 +351,8 @@
                             <?
                             foreach($quickscheduler1 as $eachday)
                             {
-                              $horainicio = intval($eachday['starttime']) - ($timezone * 3600);
-                              $hours = intval($horainicio / 3600) ;
-                              $minutes = ceil((($horainicio / 3600) - $hours) * 60);
-
-                              $stime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
-                              
-                              $horafin = intval($eachday['endtime']) - ($timezone * 3600);
-                              $hours = intval($horafin / 3600);
-                              $minutes = ceil((($horafin / 3600) - $hours) * 60);
-                              $etime = ($hours<=9?('0' . $hours) : $hours) . ':' . ($minutes<=9?('0' . $minutes) : $minutes);
+                              $stime = $this->utilities->convertIntTimeToString($eachday['starttime']);
+                              $etime = $this->utilities->convertIntTimeToString($eachday['endtime']);
                             ?>
                             <tr>
                               <td><? echo date('D, F jS',strtotime($eachday['fecha'])); ?></td>
