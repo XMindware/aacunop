@@ -42,7 +42,7 @@ class Utilities
     public function convertIntTimeToString(int $time, int $tz = self::TIMEZONE): string
     {
 
-        $fullhora = $time + ($tz * 3600);
+        $fullhora = $time - ($tz * 3600);
         $hora = intval($fullhora / 3600);
         $minutes = ceil((($fullhora / 3600) - $hora) * 60);
 
