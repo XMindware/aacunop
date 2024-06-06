@@ -15,6 +15,7 @@ class Webcunop extends CI_Controller {
 		$this->load->model('Posiciones_model');
 		$this->load->model('Posicionesvuelos_model');
 		$this->load->model('Webcunop_model');
+		$this->load->model('loadimpresionmensual_model');
 		$this->load->library(array('session'));
 		$this->load->helper(array('url'));
 	}
@@ -320,7 +321,7 @@ class Webcunop extends CI_Controller {
 		$usuario = $this->input->post('usuario');
 
 		$agenteActual = $this->Webcunop_model->ConsultarAgenteActual($idempresa,$idoficina,$uniqueid);
-		if(count($agenteActual)==0)
+		if(!$agenteActual)
 		{
 			$this->loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $idagente_nuevo, $fecha, '', $agente_nuevo, '', $posicion);
 			$this->response($this->json([
