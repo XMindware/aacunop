@@ -379,7 +379,7 @@
             });
             
             var request = $.ajax({
-                url: '<? echo base_url(); ?>timeswitch/switchagente',
+                url: '<? echo base_url(); ?>webcunop/switchagente',
                 type: 'POST',
                 data: agent,
                 beforeSend:function(){
