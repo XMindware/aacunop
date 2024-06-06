@@ -15,6 +15,7 @@ class Webcunop extends CI_Controller {
 		$this->load->model('Posiciones_model');
 		$this->load->model('Posicionesvuelos_model');
 		$this->load->model('Webcunop_model');
+		$this->load->model('loadimpresionmensual_model');
 		$this->load->library(array('session'));
 		$this->load->helper(array('url'));
 	}
