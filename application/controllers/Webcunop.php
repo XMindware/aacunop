@@ -322,8 +322,11 @@ class Webcunop extends CI_Controller {
 		$agenteActual = $this->Webcunop_model->ConsultarAgenteActual($idempresa,$idoficina,$uniqueid);
 		if(count($agenteActual)==0)
 		{
-			$error = array('status' => "Failed", "msg" => "No agent is assigned to this position");
-			$this->response($this->json($error), 400);
+			$this->loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $idagente_nuevo, $fecha, '', $agente_nuevo, '', $posicion);
+			$this->response($this->json([
+				'status' => "OK",
+				'msg' => "Agent position updated"
+			]), 200);
 		}
 		else
 		{

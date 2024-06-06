@@ -321,14 +321,14 @@ class Webcunop_model extends CI_Model {
 		$this->db->where('idvuelo', $idvuelo);
 		$this->db->where('fecha', $fecha);
 
-		$this->db->delete('cunop_distribucionvuelos', $data);
+		$this->db->delete('cunop_distribucionvuelos');
 
 		$this->db->where('idempresa', $idempresa);
 		$this->db->where('idoficina', $idoficina);
 		$this->db->where('idvuelo', $idvuelo);
 		$this->db->where('fecha', $fecha);
 
-		$this->db->delete('cunop_distribucionagentesvuelos', $data);
+		$this->db->delete('cunop_distribucionagentesvuelos');
 
 
 		$query = $this->LoadFlightDateDetail($idempresa, $idoficina, $fecha, $idvuelo);
