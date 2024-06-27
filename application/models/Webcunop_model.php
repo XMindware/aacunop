@@ -478,7 +478,7 @@ class Webcunop_model extends CI_Model {
 				LEFT OUTER JOIN cunop_perfectattendance pa ON
 					a.idagente = pa.idagente AND pa.month = ? AND pa.year = ?
 				WHERE
-					a.fecha = '2024-06-06' AND a.idempresa = ? AND a.idoficina = ? AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND p.workday = ?
+					a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND p.workday = ?
 			ORDER BY
 				c.orden,
 				w.hours,
@@ -756,11 +756,11 @@ class Webcunop_model extends CI_Model {
 		}
 	}
 
-	public function ConsultarMonthlySchedule($idempresa,$idoficina,$idagente,$fecha)
+	public function ConsultarMonthlySchedule($idempresa,$idoficina,$idagente,$fechaini, $fechafin)
 	{
 		$sql = "SELECT a.idagente,a.posicion,a.workday,a.fecha,ifnull(p.starttime,'0') as starttime,ifnull(p.endtime,'0') as endtime,ifnull(sw.status,'') as status,ifnull(sw.tipocambio,'') as tipocambio,ifnull(sw.agentecambio,'') as agentecambio,ifnull(sw.shortname,'') as shortname, ifnull(sw.idagente,'') as idagentec FROM cunop_agentscheduler a left outer join cunop_positions p on p.code=a.posicion and p.workday = a.workday left outer join  cunop_switchrequests sw on sw.fechacambio=a.fecha and (sw.idagente=a.idagente or sw.idagentecambio=a.idagente) where a.idempresa=? and a.idoficina=? and a.posicion not in('0') and a.fecha between ? and ? and a.idagente=? UNION " .
 			   "SELECT a.idagente,a.posicion,a.workday,a.fecha,ifnull(p.starttime,'0') as starttime,ifnull(p.endtime,'0') as endtime,ifnull(sw.status,'') as status,ifnull(sw.tipocambio,'') as tipocambio,ifnull(sw.agentecambio,'') as agentecambio,ifnull(sw.shortname,'') as shortname, ifnull(sw.idagente,'') as idagentec FROM cunop_distribleads a left outer join cunop_positions p on p.code=a.posicion and p.workday = a.workday left outer join  cunop_switchrequests sw on sw.fechacambio=a.fecha and (sw.idagente=a.idagente or sw.idagentecambio=a.idagente) where a.idempresa=? and a.idoficina=? and a.posicion not in('0') and a.fecha between ? and ? and a.idagente=?";
-		$query = $this->db->query($sql,array($idempresa,$idoficina,date('Y-m-01', strtotime($fecha)),date('Y-m-t', strtotime($fecha . ' +45 days')),$idagente,$idempresa,$idoficina,date('Y-m-01', strtotime($fecha)),date('Y-m-t', strtotime($fecha . ' +1 month')),$idagente));
+		$query = $this->db->query($sql,array($idempresa,$idoficina,date('Y-m-01', strtotime($fechaini)),date('Y-m-t', strtotime($fechafin)),$idagente,$idempresa,$idoficina,date('Y-m-01', strtotime($fechaini)),date('Y-m-t', strtotime($fechafin)),$idagente));
 		//echo $this->db->last_query();
 		if($query->num_rows() > 0)
 		{
