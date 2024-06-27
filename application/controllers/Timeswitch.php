@@ -38,6 +38,7 @@ class Timeswitch extends CI_Controller {
 		}
 
 		$fecha = date('Y-m-d');
+		$fechamonthlyend = date('Y-m-d',strtotime($this->config->item('quickmonthlastdate')));
 		$idempresa = $this->session->userdata('idempresa');
 		$idoficina = $this->session->userdata('idoficina');
 
@@ -62,7 +63,7 @@ class Timeswitch extends CI_Controller {
 		$registros = $this->CompleteHistoricalRequestsByDates($idempresa,$idoficina,$fechaini,$fechafin);
 		$agentes = $this->Agentes_model->StationAgents($idempresa,$idoficina);
 		
-		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha);
+		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha, $fechamonthlyend);
 		$data['fullagents'] =  $agentes;	
 		$data['requests'] = $requests;
 		$data['registros'] = $registros;
@@ -162,6 +163,7 @@ class Timeswitch extends CI_Controller {
 		}
 
 		$fecha = date('Y-m-d');
+		$fechamonthlyend = date('Y-m-d',strtotime($this->config->item('quickmonthlastdate')));
 		$idempresa = $this->session->userdata('idempresa');
 		$idoficina = $this->session->userdata('idoficina');
 		
@@ -177,7 +179,7 @@ class Timeswitch extends CI_Controller {
 		$registros = $this->AgentHistoricalRequests($idempresa,$idoficina,$this->session->userdata('idagente'));
 		$agentes = $this->Agentes_model->StationAgents($idempresa,$idoficina);
 		
-		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha);
+		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha, $fechamonthlyend);
 		$data['monthlydayoffschedule'] = $this->Webcunop_model->ConsultarDayOffSchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha);
 		
 		$data['fullagents'] =  $agentes;	
@@ -502,6 +504,7 @@ class Timeswitch extends CI_Controller {
 		}
 
 		$fecha = date('Y-m-d');
+		$fechamonthlyend = date('Y-m-d',strtotime($this->config->item('quickmonthlastdate')));
 		$idempresa = $this->session->userdata('idempresa');
 		$idoficina = $this->session->userdata('idoficina');
 		$requestid = $this->input->get('uid');
@@ -515,7 +518,7 @@ class Timeswitch extends CI_Controller {
 		$registros = $this->Timeswitch_model->ConsultarAgentRequests($idempresa,$idoficina,$this->session->userdata('idagente'));
 		$agentes = $this->Agentes_model->StationAgents($idempresa,$idoficina);
 		
-		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha);
+		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$this->session->userdata('idagente'),$fecha, $fechamonthlyend);
 		$data['request'] = $this->Timeswitch_model->ConsultarAgentCambioRequestById($idempresa,$idoficina,$this->session->userdata('idagente'),$requestid);
 		$data['fullagents'] =  $agentes;	
 		$data['registros'] = $registros;
@@ -1773,9 +1776,12 @@ class Timeswitch extends CI_Controller {
 		$idoficina = $this->session->userdata('idoficina');
 		$shortname = $this->input->post('shortname');
 
+		$fecha = date('Y-m-d');
+		$fechamonthlyend = date('Y-m-t',strtotime($this->config->item('quickmonthlastdate')));
+
 		$rowagent = $this->Agentes_model->FindAgentByShortname($idempresa, $idoficina, $shortname);
 
-		$data = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$rowagent[0]['idagente'],date('Y-m-d'));
+		$data = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$rowagent[0]['idagente'],$fecha, $fechamonthlyend);
 		header('Content-type: application/json; charset=utf-8');
 		echo json_encode($data);
 	}
