@@ -27,6 +27,8 @@ $config['aws_ses_keys'] = [
     'version' => '2010-12-01',
     'region'  => 'us-east-1',
 ];
+
+$config['quickmonthlastdate'] = '+2 months';
 /*
 |--------------------------------------------------------------------------
 | Index File

@@ -42,9 +42,10 @@ class Admin extends CI_Controller {
 
 		// traer el quick roster
 		$fecha = date('Y-m-d');
+		$fechafin = date('Y-m-d',strtotime($this->config->item('quickmonthlastdate')));
 		$data['quickscheduler1'] = $this->Webcunop_model->ConsultarQuickSchedule($idempresa,$idoficina,$idagente,$fecha);
 		$data['quickgates1'] = $this->Webcunop_model->ConsultarQuickGates($idempresa,$idoficina,$this->session->userdata('shortname'),$fecha);
-		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$idagente,$fecha);
+		$data['monthlyschedule'] = $this->Webcunop_model->ConsultarMonthlySchedule($idempresa,$idoficina,$idagente,$fecha, $fechafin);
 		$fecha = date('Y-m-d',strtotime('tomorrow'));
 		
 		$data['quickscheduler2'] = $this->Webcunop_model->ConsultarQuickSchedule($idempresa,$idoficina,$idagente,$fecha);
