@@ -478,7 +478,7 @@ class Webcunop_model extends CI_Model {
 				LEFT OUTER JOIN cunop_perfectattendance pa ON
 					a.idagente = pa.idagente AND pa.month = ? AND pa.year = ?
 				WHERE
-					a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND p.workday = ?
+					a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND a.workday = ?
 			ORDER BY
 				c.orden,
 				w.hours,
