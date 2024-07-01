@@ -7,7 +7,12 @@
 class Timeswitch extends CI_Controller {
 
 	// current station manager Raquel Cerbon
-	const STATION_MANAGERS = ['667837','669958','555092','689234'];
+	const STATION_MANAGERS = [
+		'667837', // RAQUEL CERBON
+		'555092', // MANE MORALES
+		'689234', // VERONICA SULBARAN 
+		'666815'  // Steven Tsialtas
+	];
 	
 	public function __construct() {
 		parent::__construct();
