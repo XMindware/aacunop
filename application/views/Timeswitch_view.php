@@ -1396,7 +1396,7 @@
   	function selectFecha(fecha, posicion, jornada){
 
   		// evaluamos si aun tiene tiempo para seleccionar ese dia
-  		var umbral = moment(fecha).hour(9).minutes(0).add(-1,'days');
+  		var umbral = moment(fecha).hour(8).minutes(0).add(-1,'days');
 
   		if(!moment().isBefore(umbral))
   		{
