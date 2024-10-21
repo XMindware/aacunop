@@ -101,17 +101,13 @@ class Agentes_model extends CI_Model {
 	}
 
 	public function LoadUniqueId($uniqueid,$encrypt){
-		$this->db->where('uniqueid',$uniqueid);
-		$query = $this->db->get('cunop_agentes');
-		//echo($this->db->last_query());
-		//$query = $this->db->query('select * from cunop_agentes where idagente='.$agentid);
+
+		$sql = 'SELECT idempresa, idoficina, idagente, shortname, nombre, apellidos, email, ingreso FROM cunop_agentesactivos WHERE uniqueid=? and MD5(shortname)=?';
+		$query = $this->db->query($sql,array($uniqueid,$encrypt));
+		
 		if($query->num_rows() > 0)
 		{
-			$agents = $query->result_array();
-			if(md5($agents[0]['shortname']) == $encrypt )
-			{
-				return $agents[0];
-			}
+			return $query->row();
 		}	
 		else
 		{
