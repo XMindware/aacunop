@@ -209,14 +209,14 @@ class Agentes extends CI_Controller {
 		if($agent)
 		{
 			$data['uniqueid'] = $uniqueid;
-			$data['idempresa'] = $agent['idempresa'];
-			$data['idoficina'] = $agent['idoficina'];
-			$data['idagente'] = $agent['idagente'];
-			$data['nombre'] = $agent['nombre'];
-			$data['apellidos'] = $agent['apellidos'];
-			$data['shortname'] = $agent['shortname'];
-			$data['email'] = $agent['email'];
-			$data['joindate'] = $agent['ingreso'];
+			$data['idempresa'] = $agent->idempresa;
+			$data['idoficina'] = $agent->idoficina;
+			$data['idagente'] = $agent->idagente;
+			$data['nombre'] = $agent->nombre;
+			$data['apellidos'] = $agent->apellidos;
+			$data['shortname'] = $agent->shortname;
+			$data['email'] = $agent->email;
+			$data['joindate'] = $agent->ingreso;
 			$this->load->view('GetAccessAgentes_view',$data);
 			$this->load->view('paginas/footer');
 		}	
