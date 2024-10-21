@@ -205,7 +205,7 @@ class Agentes extends CI_Controller {
 		$encrypt = md5($this->input->get('e'));
 	
 		$agent = $this->Agentes_model->LoadUniqueId($uniqueid,$encrypt);
-	
+		
 		if($agent)
 		{
 			$data['uniqueid'] = $uniqueid;
@@ -220,6 +220,7 @@ class Agentes extends CI_Controller {
 			$this->load->view('GetAccessAgentes_view',$data);
 			$this->load->view('paginas/footer');
 		}	
+
 	}
 
 	public function NotifyGrantAccess()
