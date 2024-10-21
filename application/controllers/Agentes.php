@@ -202,7 +202,7 @@ class Agentes extends CI_Controller {
 	public function GetAccess()
 	{
 		$uniqueid = $this->input->get('u');
-		$encrypt = md5($this->input->get('e'));
+		$encrypt = $this->input->get('e');
 	
 		$agent = $this->Agentes_model->LoadUniqueId($uniqueid,$encrypt);
 		
