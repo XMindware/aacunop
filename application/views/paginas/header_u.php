@@ -151,7 +151,10 @@
                 <button type="submit" class="btn btn-default">Switch Station</button>
             </form>
           </li>
-          <li><?=anchor(base_url().'login/logout_ci', 'Logout')?></li>
+          <li><?php echo anchor(base_url().'login/logout_ci', 'Logout')?></li> 
+          <?php if($this->session->userdata('issimulation')) { ?>
+            <li><?php echo anchor(base_url().'config/endsimulation', 'End Simulation', [ 'style'=>'color:red !important'])?></li> 
+          <?php } ?>
         </ul>
       </div>
       <!--/.nav-collapse -->
