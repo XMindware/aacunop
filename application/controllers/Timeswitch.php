@@ -430,7 +430,8 @@ class Timeswitch extends CI_Controller {
 		$schedule3 = $this->Webcunop_model->ConsultarQuickSchedule($idempresa,$idoficina,$idagente3,$fechacambiar);
 		if($schedule3){
 			// si el agente hace cualquier cosa que no sea descanso o vacaciones (puede cubrir en vacaciones) nos avisa y termina
-			if($schedule3[0]['posicion'] != 'XX' || $schedule3[0]['posicion'] != 'VAC'){
+
+			if($schedule3[0]['posicion'] != 'XX' && $schedule3[0]['posicion'] != 'VAC'){
 				$error = array('status' => "Failed", "msg" => "The Last Agent " . $agente3 . " selected is scheduled " . $schedule3[0]['posicion'] . " for this day therefore cannot cover Middle Agent.");
 				$this->response($this->json($error), 429);
 				return;

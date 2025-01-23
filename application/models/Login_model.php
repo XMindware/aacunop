@@ -10,12 +10,9 @@ class Login_model extends CI_Model {
 	
 	public function login_user($email,$password)
 	{
-		//$this->db->where('email',$email);
-		//$this->db->or_where('idagente', $email);
-		$sql = 'SELECT * FROM cunop_agentes WHERE (email = ? OR idagente = ? ) AND password = ?';
-		//$this->db->where('password',$password);
+
+		$sql = 'SELECT * FROM cunop_agentesactivos WHERE (email = ? OR idagente = ? ) AND password = ?';
 		$query = $this->db->query($sql, array($email,$email,$password));
-		//echo $this->db->last_query();
 		if($query->num_rows() > 0)
 		{
 			return $query->row();
@@ -47,7 +44,7 @@ class Login_model extends CI_Model {
 		$this->db->where('idoficina',$idoficina);
 		$this->db->where('idagente',$idagente);
 
-		$query = $this->db->get('cunop_agentes');
+		$query = $this->db->get('cunop_agentesactivos');
 		
 		if($query->num_rows() > 0)
 		{

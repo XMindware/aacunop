@@ -66,6 +66,109 @@ class Config extends CI_Controller {
 
 			if($check_user){
 
+				// save current user data
+				$curr_idempresa = $this->session->userdata('idempresa');
+				$curr_idoficina = $this->session->userdata('idoficina');
+				$curr_idagente = $this->session->userdata('idagente');
+				$this->session->set_userdata([
+					'curr_idempresa' => $curr_idempresa,
+					'curr_idoficina' => $curr_idoficina,
+					'curr_idagente' => $curr_idagente
+				]);
+
+				// obtiene la version del webapp
+				$versionweb = $this->Config_model->GetEmpresas()[0]['versionweb'];
+
+				// registra el acceso
+				$user = $this->Login_model->log_signin($check_user->shortname, $versionweb, 'simulate');
+
+				// obtiene la oficina a la que pertenece el usuario
+				$oficina = $this->Login_model->getOficinaAdmin($check_user->idempresa, $check_user->idoficina);
+
+				$isadmin = $this->Agentes_model->IsAdmin($check_user->idempresa,$check_user->idoficina,$check_user->uniqueid);
+				
+				$data = array(
+					'is_logued_in' 	=> 	TRUE,
+					'idempresa'	=>	$check_user->idempresa,
+					'idoficina'	=>	$check_user->idoficina,
+					'iatacode'	=>	$oficina->iatacode,
+					'idagente' 	=> 	$check_user->idagente,
+					'perfil'	=>	$check_user->perfil ?? 'usuario',
+					'email' 	=> 	$check_user->email,
+					'jornada' 	=> 	$check_user->jornada,
+					'puesto'	=>	$check_user->puesto,
+					'isadmin'	=>	$isadmin,
+					'shortname' => 	$check_user->shortname,
+					'fullname' 	=> 	$check_user->nombre . ' ' . $check_user->apellidos,
+					'timezone'	=>	$oficina->timezone,
+					'termsaccepted' =>	$check_user->termsaccepted,
+					'issimulation' => 	TRUE
+				);		
+				$this->session->set_userdata($data);
+				redirect(base_url().'admin');
+
+			}
+		}
+	}
+
+	public function EndSimulation() {
+		$curr_idempresa = $this->session->userdata('curr_idempresa');
+		$curr_idoficina = $this->session->userdata('curr_idoficina');
+		$curr_idagente = $this->session->userdata('curr_idagente');
+
+		echo $curr_idempresa . ' ' . $curr_idoficina . ' ' . $curr_idagente;
+
+		$check_user = $this->Login_model->SimulateSession($curr_idempresa, $curr_idoficina, $curr_idagente);
+
+		if($check_user){
+
+			// obtiene la version del webapp
+			$versionweb = $this->Config_model->GetEmpresas()[0]['versionweb'];
+
+			// registra el acceso
+			$user = $this->Login_model->log_signin($check_user->shortname, $versionweb, 'simulate');
+
+			// obtiene la oficina a la que pertenece el usuario
+			$oficina = $this->Login_model->getOficinaAdmin($check_user->idempresa, $check_user->idoficina);
+
+			$isadmin = $this->Agentes_model->IsAdmin($check_user->idempresa,$check_user->idoficina,$check_user->uniqueid);
+
+			$data = array(
+				'is_logued_in' 	=> 	TRUE,
+				'idempresa'	=>	$check_user->idempresa,
+				'idoficina'	=>	$check_user->idoficina,
+				'iatacode'	=>	$oficina->iatacode,
+				'idagente' 	=> 	$check_user->idagente,
+				'perfil'	=>	$check_user->perfil,
+				'email' 	=> 	$check_user->email,
+				'jornada' 	=> 	$check_user->jornada,
+				'puesto'	=>	$check_user->puesto,
+				'isadmin'	=>	$isadmin,
+				'shortname' => 	$check_user->shortname,
+				'fullname' 	=> 	$check_user->nombre . ' ' . $check_user->apellidos,
+				'timezone'	=>	$oficina->timezone,
+				'termsaccepted' =>	$check_user->termsaccepted,
+				'issimulation' => 	FALSE
+			);		
+			$this->session->set_userdata($data);
+			redirect(base_url().'admin');
+
+		}
+
+	}
+
+	/* old simulation 
+
+	public function SimulateSession(){
+		$idempresa = $this->session->userdata('idempresa');
+		$idoficina = $this->session->userdata('idoficina');
+		$idagente = $this->input->post('inputAgent');
+
+		if($this->session->userdata('isadmin')){
+
+			$check_user = $this->Login_model->SimulateSession($idempresa, $idoficina, $idagente);
+			if($check_user){
+
 				// obtiene la version del webapp
 				$versionweb = $this->Config_model->GetEmpresas()[0]['versionweb'];
 
@@ -78,27 +181,33 @@ class Config extends CI_Controller {
 				$isadmin = $this->Agentes_model->IsAdmin($check_user->idempresa,$check_user->idoficina,$check_user->uniqueid);
 
 				$data = array(
-                		'is_logued_in' 	=> 	TRUE,
-				'idempresa'	=>	$check_user->idempresa,
-				'idoficina'	=>	$check_user->idoficina,
-				'iatacode'	=>	$oficina->iatacode,
-               			'idagente'	=> 	$check_user->idagente,
-                		'perfil'	=>	$check_user->perfil,
-                		'email' 	=> 	$check_user->email,
-                		'jornada'	=> 	$check_user->jornada,
-                		'puesto'	=>	$check_user->puesto,
-                		'isadmin'	=>	$isadmin,
-				'shortname' 	=> 	$check_user->shortname,
-				'fullname'	=> 	$check_user->nombre . ' ' . $check_user->apellidos,
-				'timezone'	=>	$oficina->timezone,
-				'termsaccepted' =>	$check_user->termsaccepted
-    				);		
+                	'is_logued_in' 	=> 	TRUE,
+					'idempresa'	=>	$check_user->idempresa,
+					'idoficina'	=>	$check_user->idoficina,
+					'iatacode'	=>	$oficina->iatacode,
+					'idagente'	=> 	$check_user->idagente,
+					'perfil'	=>	$check_user->perfil,
+					'email' 	=> 	$check_user->email,
+					'jornada'	=> 	$check_user->jornada,
+					'puesto'	=>	$check_user->puesto,
+					'isadmin'	=>	$isadmin,
+					'shortname' 	=> 	$check_user->shortname,
+					'fullname'	=> 	$check_user->nombre . ' ' . $check_user->apellidos,
+					'timezone'	=>	$oficina->timezone,
+					'termsaccepted' =>	$check_user->termsaccepted
+    			);		
 				$this->session->set_userdata($data);
+
+				// dump de la sesion
+				print_r($this->session->all_userdata());
+				die();
 				redirect(base_url().'admin');
 
 			}
 		}
 	}
+
+	*/
 	
 	public function SetMinimumPos()
 	{
