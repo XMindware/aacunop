@@ -727,7 +727,7 @@ class Timeswitch extends CI_Controller {
 			return;
 		}
 
-		if($this->session->userdata('perfil') != 'admin' )
+		if(!$this->session->userdata('isadmin'))
 		{
 			$error = array('status' => "Failed", "msg" => "You don't have permission to authorize.");
 			$this->response($this->json($error), 429);
