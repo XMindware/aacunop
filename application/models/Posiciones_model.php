@@ -12,11 +12,9 @@ class Posiciones_model extends CI_Model {
 	public function CompanyPositions($empresa){
 		$this->db->where('idempresa',$empresa);
 
-		//$query = $this->db->order_by('workday','ASC');
+		$query = $this->db->order_by('starttime','ASC');
 		$query = $this->db->order_by('length(code)','ASC');
-		$query = $this->db->order_by('code','ASC');
 		$query = $this->db->get('cunop_positions');
-	
 		if($query->num_rows() > 0)
 		{
 			return $query->result_array();
