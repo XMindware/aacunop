@@ -462,7 +462,7 @@ class Webcunop_model extends CI_Model {
 		
 		// SQL para consultar la lista de agentes por posicion en una fecha, no considera la relacion entre agentes y sus skills
 		/*
-		$sql = "SELECT distinct a.*,w.hours,c.orden FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c " .
+		//$sql = "SELECT distinct a.*,w.hours,c.orden FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c " .
 			   " ON c.code = p.cando where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion";*/
 		// XAS 15-05-2019 se agrega una validacion extra contra los skills del agente para evitar duplicados
 		//$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente and ag.status!='RL' INNER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion";
