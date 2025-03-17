@@ -205,11 +205,11 @@
                 $agentecambio = $pos['agentecambio'];
             }
             if($pos['status'] == 'AUT'){
-              $color = 'success';
+              $color = 'bg-success';
               $posicion = $pos['posicion'] . ' ' . $tipocambio. ' ' . $agentecambio;
             }
             else if($pos['status'] == 'ACC' ){
-              $color='chill';
+              $color='bg-danger';
               $posicion = $pos['posicion'] . ' ' . $tipocambio . ' ' . $agentecambio;
             }
             else if($pos['status'] == 'REQ'){
@@ -217,11 +217,11 @@
               $posicion = $pos['posicion'] . ' ' . $tipocambio . ' ' . $agentecambio;
             }
             else if($pos['status'] == 'DEC'){
-              $color='declined';
+              $color='bg-danger';
               $posicion = $pos['posicion'] . ' Declined';
             }
             else
-              $color='info';
+              $color='bg-info';
             ?>
 
           {

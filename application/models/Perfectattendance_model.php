@@ -84,7 +84,7 @@ class Perfectattendance_model extends CI_Model {
 		$this->db->where('idoficina', $idoficina);
 		$this->db->like('apellidos', $lastname);
 
-		$query = $this->db->get('cunop_agentes');
+		$query = $this->db->get('cunop_agentesactivos');
 
 		if($query->num_rows() > 0)
 		{
