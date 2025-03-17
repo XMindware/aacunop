@@ -383,7 +383,16 @@ class Webcunop_model extends CI_Model {
 
 	public function LoadBmasFecha($idempresa, $idoficina, $qdate){
 
-		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente INNER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion like '%B%' order by c.orden,w.hours,a.posicion";
+		$sql = "SELECT distinct a.*, w.hours, ifnull(pa.shortname, '') as perfect 
+			FROM cunop_agentscheduler a 
+			INNER JOIN cunop_workday w ON a.workday = w.code 
+			INNER JOIN cunop_positions p ON p.code = a.posicion 
+			INNER JOIN cunop_cando c ON c.code = p.cando 
+			INNER JOIN cunop_agentes ag ON a.idagente = ag.idagente 
+			INNER JOIN cunop_relcandoagents r ON ag.uniqueid = r.idagente AND r.idcando = c.code 
+			LEFT OUTER JOIN cunop_perfectattendance pa ON a.idagente = pa.idagente AND pa.month = ? AND pa.year = ? 
+			WHERE a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion LIKE '%B%' 
+			ORDER BY p.starttime, c.orden, w.hours, a.posicion";
 
 		$query = $this->db->query($sql,array(date('m',strtotime($qdate)),date('Y',strtotime($qdate)),$qdate,$idempresa,$idoficina));
 		//echo $this->db->last_query() .PHP_EOL;
@@ -394,20 +403,18 @@ class Webcunop_model extends CI_Model {
 	}
 
 	public function LoadLeadsFecha($idempresa, $idoficina, $qdate){
-		/*
-		$this->db->where('idempresa', $idempresa);
-		$this->db->where('idoficina', $idoficina);
-		$this->db->where('posicion!=','');
-		$this->db->where('posicion!=','XX');
-		$this->db->where('posicion!=','VAC');
-		$this->db->where('fecha', $qdate);
-
-		$this->db->order_by('idagente', 'ASC');
-		$query = $this->db->get('cunop_distribleads');
-		*/
 
 
-		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_distribleads a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = TRIM(a.posicion) INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente LEFT OUTER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion != '' and a.posicion!='XX' and a.posicion!='VAC' order by c.orden,w.hours,a.posicion";
+		$sql = "SELECT distinct a.*, w.hours, ifnull(pa.shortname, '') as perfect 
+				FROM cunop_distribleads a 
+				INNER JOIN cunop_workday w ON a.workday = w.code 
+				INNER JOIN cunop_positions p ON p.code = TRIM(a.posicion) 
+				INNER JOIN cunop_cando c ON c.code = p.cando 
+				INNER JOIN cunop_agentes ag ON a.idagente = ag.idagente 
+				LEFT OUTER JOIN cunop_relcandoagents r ON ag.uniqueid = r.idagente AND r.idcando = c.code 
+				LEFT OUTER JOIN cunop_perfectattendance pa ON a.idagente = pa.idagente AND pa.month = ? AND pa.year = ? 
+				WHERE a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion != '' AND a.posicion != 'XX' AND a.posicion != 'VAC' 
+				ORDER BY p.starttime, c.orden, w.hours, a.posicion";
 
 
 		$query = $this->db->query($sql,array(date('m',strtotime($qdate)),date('Y',strtotime($qdate)),$qdate,$idempresa,$idoficina));
@@ -455,11 +462,33 @@ class Webcunop_model extends CI_Model {
 		
 		// SQL para consultar la lista de agentes por posicion en una fecha, no considera la relacion entre agentes y sus skills
 		/*
-		$sql = "SELECT distinct a.*,w.hours,c.orden FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c " .
+		//$sql = "SELECT distinct a.*,w.hours,c.orden FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c " .
 			   " ON c.code = p.cando where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion";*/
 		// XAS 15-05-2019 se agrega una validacion extra contra los skills del agente para evitar duplicados
 		//$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente and ag.status!='RL' INNER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion";
-		$sql = "SELECT distinct a.*,w.hours,ifnull(pa.shortname,'') as perfect FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c ON c.code = p.cando INNER JOIN cunop_agentes ag ON a.idagente=ag.idagente and ag.status!='RL' INNER JOIN cunop_relcandoagents r ON ag.uniqueid=r.idagente AND r.idcando=c.code left outer join cunop_perfectattendance pa on a.idagente = pa.idagente and pa.month=? and pa.year=? where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion;";
+		$sql = "SELECT DISTINCT
+					a.*,
+					w.hours,
+					p.starttime,
+					IFNULL(pa.shortname, '') AS perfect
+				FROM
+					cunop_agentscheduler a
+				INNER JOIN cunop_positions p ON
+					p.code = a.posicion
+				INNER JOIN cunop_workday w ON
+					p.workday = w.code
+				INNER JOIN cunop_cando c ON
+					c.code = p.cando
+				INNER JOIN cunop_agentes ag ON
+					a.idagente = ag.idagente AND ag.status != 'RL'
+				INNER JOIN cunop_relcandoagents r ON
+					ag.uniqueid = r.idagente AND r.idcando = c.code
+				LEFT OUTER JOIN cunop_perfectattendance pa ON
+					a.idagente = pa.idagente AND pa.month = ? AND pa.year = ?
+				WHERE
+					a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND p.workday = ?
+			ORDER BY
+				p.starttime;";
 
 		$query = $this->db->query($sql,array(date('m',strtotime($qdate . ' -1 month')),date('Y',strtotime($qdate  . ' -1 month')),$qdate,$idempresa,$idoficina,$hours));
 

@@ -535,8 +535,8 @@ class Monthlyroster_model extends CI_Model {
 
 	public function LoadAgentsScheduleFechaByPos($idempresa, $idoficina, $qdate, $hours){
 		
-		$sql = "SELECT a.*,w.hours,c.orden FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c " .
-			   " ON c.code = p.cando where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,w.hours,a.posicion";
+		$sql = "SELECT a.*,w.hours, p.starttime, c.orden FROM cunop_agentscheduler a inner join cunop_workday w on a.workday=w.code INNER JOIN cunop_positions p ON p.code = a.posicion INNER JOIN cunop_cando c " .
+			   " ON c.code = p.cando where a.fecha=? and a.idempresa=? and a.idoficina=? and a.posicion<>'XX' and a.posicion<>'VAC' and a.workday=? order by c.orden,p.starttime,w.hours,a.posicion";
 
 		$query = $this->db->query($sql,array($qdate,$idempresa,$idoficina,$hours));
 
