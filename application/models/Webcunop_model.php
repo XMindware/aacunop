@@ -474,7 +474,7 @@ class Webcunop_model extends CI_Model {
 				FROM
 					cunop_agentscheduler a
 				INNER JOIN cunop_positions p ON
-					p.code = a.posicion
+					p.code = a.posicion AND p.workday = a.workday
 				INNER JOIN cunop_workday w ON
 					p.workday = w.code
 				INNER JOIN cunop_cando c ON
@@ -486,7 +486,7 @@ class Webcunop_model extends CI_Model {
 				LEFT OUTER JOIN cunop_perfectattendance pa ON
 					a.idagente = pa.idagente AND pa.month = ? AND pa.year = ?
 				WHERE
-					a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND p.workday = ?
+					a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND a.workday = ?
 			ORDER BY
 				p.starttime;";
 
