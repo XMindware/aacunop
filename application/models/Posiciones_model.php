@@ -9,12 +9,49 @@ class Posiciones_model extends CI_Model {
 	}
 	
 	
-	public function CompanyPositions($empresa){
-		$this->db->where('idempresa',$empresa);
+	public function CompanyPositions($idempresa){
 
-		$query = $this->db->order_by('starttime','ASC');
-		$query = $this->db->order_by('length(code)','ASC');
-		$query = $this->db->get('cunop_positions');
+		$sql = "
+			SELECT 
+				'p' as type,
+				uniqueid,
+				idempresa,
+				code,
+				description,
+				cando,
+				startdate,
+				enddate,
+				starttime,
+				endtime,
+				workday
+			FROM 
+				cunop_positions 
+			WHERE 
+				idempresa = ?
+			UNION
+			SELECT 
+				'e' as type,
+				-1 AS uniqueid,
+				idempresa,
+				code,
+				description,
+				'' AS cando,
+				'2021-01-01' AS startdate,
+				'2025-12-31' AS enddate,
+				'' AS starttime,
+				'' AS endtime,
+				'' AS workday
+			FROM 
+				cunop_extrapositions 
+			WHERE 
+				idempresa = ?
+			ORDER BY 
+				starttime, 
+				code
+		";
+
+		$query = $this->db->query($sql, array($idempresa,$idempresa));
+	
 		if($query->num_rows() > 0)
 		{
 			return $query->result_array();

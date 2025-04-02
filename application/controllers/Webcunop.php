@@ -64,7 +64,7 @@ class Webcunop extends CI_Controller {
 		$pt4 = $this->Webcunop_model->LoadAgentsScheduleFechaByPos($empresa,$oficina,$qdate,'PT');
 		$pt6 = $this->Webcunop_model->LoadAgentsScheduleFechaByPos($empresa,$oficina,$qdate,'PT6');
 		$ft8 = $this->Webcunop_model->LoadAgentsScheduleFechaByPos($empresa,$oficina,$qdate,'FT');
-
+	
 		// el footer con datos de gerentes, fechas e indicaciones extras
 		$footer = $this->Webcunop_model->LoadFlightDateHeaderFooter($empresa,$oficina,$qdate,'F');
 		$data['timezone'] =  $this->session->userdata('timezone');
