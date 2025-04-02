@@ -141,6 +141,11 @@
               <li><?=anchor(base_url().'Jornadas', 'Workdays')?></li>
               <li><?=anchor(base_url().'Cando', 'Skills catalog')?></li>
               <li><?=anchor(base_url().'Posiciones', 'Daily Positions')?></li>
+              <li>
+                <a href="<?php echo base_url().'Extrapositions'; ?>">
+                  Special Positions
+                </a>
+              </li>
               <li><?=anchor(base_url().'Vuelos', 'Flights')?></li>
               <li><?=anchor(base_url().'Posicionesvuelos', 'Positions per Flights')?></li>
               <li><?=anchor(base_url().'PerfectAttendance', 'Perfect Attendance')?></li>

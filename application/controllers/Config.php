@@ -103,7 +103,8 @@ class Config extends CI_Controller {
 					'timezone'	=>	$oficina->timezone,
 					'termsaccepted' =>	$check_user->termsaccepted,
 					'issimulation' => 	TRUE
-				);		
+				);
+				
 				$this->session->set_userdata($data);
 				redirect(base_url().'admin');
 

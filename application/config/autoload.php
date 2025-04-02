@@ -137,5 +137,10 @@ $autoload['language'] = array();
 |	$autoload['model'] = array('first_model' => 'first');
 */
 
-$autoload['model'] = array('Config_model','login_model','Castigados_model');
+$autoload['model'] = array(
+    'Castigados_model',
+    'Config_model',
+    'Extrapositions_model',
+    'login_model'
+);
 		

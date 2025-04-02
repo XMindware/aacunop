@@ -112,6 +112,7 @@
                         <th>Schedule</th>
                         <th>Work day</th>
                         <th>Skill Req</th>
+						<th>Type</th>
                       </tr>
                     </thead>
                     <?
@@ -130,8 +131,8 @@
 								//echo (($position['endtime'] / 3600) - $hours)  * 60;
 						?>
 						<tbody>
-						  <tr>
-							<td>
+						  <tr <?php if($position['type']=='e') { echo 'class="bg-warning"'; } else { echo ''; } ?>>
+							<td>							
 							<?
                         	if($isadmin == 1)
                             {
@@ -146,11 +147,12 @@
                                 echo $position['code'];
                             }
                             ?>
-							<? if(strtotime($position['enddate']) < time()) echo "<i style='color:red'>OUTDATED</i>"; ?></td>
+							</td>
 							<td><? echo $position['description']; ?></td>
     						<td><? echo $stime . ' - ' . $etime; ?></td>
     						<td><? echo $position['workday']; ?></td>
                             <td><? echo $position['cando']; ?></td>
+							<td><? echo $position['type'] == 'e' ? 'Special' : 'Work'; ?></td>
 						  </tr>
 						  <? } ?>
                     </tbody>

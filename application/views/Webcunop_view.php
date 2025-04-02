@@ -437,10 +437,12 @@
                                             {
                                                 if(isset($pt4[$counter])) $header = $pt4[$counter++]; else unset($header);
 
+                                                $horaentrada = $this->utilities->convertIntTimeToString($header['starttime']);
+
                                                 $paicon = ($header['perfect'] == '') ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
                                                 ?>
                                             <tr>
-                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $header['workday'] . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
+                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $horaentrada . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
                                     "<button type='button' onclick=\"loadRowAgentPosition('" . $header['uniqueid'] . "','" . $header['posicion'] . "','" . $header['idagente'] . "','" . $header['fecha'] . "'); \" class='btn btn-link'>" . $header['posicion'] . "</button>";?></td>
                                              </tr>
                                                 <?
@@ -460,10 +462,12 @@
                                             {
                                                 if(isset($pt6[$counter])) $header = $pt6[$counter++]; else unset($header);
 
+                                                $horaentrada = $this->utilities->convertIntTimeToString($header['starttime']);
+
                                                 $paicon = $header['perfect'] == '' ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
                                                 ?>
                                             <tr>
-                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $header['workday'] . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
+                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $horaentrada . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
                                     "<button type='button' onclick=\"loadRowAgentPosition('" . $header['uniqueid'] . "','" . $header['posicion'] . "','" . $header['idagente'] . "','" . $header['fecha'] . "'); \" class='btn btn-link'>" . $header['posicion'] . "</button>";?></td>
                                                 
                                              </tr>
@@ -484,10 +488,12 @@
                                             {
                                                 if(isset($ft8[$counter])) $header = $ft8[$counter++]; else unset($header);
 
+                                                $horaentrada = $this->utilities->convertIntTimeToString($header['starttime']);
+
                                                 $paicon = $header['perfect'] == '' ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
                                                 ?>
                                             <tr>
-                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $header['workday'] . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
+                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $horaentrada . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
                                     "<button type='button' onclick=\"loadRowAgentPosition('" . $header['uniqueid'] . "','" . $header['posicion'] . "','" . $header['idagente'] . "','" . $header['fecha'] . "'); \" class='btn btn-link'>" . $header['posicion'] . "</button>";?></td>
                                                 
                                              </tr>
