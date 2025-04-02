@@ -489,7 +489,10 @@ class Webcunop_model extends CI_Model {
 					a.posicion NOT IN (select code FROM cunop_extrapositions) AND
 					a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND a.workday = ?
 			ORDER BY
-				p.starttime, a.posicion;";
+				c.orden,
+				substring(a.posicion,1,1),
+				p.starttime, 
+				a.posicion;";
 
 		$query = $this->db->query($sql,array(date('m',strtotime($qdate . ' -1 month')),date('Y',strtotime($qdate  . ' -1 month')),$qdate,$idempresa,$idoficina,$hours));
 		

@@ -160,6 +160,7 @@
                     <thead>
                       <tr>
                         <th>#</th>
+						<th>Shortname</th>
                         <th>Full Name</th>
                         <th>Position</th>
                         <th>Join Date</th>
@@ -191,7 +192,7 @@
                                 echo $agent['idagente'];
                             }?>
                         </td>
-                 	
+						<td><? echo $agent['shortname']; ?></td>
                         <td><? echo $agent['nombre'] . ' ' . $agent['apellidos']; ?></td>
                         <td><? echo $agent['puesto']; ?></td>
                         <td><? echo date('M jS, Y', $ingreso); ?></td>
