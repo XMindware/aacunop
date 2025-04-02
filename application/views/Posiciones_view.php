@@ -149,7 +149,7 @@
                             ?>
 							</td>
 							<td><? echo $position['description']; ?></td>
-    						<td><? echo $stime . ' - ' . $etime; ?></td>
+    						<td><?php if($position['type']=='e') { echo ''; } else { echo $stime . ' - ' . $etime; } ?></td>
     						<td><? echo $position['workday']; ?></td>
                             <td><? echo $position['cando']; ?></td>
 							<td><? echo $position['type'] == 'e' ? 'Special' : 'Work'; ?></td>
