@@ -81,13 +81,13 @@
                         <div class='col-sm-6'>
                             <div class='form-group'>
                                 <label for="inputAgentsok">Agents missing in Catalog</label>
-                                <textarea class="form-control" id="inputMissing" rows="5"><? 
+								<ul><? 
                                   foreach($notfound as $not)
                                   {
-                                    print_r($not[0]);
+									echo '<li>' . $not[0] . '</li>';
                                   }
                                   ?>
-                                </textarea>
+								</ul>
                             </div>
                         </div>
                     </div>

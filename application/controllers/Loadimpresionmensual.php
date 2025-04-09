@@ -84,7 +84,7 @@ class Loadimpresionmensual extends CI_Controller {
 
         		$linecount = 0;
 
-        		//$this->Loadimpresionmensual_model->CleanSchedulerDates($idempresa,$idoficina,$fechaini,$fechafin);
+        		$this->Loadimpresionmensual_model->CleanSchedulerDates($idempresa,$idoficina,$fechaini,$fechafin);
 
 				while (($line = fgetcsv($file)) !== FALSE) {
 
@@ -135,19 +135,19 @@ class Loadimpresionmensual extends CI_Controller {
 	{
 		$idempresa = $this->session->userdata('idempresa');
 		$idoficina = $this->session->userdata('idoficina');
+		$agentsnotfound = array();
 
 		// primero el agente
 		//print_r($linea);
 		if(!isset($linea[0]) || trim($linea[0]) == '') return;
 		$shortname = $linea[0];
 
-	
-		//echo 'agente-' . $shortname . '-';
 		$agente = $this->Agentes_model->FindAgentByShortname($idempresa, $idoficina, $shortname)[0];
 
 		if(!$agente)
 		{
-			return;
+			array_push($agentsnotfound, $shortname);
+			return $agentsnotfound;
 		}
 		$idagente = $agente['idagente'];
 		//$fecha = date('Y-m-d', mktime(0, 0, 0, $mes, $tokencount, $year)); 
@@ -157,7 +157,6 @@ class Loadimpresionmensual extends CI_Controller {
 		$this->Loadimpresionmensual_model->CleanSchedulerDatesAgente($idempresa,$idoficina,$fechaini,$fechafin,$idagente);
 		
 		$positions = array();
-		$agentsnotfound = array();
 		$tokencount= 0;
 		$dias=0;
 		foreach($linea as $token)
@@ -173,7 +172,6 @@ class Loadimpresionmensual extends CI_Controller {
 					
 					$posicion = $token;
 					$asignacion = '';
-					//echo $fecha . ' ' . $agente['shortname'] . '<br>';
 					$this->Loadimpresionmensual_model->ActualizarScheduleAgente($idempresa, $idoficina, $idagente, $fecha, $workday, $shortname, $asignacion, $posicion);
 					$dias++;
 				}

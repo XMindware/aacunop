@@ -428,82 +428,83 @@
                             </tr>
                             <!-- PT 4 -->
                             <tr>
+                                <!-- PT4 -->
                                 <td>
                                     <table class="table table-condensed" id="tblPt4">
-                                        <?
-                                           
-                                            $counter = 0;
-                                            do
-                                            {
-                                                if(isset($pt4[$counter])) $header = $pt4[$counter++]; else unset($header);
-
+                                        <?php if (!empty($pt4) && is_array($pt4)) : ?>
+                                            <tr><td colspan="3"><strong>PT 4</strong></td></tr>
+                                            <?php foreach ($pt4 as $header) : 
                                                 $horaentrada = $this->utilities->convertIntTimeToString($header['starttime']);
-
-                                                $paicon = ($header['perfect'] == '') ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
-                                                ?>
-                                            <tr>
-                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $horaentrada . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
-                                    "<button type='button' onclick=\"loadRowAgentPosition('" . $header['uniqueid'] . "','" . $header['posicion'] . "','" . $header['idagente'] . "','" . $header['fecha'] . "'); \" class='btn btn-link'>" . $header['posicion'] . "</button>";?></td>
-                                             </tr>
-                                                <?
-                                             
-                                            }while($counter<sizeof($pt4)) ?>
-                                       
+                                                $paicon = empty($header['perfect']) ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
+                                            ?>
+                                                <tr>
+                                                    <td>
+                                                        <?php echo $paicon; ?>
+                                                        <?php echo $header['shortname'] . " (" . $horaentrada . ")"; ?>
+                                                    </td>
+                                                    <td><?php echo $header['asignacion']; ?></td>
+                                                    <td style="font-weight:bold">
+                                                        <button type="button" onclick="loadRowAgentPosition('<?php echo $header['uniqueid']; ?>','<?php echo $header['posicion']; ?>','<?php echo $header['idagente']; ?>','<?php echo $header['fecha']; ?>');" class="btn btn-link">
+                                                            <?php echo $header['posicion']; ?>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </table>
                                 </td>
-                          
-                            <!-- PT 6 -->
-                
+
+                                <!-- PT6 -->
                                 <td>
                                     <table class="table table-condensed" id="tblPt6">
-                                        <?
-                                            $counter = 0;
-                                            do
-                                            {
-                                                if(isset($pt6[$counter])) $header = $pt6[$counter++]; else unset($header);
-
+                                        <?php if (!empty($pt6) && is_array($pt6)) : ?>
+                                            <?php foreach ($pt6 as $header) : 
                                                 $horaentrada = $this->utilities->convertIntTimeToString($header['starttime']);
-
-                                                $paicon = $header['perfect'] == '' ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
-                                                ?>
-                                            <tr>
-                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $horaentrada . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
-                                    "<button type='button' onclick=\"loadRowAgentPosition('" . $header['uniqueid'] . "','" . $header['posicion'] . "','" . $header['idagente'] . "','" . $header['fecha'] . "'); \" class='btn btn-link'>" . $header['posicion'] . "</button>";?></td>
-                                                
-                                             </tr>
-                                                <?
-                                              
-                                            }while($counter<sizeof($pt6)) ?>
-                                       
+                                                $paicon = empty($header['perfect']) ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
+                                            ?>
+                                                <tr>
+                                                    <td>
+                                                        <?php echo $paicon; ?>
+                                                        <?php echo $header['shortname'] . " (" . $horaentrada . ")"; ?>
+                                                    </td>
+                                                    <td><?php echo $header['asignacion']; ?></td>
+                                                    <td style="font-weight:bold">
+                                                        <button type="button" onclick="loadRowAgentPosition('<?php echo $header['uniqueid']; ?>','<?php echo $header['posicion']; ?>','<?php echo $header['idagente']; ?>','<?php echo $header['fecha']; ?>');" class="btn btn-link">
+                                                            <?php echo $header['posicion']; ?>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </table>
                                 </td>
-                            
-                            <!-- FT -->
-                            
+
+                                <!-- FT8 -->
                                 <td>
                                     <table class="table table-condensed" id="tblFt8">
-                                        <?
-                                            $counter = 0;
-                                            do
-                                            {
-                                                if(isset($ft8[$counter])) $header = $ft8[$counter++]; else unset($header);
-
+                                        <?php if (!empty($ft8) && is_array($ft8)) : ?>
+                                            <?php foreach ($ft8 as $header) : 
                                                 $horaentrada = $this->utilities->convertIntTimeToString($header['starttime']);
-
-                                                $paicon = $header['perfect'] == '' ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
-                                                ?>
-                                            <tr>
-                                                <td><? echo $paicon; ?><? if(isset($header))  echo $header['shortname'] .  " (" .  $horaentrada . ")" . '</td><td>' . $header['asignacion'] .  "</td><td style='font-weight:bold'>" .
-                                    "<button type='button' onclick=\"loadRowAgentPosition('" . $header['uniqueid'] . "','" . $header['posicion'] . "','" . $header['idagente'] . "','" . $header['fecha'] . "'); \" class='btn btn-link'>" . $header['posicion'] . "</button>";?></td>
-                                                
-                                             </tr>
-                                                <?
-                                              
-                                            }while($counter<sizeof($ft8)) ?>
-                                       
+                                                $paicon = empty($header['perfect']) ? '&nbsp;&nbsp;&nbsp;' : '<span class="glyphicon glyphicon-ok-sign greenc"></span>';
+                                            ?>
+                                                <tr>
+                                                    <td>
+                                                        <?php echo $paicon; ?>
+                                                        <?php echo $header['shortname'] . " (" . $horaentrada . ")"; ?>
+                                                    </td>
+                                                    <td><?php echo $header['asignacion']; ?></td>
+                                                    <td style="font-weight:bold">
+                                                        <button type="button" onclick="loadRowAgentPosition('<?php echo $header['uniqueid']; ?>','<?php echo $header['posicion']; ?>','<?php echo $header['idagente']; ?>','<?php echo $header['fecha']; ?>');" class="btn btn-link">
+                                                            <?php echo $header['posicion']; ?>
+                                                        </button>
+                                                    </td>
+                                                </tr>
+                                            <?php endforeach; ?>
+                                        <?php endif; ?>
                                     </table>
                                 </td>
                             </tr>
+
                         </table>
                         
                         <!-- BMAS -->
