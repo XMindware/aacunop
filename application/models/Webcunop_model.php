@@ -751,16 +751,56 @@ class Webcunop_model extends CI_Model {
 
 	public function ConsultarQuickSchedule($idempresa,$idoficina,$idagente,$fecha)
 	{
-		$sql = "SELECT a.uniqueid,a.posicion,a.fecha,p.starttime,p.endtime FROM cunop_agentscheduler a inner join cunop_positions p on " .
-			   "p.code=a.posicion and p.workday = a.workday where a.idempresa=? and a.idoficina=? and a.fecha=? and a.idagente=? and ? between p.startdate and p.enddate UNION " .
-			   "SELECT d.uniqueid,d.posicion,d.fecha,p.starttime,p.endtime FROM cunop_distribleads d inner join cunop_positions p on " .
-			   "p.code=d.posicion and p.workday = d.workday where d.idempresa=? and d.idoficina=? and d.fecha=? and d.idagente=? and ? between p.startdate and p.enddate";
-		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idagente,$fecha,$idempresa,$idoficina,$fecha,$idagente,$fecha));
-
-		if($query->num_rows() > 0)
-		{
+		$sql = "
+			(
+				SELECT d.uniqueid, d.posicion, d.fecha, p.starttime, p.endtime
+				FROM cunop_distribleads d
+				INNER JOIN cunop_positions p ON p.code = d.posicion AND p.workday = d.workday
+				WHERE d.idempresa = ? 
+					AND d.idoficina = ? 
+					AND d.fecha = ? 
+					AND d.idagente = ? 
+					AND ? BETWEEN p.startdate AND p.enddate
+				LIMIT 1
+				)
+				UNION
+				(
+				SELECT a.uniqueid, a.posicion, a.fecha, p.starttime, p.endtime
+				FROM cunop_agentscheduler a
+				INNER JOIN cunop_positions p ON p.code = a.posicion AND p.workday = a.workday
+				WHERE a.idempresa = ? 
+					AND a.idoficina = ? 
+					AND a.fecha = ? 
+					AND a.idagente = ? 
+					AND ? BETWEEN p.startdate AND p.enddate
+					AND NOT EXISTS (
+					SELECT 1
+					FROM cunop_distribleads d
+					INNER JOIN cunop_positions p2 ON p2.code = d.posicion AND p2.workday = d.workday
+					WHERE d.idempresa = a.idempresa 
+						AND d.idoficina = a.idoficina 
+						AND d.fecha = a.fecha 
+						AND d.idagente = a.idagente 
+						AND ? BETWEEN p2.startdate AND p2.enddate
+					)
+				LIMIT 1
+				);";
+			$params = [
+				$idempresa,     // 1
+				$idoficina,     // 2
+				$fecha,         // 3
+				$idagente,      // 4
+				$fecha,         // 5
+				$idempresa,     // 6
+				$idoficina,     // 7
+				$fecha,         // 8
+				$idagente,      // 9
+				$fecha,         // 10
+				$fecha          // 11
+			];
+			
+			$query = $this->db->query($sql, $params);
 			return $query->result_array();
-		}
 	}
 
 	public function ConsultarMonthlySchedule($idempresa,$idoficina,$idagente,$fechaini, $fechafin)
