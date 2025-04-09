@@ -97,10 +97,8 @@ class Loadleadsmensual extends CI_Controller {
 						break;
 					
 					// las lineas 0 y 1 no cuentan			
-					if($linecount > 1 && $line[0] != '')
+					if($linecount > 3 && $line[0] != '')
 					{
-						//echo $line[0] . ' ' . strpos($line[0], 'AGENT') . '-';
-
 						// tenemos ya la linea de un lead, ahora la analizamos y vamos creando cada campo para insertar
 						$notfound = $this->ProcesarLinea($line, $fechaini, $fechafin);
 					  	//print_r($line);
@@ -153,11 +151,15 @@ class Loadleadsmensual extends CI_Controller {
 			// nos brincamos el nombre del agente
 			if($tokencount > 0)
 			{
-				//echo 'agente-' . $shortname . '-';
 				$agente = $this->Agentes_model->FindAgentByShortname($idempresa, $idoficina, $shortname)[0];
-				//print_r($agente);
 				// tiene que existir el agente y tener un puesto de LEAD
-				if(isset($agente['idagente']) && $agente['puesto']=='LEAD'){
+				if(isset($agente['idagente'])){
+
+					if($agente['puesto'] != 'LEAD')
+					{
+						array_push($agentsnotfound, $shortname . ' No es LEAD');
+						break;
+					}
 					
 					$fecha = date('Y-m-d', strtotime("+".$dias." days", strtotime($fechaini)));
 					$idagente = $agente['idagente'];
