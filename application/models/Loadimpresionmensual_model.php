@@ -133,8 +133,6 @@ class Loadimpresionmensual_model extends CI_Model {
 		$this->db->where('fecha>=', $fechaini);
 		$this->db->where('fecha<=', $fechafin);
 		$this->db->delete('cunop_agentscheduler');
-
-		//echo $this->db->last_query();
 	}
 	
 	// obtiene todos los skills de un agente

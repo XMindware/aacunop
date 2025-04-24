@@ -84,7 +84,7 @@ class Loadimpresionmensual extends CI_Controller {
 
         		$linecount = 0;
 
-        		$this->Loadimpresionmensual_model->CleanSchedulerDates($idempresa,$idoficina,$fechaini,$fechafin);
+        		//$this->Loadimpresionmensual_model->CleanSchedulerDates($idempresa,$idoficina,$fechaini,$fechafin);
 
 				while (($line = fgetcsv($file)) !== FALSE) {
 
