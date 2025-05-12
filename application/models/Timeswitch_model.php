@@ -396,56 +396,131 @@ class Timeswitch_model extends CI_Model {
 	// obtiene los agentes que pueden hacer switch en una fecha segun sus habilidades
 	public function GetAgentsSwitchDate($idempresa,$idoficina,$fecha,$idagentebase)
 	{
-
-		// anteriormente solo checaba los que no descansaban o estuvieran de vacaciones
-		/*$sql = "SELECT idagente,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina=? and fecha=? " . 
-			   " and posicion not in ('XX','0') union " . 
-			   "SELECT idagente,shortname as name,posicion as status FROM `cunop_distribleads` WHERE idempresa=? and idoficina=? and fecha=? " . 
-			   " and posicion not in ('XX','0') order by idagente";
-		
-		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idempresa,$idoficina,$fecha));*/
-
-		// ahora se consultan los agentes que estan disponibles y revisa sus skills
-		/*
-		$sql = "select distinct sc.idagente,sc.shortname as name,sc.posicion as status from cunop_agentscheduler sc inner join cunop_agentes ag on " .
-			   "ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in " .
-			   "(select cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc " .
-			   "WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? union " .
-			   "SELECT posicion  FROM `cunop_distribleads` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=?)) and sc.fecha=? and sc.posicion not in ('XX','0') order by sc.idagente";
-		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha, $idagentebase,$idempresa,$idoficina,$fecha,$idagentebase,
-				$fecha));
-		
-		$sql = "select distinct sc.idagente,ag.shortname as name,sc.posicion as status from cunop_agentscheduler sc inner join cunop_agentes ag on " .
-			   "ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in " .
-			   "(select cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc " .
-			   "WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? union " .
-			   "SELECT posicion  FROM `cunop_distribleads` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=?)) and sc.fecha=? and sc.posicion not in ('XX','0') UNION " .
-			   "select distinct sc.idagente,sc.shortname as name,sc.posicion as status from cunop_distribleads sc inner join cunop_agentes ag on " .
-			   "ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in " .
-			   "(select cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc " .
-			   "WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? union " .
-			   "SELECT posicion  FROM `cunop_distribleads` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=?)) and sc.fecha=? and sc.posicion not in ('XX','0') " .
-			   "order by idagente"; */
-
-
 		// XAS 2020-03-08 en la consulta considera que no se ponga al mismo agente para cubrir y que no permita hacer switch a un agente mas de una veces en una fecha
-		$sql = "SELECT distinct sc.idagente,ag.shortname as name,sc.posicion as status from cunop_agentscheduler sc inner join cunop_agentes ag on " .
-			   "ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in " .
-			   "(SELECT cando from cunop_positions where ag.idagente not in (select idagente from cunop_castigados cas where ? between cas.fechacastigo and cas.fechafin) and " .
-			   "code in (SELECT posicion FROM `cunop_agentscheduler` sc " .
-			   "WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? union " .
-			   "SELECT posicion  FROM cunop_distribleads sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0'))) and " . 
-			   "sc.idagente not in (select idagentecambio from cunop_switchrequests where fechacambio=? union select ?) and sc.fecha=? and " .
-			   "sc.posicion not in ('XX','0') UNION select distinct sc.idagente,sc.shortname as name,sc.posicion as status from cunop_distribleads sc " . 
-			   "inner join cunop_agentes ag on ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where " .
-			   "can.idcando in (select cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa=? ".
-			   "and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? union SELECT posicion  FROM cunop_distribleads sc " .
-			   "WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0'))) and sc.idagente not in (select idagentecambio from " .
-			   "cunop_switchrequests where fechacambio=? union select ?) and sc.fecha=? and sc.posicion not in ('XX','0') order by idagente";
-		/*
-			"SELECT distinct sc.idagente,ag.shortname as name,sc.posicion as status from cunop_agentscheduler sc inner join cunop_agentes ag on ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in (SELECT cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa='1' and idoficina='1' and fecha='2020-11-07' and posicion not in ('XX','0') and idagente='201611' union SELECT posicion  FROM cunop_distribleads sc WHERE idempresa='1' and idoficina='1' and fecha='2020-11-07' and posicion not in ('XX','0'))) and sc.idagente not in (select idagentecambio from cunop_switchrequests where fechacambio='2020-11-07' union select '201611') and sc.fecha='2020-11-07' and sc.posicion not in ('XX','0') UNION select distinct sc.idagente,sc.shortname as name,sc.posicion as status from cunop_distribleads sc inner join cunop_agentes ag on ag.idagente=sc.idagente inner join cunop_relcandoagents can on can.idagente=ag.uniqueid where can.idcando in (select cando from cunop_positions where code in (SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa='1' and idoficina='1' and fecha='2020-11-07' and posicion not in ('XX','0') and idagente='201611' union SELECT posicion  FROM cunop_distribleads sc WHERE idempresa='1' and idoficina='1' and fecha='2020-11-07' and posicion not in ('XX','0'))) and sc.idagente not in (select idagentecambio from cunop_switchrequests where fechacambio='2020-11-07' union select '201611') and sc.fecha='2020-11-07' and sc.posicion not in ('XX','0') order by idagente
-			*/
-
+		$sql = "
+			SELECT DISTINCT 
+				sc.idagente,
+				ag.shortname AS name,
+				sc.posicion AS status
+			FROM 
+				cunop_agentscheduler sc
+			INNER JOIN 
+				cunop_agentesactivos ag 
+				ON ag.idagente = sc.idagente
+			INNER JOIN 
+				cunop_relcandoagents can 
+				ON can.idagente = ag.uniqueid
+			WHERE 
+				can.idcando IN (
+					SELECT 
+						cando 
+					FROM 
+						cunop_positions 
+					WHERE 
+						ag.idagente NOT IN (
+							SELECT 
+								idagente 
+							FROM 
+								cunop_castigados cas 
+							WHERE 
+								? BETWEEN cas.fechacastigo AND cas.fechafin
+						) 
+						AND code IN (
+							SELECT 
+								posicion 
+							FROM 
+								`cunop_agentscheduler` sc 
+							WHERE 
+								idempresa = ? 
+								AND idoficina = ? 
+								AND fecha = ? 
+								AND posicion NOT IN ('XX', '0') 
+								AND idagente = ?
+							UNION 
+							SELECT 
+								posicion  
+							FROM 
+								cunop_distribleads sc 
+							WHERE 
+								idempresa = ? 
+								AND idoficina = ? 
+								AND fecha = ? 
+								AND posicion NOT IN ('XX', '0')
+						)
+				) 
+				AND sc.idagente NOT IN (
+					SELECT 
+						idagentecambio 
+					FROM 
+						cunop_switchrequests 
+					WHERE 
+						fechacambio = ? 
+					UNION 
+					SELECT 
+						?
+				) 
+				AND sc.fecha = ? 
+				AND sc.posicion NOT IN ('XX', '0')
+			UNION 
+			SELECT DISTINCT 
+				sc.idagente,
+				sc.shortname AS name,
+				sc.posicion AS status
+			FROM 
+				cunop_distribleads sc
+			INNER JOIN 
+				cunop_agentesactivos ag 
+				ON ag.idagente = sc.idagente
+			INNER JOIN 
+				cunop_relcandoagents can 
+				ON can.idagente = ag.uniqueid
+			WHERE 
+				can.idcando IN (
+					SELECT 
+						cando 
+					FROM 
+						cunop_positions 
+					WHERE 
+						code IN (
+							SELECT 
+								posicion 
+							FROM 
+								`cunop_agentscheduler` sc 
+							WHERE 
+								idempresa = ? 
+								AND idoficina = ? 
+								AND fecha = ? 
+								AND posicion NOT IN ('XX', '0') 
+								AND idagente = ?
+							UNION 
+							SELECT 
+								posicion  
+							FROM 
+								cunop_distribleads sc 
+							WHERE 
+								idempresa = ? 
+								AND idoficina = ? 
+								AND fecha = ? 
+								AND posicion NOT IN ('XX', '0')
+						)
+				) 
+				AND sc.idagente NOT IN (
+					SELECT 
+						idagentecambio 
+					FROM 
+						cunop_switchrequests 
+					WHERE 
+						fechacambio = ? 
+					UNION 
+					SELECT 
+						?
+				) 
+				AND sc.fecha = ? 
+				AND sc.posicion NOT IN ('XX', '0')
+			ORDER BY 
+				idagente;
+		";
+		
 		$query = $this->db->query($sql,array($fecha,$idempresa,$idoficina,$fecha, $idagentebase,$idempresa,$idoficina,$fecha,$fecha,$idagentebase,
 				$fecha,$idempresa,$idoficina,$fecha, $idagentebase,$idempresa,$idoficina,$fecha,$fecha,$idagentebase,
 				$fecha));
@@ -459,51 +534,155 @@ class Timeswitch_model extends CI_Model {
 	// obtiene los agentes que tienen disponible hacer un cover en una fecha
 	public function getAgentsCoverDate($idempresa,$idoficina,$fecha,$idagentebase,$puesto)
 	{
-		//($idempresa,$idoficina,$fecha,$posiciones,$userpos,$userjornada)
-	
-		/* tomamos a todos los agentes *
-		$sql = "SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? and posicion='XX' union SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? and posicion='XX' union " . 
-			   "SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? and " . $posiciones . " and posicion in " .
-			   " (select code from cunop_positions where endtime<(select starttime from cunop_positions where code=? and workday=?) union select code from cunop_positions where starttime>(select endtime from cunop_positions where code=? and workday=?) ) order by id desc";
-		
-		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idempresa,$idoficina,$fecha,$idempresa,$idoficina,$fecha,$userpos,$userjornada,$userpos,$userjornada));*/
 		if($puesto == 'LEAD')
 		{
-			/*
-			$sql = "SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? " . 
-			"and posicion<>'0' union SELECT idagente as id,shortname as name,posicion as status FROM `cunop_distribleads` WHERE idempresa=? and idoficina = ? " .
-			"and fecha=? order by id desc";
-		
-			$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idempresa,$idoficina,$fecha));*/
-			$sql = "select distinct dl.idagente as id,ag.shortname as name, dl.posicion as status from cunop_distribleads dl inner join cunop_agentes ag on ag.idagente=dl.idagente " . 
-				   "where dl.idagente in (select ag.idagente from cunop_relcandoagents can " .
-				   "inner join cunop_agentes ag on ag.uniqueid=can.idagente where ag.status='OK' and idcando in(select distinct cando from cunop_positions where " .
-				   "code in " .
-				   "(SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? " .
-				   "union SELECT posicion  FROM `cunop_distribleads` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') " .
-				   "and idagente=?)union select 'AL' union select 'L'  ) ) and dl.idagente!=? and dl.fecha=? and dl.posicion!='0' union select distinct dl.idagente as id,dl.shortname as name, dl.posicion as status from cunop_agentscheduler dl where dl.idagente in (select distinct  ag.idagente from cunop_relcandoagents can inner join cunop_agentes ag on ag.uniqueid=can.idagente where ag.status='OK' ) and dl.idagente!=? and dl.fecha=? and dl.posicion!='0' order by id";
+			$sql = "
+				SELECT DISTINCT 
+					dl.idagente AS id,
+					ag.shortname AS name,
+					dl.posicion AS status
+				FROM 
+					cunop_distribleads dl
+				INNER JOIN 
+					cunop_agentes ag 
+					ON ag.idagente = dl.idagente
+				WHERE 
+					dl.idagente IN (
+						SELECT 
+							ag.idagente 
+						FROM 
+							cunop_relcandoagents can
+						INNER JOIN 
+							cunop_agentes ag 
+							ON ag.uniqueid = can.idagente
+						WHERE 
+							ag.status = 'OK' 
+							AND idcando IN (
+								SELECT DISTINCT 
+									cando 
+								FROM 
+									cunop_positions 
+								WHERE 
+									code IN (
+										SELECT 
+											posicion 
+										FROM 
+											`cunop_agentscheduler` sc 
+										WHERE 
+											idempresa = ? 
+											AND idoficina = ? 
+											AND fecha = ? 
+											AND posicion NOT IN ('XX', '0') 
+											AND idagente = ?
+										UNION 
+										SELECT 
+											posicion  
+										FROM 
+											`cunop_distribleads` sc 
+										WHERE 
+											idempresa = ? 
+											AND idoficina = ? 
+											AND fecha = ? 
+											AND posicion NOT IN ('XX', '0') 
+											AND idagente = ?
+									)
+									UNION 
+									SELECT 'AL' 
+									UNION 
+									SELECT 'L'
+							)
+					) 
+					AND dl.idagente != ? 
+					AND dl.fecha = ? 
+					AND dl.posicion != '0'
+				UNION 
+				SELECT DISTINCT 
+					dl.idagente AS id,
+					dl.shortname AS name,
+					dl.posicion AS status
+				FROM 
+					cunop_agentscheduler dl
+				WHERE 
+					dl.idagente IN (
+						SELECT DISTINCT 
+							ag.idagente 
+						FROM 
+							cunop_relcandoagents can
+						INNER JOIN 
+							cunop_agentes ag 
+							ON ag.uniqueid = can.idagente
+						WHERE 
+							ag.status = 'OK'
+					) 
+					AND dl.idagente != ? 
+					AND dl.fecha = ? 
+					AND dl.posicion != '0'
+				ORDER BY 
+					id;
+			";
 			$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idagentebase,$idempresa,$idoficina,$fecha,$idagentebase,$idagentebase,$fecha,$idagentebase,$fecha));
-			//echo $this->db->last_query() . PHP_EOL;
 		}
 		else
-		{
-			/*
-			$sql = "SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? " .
-					"and posicion<>'0' order by id desc";
-		
-			$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha));*/
-			$sql = "select distinct dl.idagente as id,ag.shortname as name,dl.posicion as status from cunop_agentscheduler dl inner join cunop_agentes ag on ag.idagente=dl.idagente " . 
-				   "where dl.idagente in (select ag.idagente from cunop_relcandoagents can " .
-				   "inner join cunop_agentes ag on ag.uniqueid=can.idagente and ag.status='OK' where idcando in(select cando from cunop_positions where " .
-				   "code in " .
-				   "(SELECT posicion FROM `cunop_agentscheduler` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') and idagente=? " .
-				   "union SELECT posicion  FROM `cunop_distribleads` sc WHERE idempresa=? and idoficina=? and fecha=? and posicion not in ('XX','0') " .
-				   "and idagente=?))) and dl.idagente!=? and dl.fecha=? order by dl.idagente";
+		{			
+			$sql = "
+				SELECT DISTINCT 
+					dl.idagente AS id,
+					ag.shortname AS name,
+					dl.posicion AS status
+				FROM 
+					cunop_agentscheduler dl
+				INNER JOIN 
+					cunop_agentesactivos ag 
+					ON ag.idagente = dl.idagente
+				WHERE 
+					dl.idagente IN (
+						SELECT 
+							ag.idagente 
+						FROM 
+							cunop_relcandoagents can
+						INNER JOIN 
+							cunop_agentes ag 
+							ON ag.uniqueid = can.idagente
+						WHERE 
+							idcando IN (
+								SELECT 
+									cando 
+								FROM 
+									cunop_positions 
+								WHERE 
+									code IN (
+										SELECT 
+											posicion 
+										FROM 
+											`cunop_agentscheduler` sc 
+										WHERE 
+											idempresa = ? 
+											AND idoficina = ? 
+											AND fecha = ? 
+											AND posicion NOT IN ('XX', '0') 
+											AND idagente = ?
+										UNION 
+										SELECT 
+											posicion  
+										FROM 
+											`cunop_distribleads` sc 
+										WHERE 
+											idempresa = ? 
+											AND idoficina = ? 
+											AND fecha = ? 
+											AND posicion NOT IN ('XX', '0') 
+											AND idagente = ?
+									)
+							)
+					) 
+					AND dl.idagente != ? 
+					AND dl.fecha = ? 
+				ORDER BY 
+					dl.idagente;
+			";
 
-			$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idagentebase,$idempresa,$idoficina,$fecha,$idagentebase,$idagentebase,$fecha));
+			$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idagentebase,$idempresa,$idoficina,$fecha,$idagentebase,$idagentebase,$fecha));			
 		}
-		//echo $this->db->last_query() .PHP_EOL;
-		//echo $this->db->last_query();
 		if($query->num_rows() > 0)
 		{
 			return $query->result_array();
@@ -513,16 +692,28 @@ class Timeswitch_model extends CI_Model {
 	// obtiene los agentes que tienen disponible hacer un cover en una fecha
 	public function getAgentsLastCoverDate($idempresa,$idoficina,$fecha,$idagentebase,$puesto)
 	{
-		/*
-		$this->db->where('fecha', $fecha);
-		$this->db->where('posicion','XX');
-		$this->db->where('idempresa',$idempresa);
-		$this->db->where('idoficina',$idoficina);
-		$this->db->where('idagente<>' . $idagentebase);
-		$this->db->select('idagente as id,shortname as name,posicion as status');
-		*/
-		$sql = 'SELECT idagente as id, shortname as name,"XX" as status FROM cunop_agentes a WHERE a.status="OK" and idempresa=? and idoficina=? ' .
-		'and idagente not in(select idagente from cunop_agentscheduler where posicion<>"XX" and fecha=?) and idagente<>?';
+		$sql = "
+			SELECT 
+				idagente AS id, 
+				shortname AS name, 
+				'XX' AS status 
+			FROM 
+				cunop_agentesactivos a 
+			WHERE 
+				a.status = 'OK' 
+				AND idempresa = ? 
+				AND idoficina = ? 
+				AND idagente NOT IN (
+					SELECT 
+						idagente 
+					FROM 
+						cunop_agentscheduler 
+					WHERE 
+						posicion <> 'XX' 
+						AND fecha = ?
+				) 
+				AND idagente <> ?;
+		";
 
 
 		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idagentebase));
@@ -541,9 +732,32 @@ class Timeswitch_model extends CI_Model {
 
 		if($puesto == 'LEAD')
 		{
-			$sql = "SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? " . 
-			"and posicion<>'0' union SELECT idagente as id,shortname as name,posicion as status FROM `cunop_distribleads` WHERE idempresa=? and idoficina = ? " .
-			"and fecha=? order by id desc";
+			$sql = "
+				SELECT 
+					idagente AS id, 
+					shortname AS name, 
+					posicion AS status 
+				FROM 
+					`cunop_agentscheduler` 
+				WHERE 
+					idempresa = ? 
+					AND idoficina = ? 
+					AND fecha = ? 
+					AND posicion <> '0' 
+				UNION 
+				SELECT 
+					idagente AS id, 
+					shortname AS name, 
+					posicion AS status 
+				FROM 
+					`cunop_distribleads` 
+				WHERE 
+					idempresa = ? 
+					AND idoficina = ? 
+					AND fecha = ? 
+				ORDER BY 
+					id DESC;
+			";
 		
 			$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$idempresa,$idoficina,$fecha));
 		}
@@ -565,13 +779,51 @@ class Timeswitch_model extends CI_Model {
 	public function getAgentsDayOffDate($idempresa,$idoficina,$fecha)
 	{
 
-		$sql = "SELECT idagente as id,shortname as name,posicion as status FROM `cunop_agentscheduler` WHERE idempresa=? and idoficina = ? and fecha=? and posicion='XX' " .
-		"and idagente not in (select idagente from cunop_castigados cas where ? between cas.fechacastigo and cas.fechafin)  " .
-		"union SELECT idagente as id,shortname as name,posicion as status FROM `cunop_distribleads` WHERE idempresa=? and idoficina = ? and fecha=? and posicion='XX' " . 
-		"and idagente not in (select idagente from cunop_castigados cas where ? between cas.fechacastigo and cas.fechafin)  order by id desc";
+		$sql = "
+			SELECT 
+				idagente AS id,
+				shortname AS name,
+				posicion AS status
+			FROM 
+				cunop_agentscheduler
+			WHERE 
+				idempresa = ? 
+				AND idoficina = ? 
+				AND fecha = ? 
+				AND posicion = 'XX' 
+				AND idagente NOT IN (
+					SELECT 
+						idagente 
+					FROM 
+						cunop_castigados cas 
+					WHERE 
+						? BETWEEN cas.fechacastigo AND cas.fechafin
+				)
+			UNION 
+			SELECT 
+				idagente AS id,
+				shortname AS name,
+				posicion AS status
+			FROM 
+				cunop_distribleads
+			WHERE 
+				idempresa = ? 
+				AND idoficina = ? 
+				AND fecha = ? 
+				AND posicion = 'XX' 
+				AND idagente NOT IN (
+					SELECT 
+						idagente 
+					FROM 
+						cunop_castigados cas 
+					WHERE 
+						? BETWEEN cas.fechacastigo AND cas.fechafin
+				)
+			ORDER BY 
+				id DESC;
+		";
 		
 		$query = $this->db->query($sql,array($idempresa,$idoficina,$fecha,$fecha, $idempresa,$idoficina,$fecha,$fecha));
-		//echo $this->db->last_query();
 		if($query->num_rows() > 0)
 		{
 			return $query->result_array();
