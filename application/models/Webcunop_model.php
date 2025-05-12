@@ -405,19 +405,52 @@ class Webcunop_model extends CI_Model {
 	public function LoadLeadsFecha($idempresa, $idoficina, $qdate){
 
 
-		$sql = "SELECT distinct a.*, w.hours, ifnull(pa.shortname, '') as perfect 
-				FROM cunop_distribleads a 
-				INNER JOIN cunop_workday w ON a.workday = w.code 
-				INNER JOIN cunop_positions p ON p.code = TRIM(a.posicion) 
-				INNER JOIN cunop_cando c ON c.code = p.cando 
-				INNER JOIN cunop_agentes ag ON a.idagente = ag.idagente 
-				LEFT OUTER JOIN cunop_relcandoagents r ON ag.uniqueid = r.idagente AND r.idcando = c.code 
-				LEFT OUTER JOIN cunop_perfectattendance pa ON a.idagente = pa.idagente AND pa.month = ? AND pa.year = ? 
-				WHERE a.fecha = ? AND a.idempresa = ? AND a.idoficina = ? AND a.posicion != '' AND a.posicion != 'XX' AND a.posicion != 'VAC' 
-				ORDER BY p.starttime, c.orden, w.hours, a.posicion";
+		$sql = "
 
+		SELECT 
+			a.idagente,
+			a.shortname,
+			a.fecha,
+			a.posicion,
+			a.workday,
+			a.idempresa,
+			a.idoficina,
+			w.hours,
+			IFNULL(pa.shortname, '') AS perfect,
+			p.starttime,
+			c.orden
+		FROM 
+			cunop_distribleads a 
+		INNER JOIN 
+			cunop_workday w ON a.workday = w.code 
+		INNER JOIN 
+			cunop_positions p ON p.code = TRIM(a.posicion) 
+		INNER JOIN 
+			cunop_cando c ON c.code = p.cando 
+		INNER JOIN 
+			cunop_agentesactivos ag ON a.idagente = ag.idagente 
+		LEFT JOIN 
+			cunop_relcandoagents r ON ag.uniqueid = r.idagente AND r.idcando = c.code 
+		LEFT JOIN 
+			cunop_perfectattendance pa ON a.idagente = pa.idagente AND pa.month = ? AND pa.year = ? 
+		WHERE 
+			a.fecha = ? 
+			AND a.idempresa = ? 
+			AND a.idoficina = ? 
+			AND a.posicion != '' 
+			AND a.posicion != 'XX' 
+			AND a.posicion != 'VAC' 
+		ORDER BY p.starttime, c.orden, w.hours, a.posicion;
+		";
 
-		$query = $this->db->query($sql,array(date('m',strtotime($qdate)),date('Y',strtotime($qdate)),$qdate,$idempresa,$idoficina));
+		$query = $this->db->query($sql, [
+			date('m', strtotime($qdate)), 
+			date('Y', strtotime($qdate)), 
+			$qdate, 
+			$idempresa, 
+			$idoficina
+		]);
+
 		
 		if($query->num_rows() > 0)
 		{
@@ -483,7 +516,6 @@ class Webcunop_model extends CI_Model {
 					AND a.fecha = ? 
 					AND a.idempresa = ? 
 					AND a.idoficina = ? 
-					AND c.code NOT IN ('AL','L')
 					AND a.posicion <> 'XX' AND a.posicion <> 'VAC' AND a.workday = ?
 			ORDER BY
 				c.orden,
@@ -800,7 +832,7 @@ class Webcunop_model extends CI_Model {
 			];
 			
 			$query = $this->db->query($sql, $params);
-			return $query->result_array();
+					 $query->result_array();
 	}
 
 	public function ConsultarMonthlySchedule($idempresa,$idoficina,$idagente,$fechaini, $fechafin)
