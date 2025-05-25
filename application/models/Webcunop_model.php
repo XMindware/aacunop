@@ -618,7 +618,6 @@ class Webcunop_model extends CI_Model {
 		$this->db->where('idempresa', $empresa);
 		$this->db->where('idoficina', $oficina);
 		$this->db->where('fecha', $fecha);
-		$this->db->where('uniqueid', $uniqueid);
 		$this->db->where('idagente', $agenteid);
 
 		$query = $this->db->get('cunop_distribleads');
