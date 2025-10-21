@@ -629,7 +629,8 @@ class Timeswitch extends CI_Controller {
 		$tdata['perfil'] = $this->session->userdata('perfil');
 
 		$managers = $this->Agentes_model->GetStationManagers($idempresa, $idoficina);
-		$data['coordinador'] = in_array($this->session->userdata('idagente'), $managers) ? 'SI':'NO';
+		$manager_ids = array_column($managers, 'idagente');
+		$data['coordinador'] = in_array($this->session->userdata('idagente'), $manager_ids) ? 'SI':'NO';
 		
 		$request = $this->Timeswitch_model->ConsultarLeadCambioRequestById($idempresa,$idoficina,$requestid);	
 		if($request)
