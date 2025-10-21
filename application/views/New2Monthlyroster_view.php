@@ -143,6 +143,18 @@
             text-decoration: underline;
         }
 
+        .sticky-col {
+            position: sticky;
+            left: 0;
+            background-color: white;
+            z-index: 2;
+        }
+        
+        /* Ensure the first column is always above other content */
+        thead .sticky-col {
+            z-index: 3;
+        }
+
     </style>
     <script src="<? echo base_url(); ?>assets/js/custypeahead.js"></script>
     <script src="<? echo base_url(); ?>assets/js/typeahead.min.js"></script>
@@ -396,7 +408,7 @@
                     var parent_row = changed_cell.parent();
 
                     // add cells to row
-                    var tableRowContent = '<th scope="row" class="headcol">' + row.idagente + '  ' +row.shortname + '</td>';
+                    var tableRowContent = '<th scope="row" class="sticky-col">' + row.idagente + '  ' +row.shortname + '</td>';
                     tableRowContent += '<td id="ag_' + row.idagente + '" style="display:none;">' + row.idagente + '</td>';
                     tableRowContent += '<td style="display:none;">' + row.shortname + '</td>';
 
@@ -530,7 +542,7 @@
     function FillAgentMonth(row, table){
         
         // add cells to row
-        var tableRowContent = '<th scope="row" class="headcol">' + row.idagente + '  ' +row.shortname + '</td>';
+        var tableRowContent = '<td scope="row" class="sticky-col">' + row.idagente + '  ' +row.shortname + '</td>';
         tableRowContent += '<td id="ag_' + row.idagente + '" style="display:none;">' + row.idagente + '</td>';
         tableRowContent += '<td style="display:none;">' + row.shortname + '</td>';
 
@@ -747,7 +759,7 @@
                     var parent_row = changed_cell.parent();
 
                     // add cells to row
-                    var tableRowContent = '<th scope="row" class="headcol">' + row.idagente + '  ' +row.shortname + '</td>';
+                    var tableRowContent = '<th scope="row" class="sticky-col">' + row.idagente + '  ' +row.shortname + '</td>';
                     tableRowContent += '<td id="ag_' + row.idagente + '" style="display:none;">' + row.idagente + '</td>';
                     tableRowContent += '<td style="display:none;">' + row.shortname + '</td>';
 

@@ -86,7 +86,15 @@ class Agentes_model extends CI_Model {
 		}
 	}
 
-	
+	public function GetStationManagers($idempresa, $idoficina)
+	{
+		$this->db->where('idempresa', $idempresa);
+		$this->db->where('idoficina', $idoficina);
+		$this->db->where('puesto', 'MANAGER');
+		$query = $this->db->get('cunop_agentesactivos');
+		return $query->result_array();
+	}
+
 	public function IsAdmin($idempresa, $idoficina, $uniqueid)
 	{
 

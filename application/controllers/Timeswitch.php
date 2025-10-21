@@ -627,8 +627,10 @@ class Timeswitch extends CI_Controller {
 		$tdata['titulo'] = 'Time Shift Authorize Request';
 		$tdata['oficinas'] = $adminoficina;
 		$tdata['perfil'] = $this->session->userdata('perfil');
+
+		$managers = $this->Agentes_model->GetStationManagers($idempresa, $idoficina);
+		$data['coordinador'] = in_array($this->session->userdata('idagente'), $managers) ? 'SI':'NO';
 		
-		$data['coordinador'] = in_array($this->session->userdata('idagente'), self::STATION_MANAGERS) ? 'SI':'NO'; 
 		$request = $this->Timeswitch_model->ConsultarLeadCambioRequestById($idempresa,$idoficina,$requestid);	
 		if($request)
 		{
